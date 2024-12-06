@@ -22,7 +22,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>stock-manager.Server</mainClass>
+							<mainClass>Server</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
