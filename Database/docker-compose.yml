@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    container_name: bdr_postgresql_16
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_USER=kowag
+      - POSTGRES_PASSWORD=cjcex@&08GWzqRy6zMCqBR7E%ZYCFM5f
+      - POSTGRES_DB=stoman
+    ports:
+      - '5666:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
