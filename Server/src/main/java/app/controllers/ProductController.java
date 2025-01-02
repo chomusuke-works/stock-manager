@@ -3,14 +3,13 @@ package app.controllers;
 import app.types.Product;
 import io.javalin.http.Context;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ProductController extends CRUDController<Product> {
-	public ProductController(Connection connection) throws SQLException {
-		super(connection);
+	public ProductController(DBInfo dbInfo) {
+		super(dbInfo);
 	}
 
 	@Override

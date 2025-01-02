@@ -4,28 +4,25 @@ import app.types.DataType;
 import io.javalin.http.Context;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Objects;
+import java.util.function.Consumer;
 
-public abstract class CRUDController<T extends DataType> implements Closeable {
-	private final PreparedStatement
-		insert,
-		get,
-		delete;
+public abstract class CRUDController<T extends DataType> {
+	DBInfo dbInfo;
 
-	public CRUDController(Connection connection) throws SQLException {
-		final String
-			QUERY_INSERT,
-			QUERY_GET,
-			QUERY_DELETE;
+	private final String
+		QUERY_INSERT,
+		QUERY_GET,
+		QUERY_DELETE;
 
+	public CRUDController(DBInfo dbInfo) {
+		this.dbInfo = dbInfo;
+
+		// Load query templates
 		try {
 			var is = new BufferedReader(new InputStreamReader(
 				Objects.requireNonNull(CRUDController.class.getClassLoader().getResourceAsStream("queries/%s.sql".formatted(getDataType()))),
@@ -40,52 +37,37 @@ public abstract class CRUDController<T extends DataType> implements Closeable {
 		} catch (IOException e) {
 			throw new RuntimeException("Error reading query file for %s.\n".formatted(CRUDController.class.getSimpleName()));
 		}
-
-		insert = connection.prepareStatement(QUERY_INSERT);
-		get = connection.prepareStatement(QUERY_GET);
-		delete = connection.prepareStatement(QUERY_DELETE);
 	}
 
 	public void insert(Context ctx) {
-		try {
+		executeQuery(QUERY_INSERT, statement -> {
 			T object = extractObject(ctx);
-			prepareInsertQuery(insert, object);
-
-			insert.executeUpdate();
-			insert.clearParameters();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+			prepareInsertQuery(statement, object);
+		});
 	}
 
-	public T get(Context ctx) {
-		try {
-			int id = getId(ctx);
+	public void get(Context ctx) {
+		executeQuery(QUERY_GET,
+			statement -> {
+				int id = getId(ctx);
 
-			get.setInt(1, id);
-			ResultSet results = get.executeQuery();
-			results.next();
+				statement.setInt(1, id);
+			},
+			results -> {
+				results.next();
 
-			T object = getResult(results);
-			results.close();
-			get.clearParameters();
+				T object = getResult(results);
+				results.close();
 
-			return object;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+				ctx.result(object.toString());
+			});
 	}
 
 	public void delete(Context ctx) {
-		try {
+		executeQuery(QUERY_DELETE, statement -> {
 			int objectId = getId(ctx);
-			delete.setInt(1, objectId);
-
-			delete.executeUpdate();
-			delete.clearParameters();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+			statement.setInt(1, objectId);
+		});
 	}
 
 	/**
@@ -101,8 +83,7 @@ public abstract class CRUDController<T extends DataType> implements Closeable {
 	 * Prepares the PreparedStatement with the correct object data
 	 *
 	 * @param statement the statement to prepare
-	 * @param object the object from which to pull data
-	 *
+	 * @param object    the object from which to pull data
 	 * @throws SQLException if a database error occurs during the statement preparation
 	 */
 	protected abstract void prepareInsertQuery(PreparedStatement statement, T object) throws SQLException;
@@ -112,9 +93,7 @@ public abstract class CRUDController<T extends DataType> implements Closeable {
 	 * The ResultSet is supposed to have been primed using .next().
 	 *
 	 * @param resultSet the ResultSet from which to fetch the data. Typically contains only one row
-	 *
 	 * @return the object retrieved from the ResultSet
-	 *
 	 * @throws SQLException if a database error occurs when parsing the data
 	 */
 	protected abstract T getResult(ResultSet resultSet) throws SQLException;
@@ -129,13 +108,44 @@ public abstract class CRUDController<T extends DataType> implements Closeable {
 		}
 	}
 
-	public void close() {
-		try {
-			insert.close();
-			get.close();
-			delete.close();
+
+	private void executeQuery(String query, ThrowingConsumer<PreparedStatement> paramSetter) {
+		executeQuery(query, paramSetter, null);
+	}
+
+	private void executeQuery(
+		String query,
+		ThrowingConsumer<PreparedStatement> paramSetter,
+		ThrowingConsumer<ResultSet> resultConsumer
+	) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(query)
+		) {
+			paramSetter.accept(statement);
+
+			ResultSet results = statement.executeQuery();
+			if (resultConsumer != null) {
+				resultConsumer.accept(results);
+			}
+
+			results.close();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private interface ThrowingConsumer<T> extends Consumer<T> {
+
+		@Override
+		default void accept(T t) {
+			try {
+				applyThrows(t);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		void applyThrows(T t) throws Exception;
 	}
 }

@@ -1,32 +1,32 @@
-import java.sql.*;
+import app.controllers.DBInfo;
+import app.controllers.ProductController;
+import io.javalin.Javalin;
 
 public class Server {
-	private static final String HOST = "localhost";
-	private static final int PORT = 5666;
-	private static final String DATABASE = "bdr";
+	// Database credentials
+	private static final String DB_HOST = "localhost";
+	private static final int DB_PORT = 5666;
+	private static final String DB_NAME = "stoman";
+	private static final String USER = "kowag";
+	private static final String PASSWORD = "cjcex@&08GWzqRy6zMCqBR7E%ZYCFM5f";
 
-	private static final String USER = "postgres";
-	private static final String PASSWORD = "trustno1";
+	// Web app information
+	private static final int APP_PORT = 25565;
 
-	public static void main(String[] args) throws SQLException {
-		Connection conn = DriverManager.getConnection(
-			String.format("jdbc:postgresql://%s:%d/%s",
-				HOST,
-				PORT,
-				DATABASE),
-			USER,
-			PASSWORD
+	public static void main(String[] args) {
+
+		String dbURL = String.format("jdbc:postgresql://%s:%d/%s",
+				DB_HOST,
+				DB_PORT,
+				DB_NAME
 		);
+		DBInfo dbInfo = new DBInfo(dbURL, USER, PASSWORD);
 
-		PreparedStatement st = conn.prepareStatement("select * from personne");
-		ResultSet rs = st.executeQuery();
-		while (rs.next()) {
-			System.out.print("Column 1 returned ");
-			System.out.println(rs.getString(3));
-		}
+		ProductController productController = new ProductController(dbInfo);
+		Javalin app = Javalin
+			.create()
+			.get("/api/products/{code}", productController::get);
 
-		rs.close();
-		st.close();
-		conn.close();
+		app.start(APP_PORT);
 	}
 }
