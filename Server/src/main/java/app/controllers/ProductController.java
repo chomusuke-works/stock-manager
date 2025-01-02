@@ -22,7 +22,7 @@ public class ProductController extends CRUDController<Product> {
 		statement.setInt(1, product.code());
 		statement.setString(2, product.name());
 		statement.setDouble(3, product.price());
-		statement.setString(4, product.category());
+		statement.setInt(4, product.supplierId());
 	}
 
 	@Override
@@ -31,24 +31,35 @@ public class ProductController extends CRUDController<Product> {
 			resultSet.getInt(1),
 			resultSet.getString(2),
 			resultSet.getDouble(3),
-			resultSet.getString(4)
+			resultSet.getInt(4)
 		);
 	}
 
 	@Override
 	protected Product extractObject(Context ctx) {
+		String code = ctx.queryParam("code");
+		String name = ctx.queryParam("name");
+		String price = ctx.queryParam("price");
+		String supplierId = ctx.queryParam("supplierId");
+
+		if (code == null || name == null || price == null || supplierId == null)
+			throw new NullPointerException();
+
 		return new Product(
-			Integer.parseInt(ctx.pathParam("code")),
-			ctx.pathParam("name"),
-			Double.parseDouble(ctx.pathParam("price")),
-			ctx.pathParam("category")
+			Integer.parseInt(code),
+			name,
+			Double.parseDouble(price),
+			Integer.parseInt(supplierId)
 		);
 	}
 
 	@Override
 	protected int getId(Context ctx) {
+		String code = ctx.queryParam("code");
+		if (code == null) throw new NullPointerException();
+
 		try {
-			return Integer.parseInt(ctx.pathParam("code"));
+			return Integer.parseInt(code);
 		} catch (NumberFormatException e) {
 			throw new RuntimeException("Invalid product code");
 		}

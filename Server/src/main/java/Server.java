@@ -15,17 +15,23 @@ public class Server {
 
 	public static void main(String[] args) {
 
-		String dbURL = String.format("jdbc:postgresql://%s:%d/%s",
+		DBInfo dbInfo = new DBInfo(
+			String.format("jdbc:postgresql://%s:%d/%s",
 				DB_HOST,
 				DB_PORT,
 				DB_NAME
+			),
+			USER,
+			PASSWORD
 		);
-		DBInfo dbInfo = new DBInfo(dbURL, USER, PASSWORD);
 
 		ProductController productController = new ProductController(dbInfo);
-		Javalin app = Javalin
-			.create()
-			.get("/api/products/{code}", productController::get);
+		Javalin app = Javalin.create();
+
+		// Products
+		app.get("/api/products", productController::get)
+			.post("/api/products", productController::insert)
+			.delete("/api/products", productController::delete);
 
 		app.start(APP_PORT);
 	}

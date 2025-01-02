@@ -54,7 +54,13 @@ public abstract class CRUDController<T extends DataType> {
 				statement.setInt(1, id);
 			},
 			results -> {
-				results.next();
+				boolean wasElementFound = results.next();
+				if (!wasElementFound) {
+					ctx.status(404);
+
+					results.close();
+					return;
+				}
 
 				T object = getResult(results);
 				results.close();
@@ -102,7 +108,10 @@ public abstract class CRUDController<T extends DataType> {
 
 	protected int getId(Context ctx) {
 		try {
-			return Integer.parseInt(ctx.pathParam("id"));
+			String id = ctx.queryParam("id");
+			if (id == null) throw new NullPointerException();
+
+			return Integer.parseInt(id);
 		} catch (NumberFormatException e) {
 			throw new RuntimeException(e);
 		}
@@ -124,12 +133,14 @@ public abstract class CRUDController<T extends DataType> {
 		) {
 			paramSetter.accept(statement);
 
-			ResultSet results = statement.executeQuery();
-			if (resultConsumer != null) {
+			if (resultConsumer == null) {
+				statement.executeUpdate();
+			} else {
+				ResultSet results = statement.executeQuery();
 				resultConsumer.accept(results);
-			}
 
-			results.close();
+				results.close();
+			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
