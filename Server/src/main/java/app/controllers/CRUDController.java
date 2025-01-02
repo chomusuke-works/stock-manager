@@ -58,12 +58,10 @@ public abstract class CRUDController<T extends DataType> {
 				if (!wasElementFound) {
 					ctx.status(404);
 
-					results.close();
 					return;
 				}
 
 				T object = getResult(results);
-				results.close();
 
 				ctx.result(object.toString());
 			});
@@ -72,6 +70,7 @@ public abstract class CRUDController<T extends DataType> {
 	public void delete(Context ctx) {
 		executeQuery(QUERY_DELETE, statement -> {
 			int objectId = getId(ctx);
+
 			statement.setInt(1, objectId);
 		});
 	}
@@ -113,7 +112,9 @@ public abstract class CRUDController<T extends DataType> {
 
 			return Integer.parseInt(id);
 		} catch (NumberFormatException e) {
-			throw new RuntimeException(e);
+			ctx.status(400);
+
+			return -1;
 		}
 	}
 
