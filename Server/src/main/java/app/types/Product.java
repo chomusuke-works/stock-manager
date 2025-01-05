@@ -1,4 +1,10 @@
 package app.types;
 
-public record Product(long code, String name, double price, int supplierId) implements DataType {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record Product(
+	@JsonProperty("code") long code,
+	@JsonProperty("name") String name,
+	@JsonProperty("price") double price,
+	@JsonProperty("supplierId") int supplierId) implements DataType {
 }
