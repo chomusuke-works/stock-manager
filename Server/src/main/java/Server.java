@@ -1,4 +1,4 @@
-import app.controllers.DBInfo;
+import app.util.DBInfo;
 import app.controllers.ProductController;
 import io.javalin.Javalin;
 
@@ -29,7 +29,7 @@ public class Server {
 		Javalin app = Javalin.create();
 
 		// Products
-		app.get("/api/products", productController::get)
+		app.get("/api/products", productController::getOne)
 			.post("/api/products", productController::insert)
 			.delete("/api/products", productController::delete);
 
