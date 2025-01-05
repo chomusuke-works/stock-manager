@@ -28,7 +28,7 @@ public class ProductController extends Controller {
 		) {
 			Product product = context.bodyAsClass(Product.class);
 
-			statement.setInt(1, product.code());
+			statement.setLong(1, product.code());
 			statement.setString(2, product.name());
 			statement.setDouble(3, product.price());
 			statement.setInt(4, product.supplierId());
