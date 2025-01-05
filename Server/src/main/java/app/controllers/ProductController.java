@@ -85,7 +85,7 @@ public class ProductController extends Controller {
 
 	private Product getProduct(ResultSet resultSet) throws SQLException {
 		return new Product(
-			resultSet.getInt(1),
+			resultSet.getLong(1),
 			resultSet.getString(2),
 			resultSet.getDouble(3),
 			resultSet.getInt(4)
