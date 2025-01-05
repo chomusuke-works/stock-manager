@@ -12,7 +12,7 @@ CREATE TABLE fournisseur (
 );
 
 CREATE TABLE produit (
-	code INTEGER PRIMARY KEY,
+	code BIGINT PRIMARY KEY,
 	nom VARCHAR(64) NOT NULL,
 	prix DECIMAL NOT NULL,
 	idFournisseur INTEGER,
@@ -25,7 +25,7 @@ CREATE TABLE produit (
 
 CREATE TABLE vente (
 	dateVente DATE,
-	codeProduit INTEGER,
+	codeProduit BIGINT,
 	vendus INTEGER,
 	jetes INTEGER,
 
@@ -39,7 +39,7 @@ CREATE TABLE vente (
 
 CREATE TABLE lot (
 	dateReception DATE NOT NULL,
-	codeProduit INTEGER NOT NULL,
+	codeProduit BIGINT NOT NULL,
 	quantite INTEGER NOT NULL, 
 	dateExpiration DATE,
 
@@ -56,7 +56,7 @@ CREATE TABLE segmentAnnee (
 );
 
 CREATE TABLE produitSegmentAnnee (
-	codeProduit INTEGER,
+	codeProduit BIGINT,
 	idSegment INTEGER,
 	cible INTEGER,
 	seuil INTEGER,
@@ -74,7 +74,7 @@ CREATE TABLE produitSegmentAnnee (
 );
 
 CREATE TABLE produit_etagere (
-	codeProduit INTEGER,
+	codeProduit BIGINT,
 	idEtagere INTEGER,
 
 	CONSTRAINT pk_codeProduit_idEtagere
