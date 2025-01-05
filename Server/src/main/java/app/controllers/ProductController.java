@@ -37,6 +37,7 @@ public class ProductController extends Controller {
 			context.status(201);
 		} catch (SQLException e) {
 			context.status(500);
+			context.result("Database error");
 		}
 	}
 
