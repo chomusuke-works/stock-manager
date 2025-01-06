@@ -1,3 +1,4 @@
+import app.controllers.Salescontroller;
 import app.util.DBInfo;
 import app.controllers.ProductController;
 import io.javalin.Javalin;
@@ -25,7 +26,8 @@ public class Server {
 			PASSWORD
 		);
 
-		ProductController productController = new ProductController(dbInfo);
+		var productController = new ProductController(dbInfo);
+		var salesController = new Salescontroller(dbInfo);
 		Javalin app = Javalin.create();
 
 		// Products
@@ -33,6 +35,9 @@ public class Server {
 			.post("/api/products", productController::insert)
 			.delete("/api/products", productController::delete)
 			.get("/api/products/soonExpired", productController::getSoonExpired);
+
+		app.get("/api/products/sell", salesController::getOne)
+			.put("/api/products/sell", salesController::sell);
 
 		app.start(APP_PORT);
 	}
