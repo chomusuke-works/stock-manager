@@ -1,1 +1,1 @@
-SELECT code, nom, prix, idfournisseur, quantite FROM produit JOIN lot ON produit.code = lot.codeproduit WHERE lot.dateexpiration - current_date <= ?;
+SELECT code, nom, sum(quantite) FROM produit JOIN lot ON produit.code = lot.codeproduit WHERE lot.dateexpiration - current_date <= 7 GROUP BY code, nom
