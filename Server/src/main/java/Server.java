@@ -31,7 +31,8 @@ public class Server {
 		// Products
 		app.get("/api/products", productController::getOne)
 			.post("/api/products", productController::insert)
-			.delete("/api/products", productController::delete);
+			.delete("/api/products", productController::delete)
+			.get("/api/products/soonExpired", productController::getSoonExpired);
 
 		app.start(APP_PORT);
 	}
