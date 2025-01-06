@@ -93,7 +93,7 @@ public class Salescontroller extends Controller {
 			var connection = dbInfo.getConnection();
 			var saleExistsStatement = connection.prepareStatement(QUERY_SALE_EXISTS);
 			var updateStatement = connection.prepareStatement(QUERY_SELL_THROW);
-			var insertStatement = connection.prepareStatement(QUERY_INSERT);
+			var insertStatement = connection.prepareStatement(QUERY_INSERT)
 		) {
 			Sale sale = getSale(context);
 			java.sql.Date sqlDate = new java.sql.Date(sale.date().getTime());
