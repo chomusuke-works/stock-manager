@@ -1,5 +1,6 @@
 package app.controllers;
 
+import app.types.ExpiredProductQuantity;
 import app.util.ContextHelper;
 import app.util.DBInfo;
 import app.types.Product;
@@ -94,7 +95,7 @@ public class ProductController extends Controller {
 	}
 
 	public void getSoonExpired(Context context) {
-		List<Product.CountedProduct> soonExpired = new LinkedList<>();
+		List<ExpiredProductQuantity> soonExpired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -104,9 +105,9 @@ public class ProductController extends Controller {
 
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
-				Product product = getProduct(results);
+				ExpiredProductQuantity row = getExpiredProductQuantity(results);
 
-				soonExpired.add(product.count(results.getInt(5)));
+				soonExpired.add(row);
 			}
 			results.close();
 
@@ -126,6 +127,14 @@ public class ProductController extends Controller {
 			resultSet.getString(2),
 			resultSet.getDouble(3),
 			supplierId
+		);
+	}
+
+	private ExpiredProductQuantity getExpiredProductQuantity(ResultSet resultSet) throws SQLException {
+		return new ExpiredProductQuantity(
+			resultSet.getLong(1),
+			resultSet.getString(2),
+			resultSet.getInt(3)
 		);
 	}
 }
