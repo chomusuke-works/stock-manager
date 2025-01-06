@@ -19,6 +19,8 @@ public class ProductController extends Controller {
 	private static final int EXPIRY_THRESHOLD = 7;
 
 	public ProductController(DBInfo dbInfo) {
+		super();
+
 		this.dbInfo = dbInfo;
 
 		List<String> extraQueries = getExtraQueries();
