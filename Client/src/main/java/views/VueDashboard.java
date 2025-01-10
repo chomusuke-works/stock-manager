@@ -6,6 +6,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
+
 /**
  * Vue principale (tableau de bord) permettant :
  * - Un aperçu rapide des infos importantes (produits expirés, commandes en attente, etc.)
@@ -45,7 +47,13 @@ public class VueDashboard extends BorderPane {
         // -----------------------------
         // Idée : un HBox ou VBox contenant des boutons qui ouvrent les autres vues
         Button boutonProduitsExpires = new Button("Produits expirés");
-        boutonProduitsExpires.setOnAction(e -> Navigator.goToProduitsExpires());
+        boutonProduitsExpires.setOnAction(e -> {
+            try {
+                Navigator.goToProduitsExpires();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         Button boutonVentesDechets = new Button("Ventes & Déchets");
         boutonVentesDechets.setOnAction(e -> Navigator.goToVentesDechets());

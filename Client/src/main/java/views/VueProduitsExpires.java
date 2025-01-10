@@ -9,6 +9,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +27,7 @@ public class VueProduitsExpires extends BorderPane {
     // Table pour afficher les produits sur le point d'expirer
     private TableView<Produit> tableProduitsBientotExpires;
 
-    public VueProduitsExpires() {
+    public VueProduitsExpires() throws IOException {
         // Mise en page principale
         this.setPadding(new Insets(15));
 
@@ -89,11 +93,23 @@ public class VueProduitsExpires extends BorderPane {
      * Pour l'instant, elle simule les données en dur.
      * Vous pourrez remplacer l'intérieur de cette méthode par vos appels HTTP réels.
      */
-    private void chargerDonnees() {
+    private void chargerDonnees() throws IOException {
         // -------------------------------
         // ICI, vous ferez l'appel HTTP pour récupérer la liste des produits expirés
         // Exemple : List<Produit> produitsExpires = api.getProduitsExpires();
         // -------------------------------
+
+        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
+        URL urlExpireSoon = new URL("http://localhost:25565/api/products/soonExpired");
+        HttpURLConnection conExpireSoon = (HttpURLConnection) urlExpireSoon.openConnection();
+        //GET : Pour la lecture
+        //POST: Création d'un nouvel élément ou paramètres complexes
+        //PUT: Mise à jour d'une donnée
+        //Le mieux pour simplement afficher les produits expirés est GET
+        conExpireSoon.setRequestMethod("GET");
+        //https://www.baeldung.com/java-http-request
+
+
         List<Produit> produitsExpires = getFakeExpiredProducts();
 
         // -------------------------------

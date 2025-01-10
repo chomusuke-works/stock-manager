@@ -3,6 +3,8 @@ package views;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class Navigator {
 
     private static Stage mainStage;
@@ -28,7 +30,7 @@ public class Navigator {
     /**
      * Accès à la vue des produits expirés.
      */
-    public static void goToProduitsExpires() {
+    public static void goToProduitsExpires() throws IOException {
         VueProduitsExpires vue = new VueProduitsExpires();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
