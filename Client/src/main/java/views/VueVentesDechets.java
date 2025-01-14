@@ -6,6 +6,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,7 @@ public class VueVentesDechets extends BorderPane {
     private Button boutonVente;
     private Button boutonDechet;
 
-    public VueVentesDechets() {
+    public VueVentesDechets() throws IOException {
         // Padding autour de la vue
         this.setPadding(new Insets(15));
 
@@ -128,7 +131,18 @@ public class VueVentesDechets extends BorderPane {
      * Méthode pour charger une liste initiale de produits (fictive).
      * À remplacer par un appel HTTP pour récupérer les produits depuis l'API.
      */
-    private void chargerProduitsParDefaut() {
+    private void chargerProduitsParDefaut() throws IOException {
+        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
+        URL urlDechet = new URL("http://localhost:25565/api/???");
+        HttpURLConnection conDechet = (HttpURLConnection) urlDechet.openConnection();
+        //GET : Pour la lecture
+        //POST: Création d'un nouvel élément ou paramètres complexes
+        //PUT: Mise à jour d'une donnée
+        conDechet.setRequestMethod("GET");
+        //https://www.baeldung.com/java-http-request
+
+
+
         List<Produit> produits = new ArrayList<>();
         produits.add(new Produit("Yaourt nature", 50, LocalDate.now().plusDays(3)));
         produits.add(new Produit("Pomme", 100, LocalDate.now().plusDays(7)));

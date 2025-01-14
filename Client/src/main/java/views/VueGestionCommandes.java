@@ -9,7 +9,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +36,7 @@ public class VueGestionCommandes extends BorderPane {
     private TextField champPrixUnitaire;
     private Button boutonAjouterCommande;
 
-    public VueGestionCommandes() {
+    public VueGestionCommandes() throws IOException {
         // Mise en forme générale
         this.setPadding(new Insets(15));
 
@@ -132,7 +135,19 @@ public class VueGestionCommandes extends BorderPane {
      * Simulation de chargement initial des produits à commander.
      * À remplacer par un appel HTTP pour récupérer la liste des commandes en cours.
      */
-    private void chargerCommandesParDefaut() {
+    private void chargerCommandesParDefaut() throws IOException {
+        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
+        URL urlCommande = new URL("http://localhost:25565/api/???");
+        HttpURLConnection conCommande = (HttpURLConnection) urlCommande.openConnection();
+        //GET : Pour la lecture
+        //POST: Création d'un nouvel élément ou paramètres complexes
+        //PUT: Mise à jour d'une donnée
+        //Le mieux pour simplement afficher les commandes est GET (juste pour la lecture)
+        conCommande.setRequestMethod("GET");
+        //https://www.baeldung.com/java-http-request
+
+
+
         List<CommandeProduit> commandes = new ArrayList<>();
         commandes.add(new CommandeProduit("Lait entier", 50, new BigDecimal("0.85")));
         commandes.add(new CommandeProduit("Pâte à pizza", 30, new BigDecimal("1.20")));

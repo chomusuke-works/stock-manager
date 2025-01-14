@@ -41,7 +41,7 @@ public class Navigator {
     /**
      * Accès à la vue Ventes & Déchets.
      */
-    public static void goToVentesDechets() {
+    public static void goToVentesDechets() throws IOException {
         VueVentesDechets vue = new VueVentesDechets();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
@@ -52,7 +52,7 @@ public class Navigator {
     /**
      * Accès à la vue Localisation & Rayons.
      */
-    public static void goToLocalisationRayons() {
+    public static void goToLocalisationRayons() throws IOException {
         VueLocalisationRayons vue = new VueLocalisationRayons();
         Scene scene = new Scene(vue, 1000, 600);
         mainStage.setScene(scene);
@@ -63,7 +63,7 @@ public class Navigator {
     /**
      * Accès à la vue Gestion des commandes.
      */
-    public static void goToGestionCommandes() {
+    public static void goToGestionCommandes() throws IOException {
         VueGestionCommandes vue = new VueGestionCommandes();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
@@ -74,7 +74,7 @@ public class Navigator {
     /**
      * Accès à la vue Fournisseurs.
      */
-    public static void goToFournisseurs() {
+    public static void goToFournisseurs() throws IOException {
         VueFournisseurs vue = new VueFournisseurs();
         Scene scene = new Scene(vue, 1000, 600);
         mainStage.setScene(scene);

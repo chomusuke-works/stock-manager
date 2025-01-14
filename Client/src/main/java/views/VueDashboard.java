@@ -56,16 +56,40 @@ public class VueDashboard extends BorderPane {
         });
 
         Button boutonVentesDechets = new Button("Ventes & Déchets");
-        boutonVentesDechets.setOnAction(e -> Navigator.goToVentesDechets());
+        boutonVentesDechets.setOnAction(e -> {
+            try {
+                Navigator.goToVentesDechets();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         Button boutonLocalisationRayons = new Button("Localisation & Rayons");
-        boutonLocalisationRayons.setOnAction(e -> Navigator.goToLocalisationRayons());
+        boutonLocalisationRayons.setOnAction(e -> {
+            try {
+                Navigator.goToLocalisationRayons();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         Button boutonCommandes = new Button("Commandes");
-        boutonCommandes.setOnAction(e -> Navigator.goToGestionCommandes());
+        boutonCommandes.setOnAction(e -> {
+            try {
+                Navigator.goToGestionCommandes();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         Button boutonFournisseurs = new Button("Fournisseurs");
-        boutonFournisseurs.setOnAction(e -> Navigator.goToFournisseurs());
+        boutonFournisseurs.setOnAction(e -> {
+            try {
+                Navigator.goToFournisseurs();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         // Dans un vrai projet, chaque bouton pourrait appeler un contrôleur ou une méthode
         // pour changer la scène et afficher la vue correspondante. Exemple rapide :

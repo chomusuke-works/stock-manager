@@ -17,6 +17,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,7 @@ public class VueProduitsExpires extends BorderPane {
     private TableView<Produit> tableProduitsExpires;
     private TableView<Produit> tableProduitsBientotExpires;
 
-    public VueProduitsExpires() {
+    public VueProduitsExpires() throws IOException {
         // Marges autour de la vue
         this.setPadding(new Insets(15));
 
@@ -90,7 +94,18 @@ public class VueProduitsExpires extends BorderPane {
         chargerDonnees();
     }
 
-    private void chargerDonnees() {
+    private void chargerDonnees() throws IOException {
+
+        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
+        URL urlExpireSoon = new URL("http://localhost:25565/api/products/soonExpired");
+        HttpURLConnection conExpireSoon = (HttpURLConnection) urlExpireSoon.openConnection();
+        //GET : Pour la lecture
+        //POST: Création d'un nouvel élément ou paramètres complexes
+        //PUT: Mise à jour d'une donnée
+        //Le mieux pour simplement afficher les produits expirés est GET
+        conExpireSoon.setRequestMethod("GET");
+        //https://www.baeldung.com/java-http-request
+
         // Produits expirés
         List<Produit> produitsExpires = new ArrayList<>();
         produitsExpires.add(new Produit("Yaourt nature", LocalDate.now().minusDays(1)));

@@ -9,7 +9,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +39,7 @@ public class VueFournisseurs extends BorderPane {
     private TableView<ProduitFournisseur> tableProduits;
     private TableView<Commande> tableHistorique;
 
-    public VueFournisseurs() {
+    public VueFournisseurs() throws IOException {
         this.setPadding(new Insets(15));
 
         HBox topBar = new HBox();
@@ -144,7 +148,7 @@ public class VueFournisseurs extends BorderPane {
      * - Alimente la table des produits
      * - Alimente la table de l'historique de commandes
      */
-    private void afficherDetailsFournisseur(Fournisseur fournisseur) {
+    private void afficherDetailsFournisseur(Fournisseur fournisseur){
         labelNomFournisseur.setText("Nom : " + fournisseur.getNom());
         labelContact.setText("Contact : " + fournisseur.getContact());
         labelDelaiLivraison.setText("Délai de livraison : " + fournisseur.getDelaiLivraison() + " jours");
@@ -162,7 +166,20 @@ public class VueFournisseurs extends BorderPane {
      * Charge la liste des fournisseurs (en dur ici).
      * À remplacer par un appel HTTP pour récupérer la liste depuis l'API.
      */
-    private void chargerFournisseursParDefaut() {
+    private void chargerFournisseursParDefaut() throws IOException {
+        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
+        URL urlFournisseur = new URL("http://localhost:25565/api/???");
+        HttpURLConnection conFournisseur = (HttpURLConnection) urlFournisseur.openConnection();
+        //GET : Pour la lecture
+        //POST: Création d'un nouvel élément ou paramètres complexes
+        //PUT: Mise à jour d'une donnée
+        //Le mieux pour simplement afficher les fournisseurs est GET
+        conFournisseur.setRequestMethod("GET");
+        //https://www.baeldung.com/java-http-request
+
+
+
+
         List<Fournisseur> fournisseurs = new ArrayList<>();
 
         // SIMULATION 1
