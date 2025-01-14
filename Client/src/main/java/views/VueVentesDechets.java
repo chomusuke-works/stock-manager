@@ -1,6 +1,7 @@
 package views;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -30,6 +31,11 @@ public class VueVentesDechets extends BorderPane {
         // Padding autour de la vue
         this.setPadding(new Insets(15));
 
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
         // Titre
         Label titre = new Label("Ventes & Gestion de Déchets");
         titre.setFont(new Font("Arial", 24));
@@ -37,7 +43,11 @@ public class VueVentesDechets extends BorderPane {
         Button boutonRetour = new Button("Retour Dashboard");
         boutonRetour.setOnAction(e -> Navigator.goToDashboard());
 
-        this.setTop(titre);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topBar.getChildren().addAll(titre, spacer, boutonRetour);
+        this.setTop(topBar);
+
         BorderPane.setMargin(titre, new Insets(0, 0, 20, 0));
 
         // Création du champ de recherche
@@ -106,7 +116,7 @@ public class VueVentesDechets extends BorderPane {
 
         // Disposition verticale : Champ recherche, Table, Formulaire
         VBox vboxCenter = new VBox(10);
-        vboxCenter.getChildren().addAll(boutonRetour, champRecherche, tableProduits, hBoxForm);
+        vboxCenter.getChildren().addAll(champRecherche, tableProduits, hBoxForm);
 
         this.setCenter(vboxCenter);
 

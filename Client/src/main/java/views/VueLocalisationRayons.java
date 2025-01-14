@@ -3,6 +3,7 @@ package views;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -34,6 +35,10 @@ public class VueLocalisationRayons extends BorderPane {
         // Mise en page
         this.setPadding(new Insets(15));
 
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT);
         // -----------------------------
         // Titre principal
         // -----------------------------
@@ -43,7 +48,11 @@ public class VueLocalisationRayons extends BorderPane {
         Button boutonRetour = new Button("Retour Dashboard");
         boutonRetour.setOnAction(e -> Navigator.goToDashboard());
 
-        this.setTop(titre);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topBar.getChildren().addAll(titre, spacer, boutonRetour);
+        this.setTop(topBar);
+
         BorderPane.setMargin(titre, new Insets(0, 0, 10, 0));
 
         // -----------------------------
@@ -137,7 +146,7 @@ public class VueLocalisationRayons extends BorderPane {
         HBox hboxRenommerRayon = new HBox(5, champRenommerRayon, boutonRenommerRayon);
         VBox vboxActionsRayons = new VBox(10, hboxNouvelleRayon, hboxRenommerRayon, boutonSupprimerRayon);
 
-        vboxDroite.getChildren().addAll(labelRayons, listeRayons, vboxActionsRayons, boutonRetour);
+        vboxDroite.getChildren().addAll(labelRayons, listeRayons, vboxActionsRayons);
 
         // -----------------------------
         // Placement final

@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -37,6 +38,11 @@ public class VueFournisseurs extends BorderPane {
     public VueFournisseurs() {
         this.setPadding(new Insets(15));
 
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
         // Titre principal
         Label titre = new Label("Vue des fournisseurs");
         titre.setFont(new Font("Arial", 24));
@@ -44,7 +50,12 @@ public class VueFournisseurs extends BorderPane {
         Button boutonRetour = new Button("Retour Dashboard");
         boutonRetour.setOnAction(e -> Navigator.goToDashboard());
 
-        this.setTop(titre);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topBar.getChildren().addAll(titre, spacer, boutonRetour);
+        this.setTop(topBar);
+
+        //this.setTop(titre);
         BorderPane.setMargin(titre, new Insets(0, 0, 10, 0));
 
         // ---------------------------------------------------------
@@ -104,7 +115,6 @@ public class VueFournisseurs extends BorderPane {
 
         // On ajoute tout dans le vbox
         vboxDetails.getChildren().addAll(
-                boutonRetour,
                 labelNomFournisseur,
                 labelContact,
                 labelDelaiLivraison,

@@ -1,168 +1,135 @@
 package views;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.control.*;
-
 
 public class VueProduitsExpires extends BorderPane {
 
-    // Table pour afficher les produits expirés
     private TableView<Produit> tableProduitsExpires;
-
-    // Table pour afficher les produits sur le point d'expirer
     private TableView<Produit> tableProduitsBientotExpires;
 
-    public VueProduitsExpires() throws IOException {
-        // Mise en page principale
+    public VueProduitsExpires() {
+        // Marges autour de la vue
         this.setPadding(new Insets(15));
 
-        // Titre principal
+        // -----------------------------
+        // Barre du haut (title + spacer + bouton retour)
+        // -----------------------------
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT); // Aligne verticalement les éléments au centre, le label à gauche
+
         Label titre = new Label("Vue des produits expirés");
         titre.setFont(new Font("Arial", 24));
 
+        // Bouton retour en haut à droite
         Button boutonRetour = new Button("Retour Dashboard");
         boutonRetour.setOnAction(e -> Navigator.goToDashboard());
 
-        // Création des tableaux
+        // "Espacer" pour pousser le boutonRetour à droite
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        topBar.getChildren().addAll(titre, spacer, boutonRetour);
+        this.setTop(topBar);
+
+        // -----------------------------
+        // Création des deux tables
+        // -----------------------------
         tableProduitsExpires = new TableView<>();
         tableProduitsBientotExpires = new TableView<>();
 
-        // Configuration des colonnes pour la table des produits expirés
+        // Exemple minimal de colonnes
         TableColumn<Produit, String> colNomExpire = new TableColumn<>("Nom du produit");
-        colNomExpire.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        TableColumn<Produit, LocalDate> colDateExpire = new TableColumn<>("Date péremption");
 
-        TableColumn<Produit, LocalDate> colDateExpire = new TableColumn<>("Date de péremption");
-        colDateExpire.setCellValueFactory(new PropertyValueFactory<>("datePeremption"));
+        colNomExpire.setCellValueFactory(param -> param.getValue().nomProperty());
+        colDateExpire.setCellValueFactory(param -> param.getValue().datePeremptionProperty());
 
         tableProduitsExpires.getColumns().addAll(colNomExpire, colDateExpire);
-        tableProduitsExpires.setPrefHeight(200); // Hauteur préférée pour l'affichage
 
-        // Configuration des colonnes pour la table des produits bientôt expirés
-        TableColumn<Produit, String> colNomBientotExpire = new TableColumn<>("Nom du produit");
-        colNomBientotExpire.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        TableColumn<Produit, String> colNomBientot = new TableColumn<>("Nom du produit");
+        TableColumn<Produit, LocalDate> colDateBientot = new TableColumn<>("Date péremption");
 
-        TableColumn<Produit, LocalDate> colDateBientotExpire = new TableColumn<>("Date de péremption");
-        colDateBientotExpire.setCellValueFactory(new PropertyValueFactory<>("datePeremption"));
+        colNomBientot.setCellValueFactory(param -> param.getValue().nomProperty());
+        colDateBientot.setCellValueFactory(param -> param.getValue().datePeremptionProperty());
 
-        tableProduitsBientotExpires.getColumns().addAll(colNomBientotExpire, colDateBientotExpire);
-        tableProduitsBientotExpires.setPrefHeight(200);
+        tableProduitsBientotExpires.getColumns().addAll(colNomBientot, colDateBientot);
 
-        // Création des labels
         Label labelExpires = new Label("Produits expirés :");
-        labelExpires.setFont(new Font("Arial", 16));
+        Label labelBientotExpires = new Label("Produits bientôt expirés :");
 
-        Label labelBientotExpires = new Label("Produits sur le point d'expirer :");
-        labelBientotExpires.setFont(new Font("Arial", 16));
-
-        // Disposition verticale : label + table (expirés), puis label + table (bientôt expirés)
-        VBox vboxCenter = new VBox(10);
-        vboxCenter.getChildren().addAll(
-                boutonRetour,
+        VBox vboxTables = new VBox(10,
                 labelExpires,
                 tableProduitsExpires,
                 labelBientotExpires,
                 tableProduitsBientotExpires
         );
+        this.setCenter(vboxTables);
 
-        // On place le titre en haut et le contenu au centre
-        this.setTop(titre);
-        this.setCenter(vboxCenter);
-
-        // Appel à la méthode pour simuler la population des données
-        // Plus tard, vous remplacerez cette méthode par des appels HTTP réels à votre API.
+        // Simuler le chargement des données
         chargerDonnees();
     }
 
-    /**
-     * Méthode privée qui récupère la liste des produits expirés et des produits sur le point d'expirer.
-     * Pour l'instant, elle simule les données en dur.
-     * Vous pourrez remplacer l'intérieur de cette méthode par vos appels HTTP réels.
-     */
-    private void chargerDonnees() throws IOException {
-        // -------------------------------
-        // ICI, vous ferez l'appel HTTP pour récupérer la liste des produits expirés
-        // Exemple : List<Produit> produitsExpires = api.getProduitsExpires();
-        // -------------------------------
+    private void chargerDonnees() {
+        // Produits expirés
+        List<Produit> produitsExpires = new ArrayList<>();
+        produitsExpires.add(new Produit("Yaourt nature", LocalDate.now().minusDays(1)));
+        produitsExpires.add(new Produit("Fromage frais", LocalDate.now().minusDays(3)));
 
-        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
-        URL urlExpireSoon = new URL("http://localhost:25565/api/products/soonExpired");
-        HttpURLConnection conExpireSoon = (HttpURLConnection) urlExpireSoon.openConnection();
-        //GET : Pour la lecture
-        //POST: Création d'un nouvel élément ou paramètres complexes
-        //PUT: Mise à jour d'une donnée
-        //Le mieux pour simplement afficher les produits expirés est GET
-        conExpireSoon.setRequestMethod("GET");
-        //https://www.baeldung.com/java-http-request
+        // Produits bientôt expirés
+        List<Produit> produitsBientot = new ArrayList<>();
+        produitsBientot.add(new Produit("Jus d'orange", LocalDate.now().plusDays(2)));
 
-
-        List<Produit> produitsExpires = getFakeExpiredProducts();
-
-        // -------------------------------
-        // ICI, vous ferez l'appel HTTP pour récupérer la liste des produits sur le point d'expirer
-        // Exemple : List<Produit> produitsBientotExpires = api.getProduitsBientotExpires();
-        // -------------------------------
-        List<Produit> produitsBientotExpires = getFakeAboutToExpireProducts();
-
+        // On remplit les tables
         tableProduitsExpires.getItems().setAll(produitsExpires);
-        tableProduitsBientotExpires.getItems().setAll(produitsBientotExpires);
+        tableProduitsBientotExpires.getItems().setAll(produitsBientot);
     }
 
-    /**
-     * Méthode simulant des données de produits expirés.
-     * À remplacer par un appel HTTP vers votre API.
-     */
-    private List<Produit> getFakeExpiredProducts() {
-        List<Produit> produits = new ArrayList<>();
-        produits.add(new Produit("Yaourt nature", LocalDate.now().minusDays(1)));
-        produits.add(new Produit("Fromage frais", LocalDate.now().minusDays(3)));
-        produits.add(new Produit("Lait demi-écrémé", LocalDate.now().minusDays(2)));
-        return produits;
-    }
+    // -----------------------------
+    // Classe interne pour la démo
+    // -----------------------------
 
-    /**
-     * Méthode simulant des données de produits sur le point d'expirer.
-     * À remplacer par un appel HTTP vers votre API.
-     */
-    private List<Produit> getFakeAboutToExpireProducts() {
-        List<Produit> produits = new ArrayList<>();
-        produits.add(new Produit("Jus d'orange", LocalDate.now().plusDays(1)));
-        produits.add(new Produit("Salade verte", LocalDate.now().plusDays(2)));
-        return produits;
-    }
 
-    /**
-     * Classe interne représentative d'un produit.
-     * Vous pouvez la déplacer dans un fichier séparé au besoin.
-     */
     public static class Produit {
-        private String nom;
-        private LocalDate datePeremption;
+        private final StringProperty nom;
+        private final ObjectProperty<LocalDate> datePeremption;
 
         public Produit(String nom, LocalDate datePeremption) {
-            this.nom = nom;
-            this.datePeremption = datePeremption;
+            this.nom = new SimpleStringProperty(nom);
+            this.datePeremption = new SimpleObjectProperty<>(datePeremption);
         }
 
         public String getNom() {
+            return nom.get();
+        }
+        public StringProperty nomProperty() {
             return nom;
         }
 
         public LocalDate getDatePeremption() {
+            return datePeremption.get();
+        }
+        public ObjectProperty<LocalDate> datePeremptionProperty() {
             return datePeremption;
         }
     }

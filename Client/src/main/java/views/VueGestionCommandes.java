@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
@@ -36,6 +37,11 @@ public class VueGestionCommandes extends BorderPane {
         // Mise en forme générale
         this.setPadding(new Insets(15));
 
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
         // Titre
         Label titre = new Label("Gestion des commandes");
         titre.setFont(new Font("Arial", 24));
@@ -43,7 +49,11 @@ public class VueGestionCommandes extends BorderPane {
         Button boutonRetour = new Button("Retour Dashboard");
         boutonRetour.setOnAction(e -> Navigator.goToDashboard());
 
-        this.setTop(titre);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topBar.getChildren().addAll(titre, spacer, boutonRetour);
+        this.setTop(topBar);
+
         BorderPane.setMargin(titre, new Insets(0, 0, 10, 0));
 
         // Section haute : automatisation
@@ -110,7 +120,7 @@ public class VueGestionCommandes extends BorderPane {
         hBoxForm.setPadding(new Insets(10, 0, 0, 0));
 
         // Mise en page verticale
-        VBox vboxCenter = new VBox(10, boutonRetour, checkBoxAutomatisation, tableCommandes, hBoxForm);
+        VBox vboxCenter = new VBox(10, checkBoxAutomatisation, tableCommandes, hBoxForm);
 
         this.setCenter(vboxCenter);
 
