@@ -6,7 +6,7 @@ public class ContextHelper {
 	private ContextHelper() {
 	}
 
-	public static long getLongPathParam(Context context, String key) throws NullPointerException, NumberFormatException {
+	public static long getLongPathParam(Context context, String key) throws NumberFormatException {
 		String value = context.pathParam(key);
 
 		return Long.parseLong(value);
