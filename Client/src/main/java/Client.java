@@ -1,23 +1,55 @@
+//import javafx.application.Application;
+//import javafx.scene.Scene;
+//import javafx.stage.Stage;
+//import views.*;
+//
+//public class Client extends Application {
+//
+//	@Override
+//	public void start(Stage stage) {
+//		// Instanciation des nouvelles vues
+//		VueLocalisationRayons vueLocalisationRayons = new VueLocalisationRayons();
+//		VueProduitsExpires vueProduitsExpires = new VueProduitsExpires();
+//		VueVentesDechets vueVentesDechets = new VueVentesDechets();
+//		VueGestionCommandes vueGestionCommandes = new VueGestionCommandes();
+//		VueFournisseurs vueFournisseurs = new VueFournisseurs();
+//		VueDashboard vueDashboard = new VueDashboard();
+//
+//		// Création des scènes
+//		Scene scene1 = new Scene(vueLocalisationRayons, 1000, 600);
+//		Scene scene2 = new Scene(vueProduitsExpires, 1000, 600);
+//		Scene scene3 = new Scene(vueVentesDechets, 1000, 600);
+//		Scene scene4 = new Scene(vueGestionCommandes, 1000, 600);
+//		Scene scene5 = new Scene(vueFournisseurs, 1000, 600);
+//		Scene scene6 = new Scene(vueDashboard, 1000, 600);
+//
+//		stage.setTitle("Application");
+//		stage.setScene(scene6); //TODO Changer la scène ici
+//		stage.show();
+//	}
+//
+//	public static void main(String[] args) {
+//		launch();
+//	}
+//}
+
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import views.Navigator;
 
 public class Client extends Application {
 
 	@Override
 	public void start(Stage stage) {
-		String javaVersion = System.getProperty("java.version");
-		String javafxVersion = System.getProperty("javafx.version");
-		Label l = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-		Scene scene = new Scene(new StackPane(l), 640, 480);
-		stage.setScene(scene);
-		stage.show();
+		// On enregistre le stage principal dans le Navigator
+		Navigator.setStage(stage);
+
+		// Par défaut, on va directement sur la vue Dashboard
+		Navigator.goToDashboard();
 	}
 
 	public static void main(String[] args) {
 		launch();
 	}
-
 }
+
