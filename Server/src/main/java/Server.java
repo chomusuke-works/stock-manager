@@ -32,7 +32,7 @@ public class Server {
 
 		// Products
 		app.get("/api/products/{code}", productController::getOne)
-			.post("/api/products/{code}", productController::insert)
+			.post("/api/products", productController::insert)
 			.delete("/api/products/{code}", productController::delete)
 			.get("/api/products/soonExpired", productController::getSoonExpired);
 
