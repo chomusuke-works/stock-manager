@@ -31,10 +31,10 @@ public class Server {
 		Javalin app = Javalin.create();
 
 		// Products
-		app.get("/api/products/{code}", productController::getOne)
+		app.get("/api/products/soonExpired", productController::getSoonExpired)
+			.get("/api/products/{code}", productController::getOne)
 			.post("/api/products", productController::insert)
-			.delete("/api/products/{code}", productController::delete)
-			.get("/api/products/soonExpired", productController::getSoonExpired);
+			.delete("/api/products/{code}", productController::delete);
 
 		app.get("/api/products/sell/{date}_{code}", salesController::getOne)
 			.put("/api/products/sell/{date}_{code}", salesController::sell);
