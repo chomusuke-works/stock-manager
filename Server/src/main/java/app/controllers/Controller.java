@@ -13,6 +13,7 @@ import java.util.Objects;
 public abstract class Controller {
 	protected final String
 		QUERY_INSERT,
+		QUERY_GETALL,
 		QUERY_GET,
 		QUERY_DELETE;
 
@@ -25,7 +26,8 @@ public abstract class Controller {
 			));
 
 			QUERY_INSERT = is.readLine();
-			QUERY_GET = is.readLine();
+			QUERY_GETALL = is.readLine();
+			QUERY_GET    = is.readLine();
 			QUERY_DELETE = is.readLine();
 
 			is.close();

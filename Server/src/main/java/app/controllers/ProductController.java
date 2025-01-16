@@ -5,6 +5,7 @@ import app.util.ContextHelper;
 import app.util.DBInfo;
 import app.types.Product;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -71,6 +72,27 @@ public class ProductController extends Controller {
 
 			context.status(200);
 			context.json(getProduct(results));
+
+			results.close();
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error");
+		}
+	}
+
+	public void getAll(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GETALL)
+		) {
+			List<Product> products = new LinkedList<>();
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				products.add(getProduct(results));
+			}
+
+			context.status(HttpStatus.OK);
+			context.json(products);
 
 			results.close();
 		} catch (SQLException e) {
