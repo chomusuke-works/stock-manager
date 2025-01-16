@@ -40,9 +40,7 @@ public class Salescontroller extends Controller {
 		int thrown;
 
 		try {
-			String dateString = context.queryParam("date");
-			if (dateString == null) throw new IllegalArgumentException("date is null");
-			date = Date.valueOf(dateString);
+			date = Date.valueOf(context.pathParam("date"));
 		} catch (IllegalArgumentException e) {
 			context.result("Wrong date format. Correct format: yyyy-[M]M-[d]d");
 			context.status(HttpStatus.BAD_REQUEST);
@@ -50,7 +48,7 @@ public class Salescontroller extends Controller {
 			return;
 		}
 
-		code = ContextHelper.getLongQueryParam(context, "code");
+		code = ContextHelper.getLongPathParam(context, "code");
 
 		Sale sale;
 		try (
@@ -139,11 +137,8 @@ public class Salescontroller extends Controller {
 		int sold;
 		int thrown;
 
-		String paramString = context.queryParam("date");
-		if (paramString == null) throw new NullPointerException("date is null");
-
-		date = Date.valueOf(paramString);
-		code = ContextHelper.getLongQueryParam(context, "code");
+		date = Date.valueOf(context.pathParam("date"));
+		code = ContextHelper.getLongPathParam(context, "code");
 
 		try {
 			sold = ContextHelper.getIntQueryParam(context, "sold");

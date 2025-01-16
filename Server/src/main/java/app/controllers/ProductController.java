@@ -59,7 +59,7 @@ public class ProductController extends Controller {
 			var connection = dbInfo.getConnection();
 			var statement = connection.prepareStatement(QUERY_GET)
 		) {
-			long code = ContextHelper.getLongQueryParam(context, "code");
+			long code = ContextHelper.getLongPathParam(context, "code");
 			statement.setLong(1, code);
 
 			ResultSet results = statement.executeQuery();
@@ -85,7 +85,7 @@ public class ProductController extends Controller {
 			var connection = dbInfo.getConnection();
 			var statement = connection.prepareStatement(QUERY_DELETE)
 		) {
-			long code = ContextHelper.getLongQueryParam(context, "code");
+			long code = ContextHelper.getLongPathParam(context, "code");
 			statement.setLong(1, code);
 			statement.executeUpdate();
 

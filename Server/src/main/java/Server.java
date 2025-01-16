@@ -31,13 +31,17 @@ public class Server {
 		Javalin app = Javalin.create();
 
 		// Products
-		app.get("/api/products", productController::getOne)
-			.post("/api/products", productController::insert)
-			.delete("/api/products", productController::delete)
+		app.get("/api/products/{code}", productController::getOne)
+			.post("/api/products/{code}", productController::insert)
+			.delete("/api/products/{code}", productController::delete)
 			.get("/api/products/soonExpired", productController::getSoonExpired);
 
-		app.get("/api/products/sell", salesController::getOne)
-			.put("/api/products/sell", salesController::sell);
+		app.get("/api/products/sell/{date}_{code}", salesController::getOne)
+			.put("/api/products/sell/{date}_{code}", salesController::sell);
+
+		//app.get("/api/products/orderList", null);
+
+
 
 		app.start(APP_PORT);
 	}
