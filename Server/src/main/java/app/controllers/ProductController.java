@@ -96,6 +96,7 @@ public class ProductController extends Controller {
 		}
 	}
 
+	// TODO: add date
 	public void getSoonExpired(Context context) {
 		List<productQuantity> soonExpired = new LinkedList<>();
 
