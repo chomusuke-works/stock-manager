@@ -1,4 +1,4 @@
-package app.types;
+package stockmanager.types;
 
 public class productDateQuantity {
 	public String name;

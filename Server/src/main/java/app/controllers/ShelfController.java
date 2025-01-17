@@ -1,7 +1,7 @@
 package app.controllers;
 
-import app.types.ProductShelfQuantity;
-import app.types.Shelf;
+import stockmanager.types.ProductShelfQuantity;
+import stockmanager.types.Shelf;
 import app.util.ContextHelper;
 import app.util.DBInfo;
 import io.javalin.http.Context;

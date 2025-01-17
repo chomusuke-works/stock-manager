@@ -1,6 +1,6 @@
 package app.controllers;
 
-import app.types.Sale;
+import stockmanager.types.Sale;
 import app.util.ContextHelper;
 import app.util.DBInfo;
 import io.javalin.http.Context;

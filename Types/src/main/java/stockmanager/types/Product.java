@@ -1,4 +1,4 @@
-package app.types;
+package stockmanager.types;
 
 public class Product {
 	public long code;
