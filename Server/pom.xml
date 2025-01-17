@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>stock-manager</groupId>
+		<groupId>ch.stockmanager</groupId>
 		<artifactId>stockmanager</artifactId>
 		<version>1.0</version>
 	</parent>
 
-	<artifactId>stockmanager.server</artifactId>
+	<artifactId>stockmanager-server</artifactId>
 
 	<build>
 		<plugins>
@@ -20,7 +20,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>stockmanager.server.Server</mainClass>
+							<mainClass>ch.stockmanager.server.Server</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -58,8 +58,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>stock-manager</groupId>
-			<artifactId>types</artifactId>
+			<groupId>ch.stockmanager</groupId>
+			<artifactId>stockmanager-types</artifactId>
 			<version>1.0</version>
 		</dependency>
 	</dependencies>
