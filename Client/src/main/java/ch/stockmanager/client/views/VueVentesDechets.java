@@ -1,11 +1,13 @@
 package ch.stockmanager.client.views;
 
-import ch.stockmanager.types.Product;
+import ch.stockmanager.types.Sale;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import ch.stockmanager.client.util.RequestHelper;
@@ -23,15 +25,12 @@ import java.util.List;
  */
 public class VueVentesDechets extends BorderPane {
 
-    private final TextField champRecherche;
-    private final TableView<Product> tableProduits;
+    private final TableView<Sale> salesTable;
     private final TextField champQuantite;
-    private final Button boutonVente;
-    private final Button boutonDechet;
 
-    private List<Product> produits;
+    private final ObservableList<Sale> sales = FXCollections.observableArrayList();
 
-    public VueVentesDechets() throws IOException, URISyntaxException {
+	public VueVentesDechets() throws IOException, URISyntaxException {
         // Padding autour de la vue
         this.setPadding(new Insets(15));
 
@@ -55,7 +54,7 @@ public class VueVentesDechets extends BorderPane {
         BorderPane.setMargin(titre, new Insets(0, 0, 20, 0));
 
         // Création du champ de recherche
-        champRecherche = new TextField();
+        var champRecherche = new TextField();
         champRecherche.setPromptText("Rechercher un produit...");
         champRecherche.setPrefWidth(200);
         champRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -65,61 +64,30 @@ public class VueVentesDechets extends BorderPane {
         });
 
         // Table des produits
-        tableProduits = new TableView<>();
-        TableColumn<Product, String> colNom = new TableColumn<>("Nom du produit");
-        colNom.setCellValueFactory(param ->
-            new ReadOnlyObjectWrapper<>(param.getValue().name)
-        );
+        salesTable = new TableView<>();
 
+        TableColumn<Sale, String> columnDate = new TableColumn<>("Date de péremption");
+        TableColumn<Sale, Long> columnCode = new TableColumn<>("produit");
+        TableColumn<Sale, Integer> columnSold = new TableColumn<>("Vendus");
+        TableColumn<Sale, Integer> columnThrown = new TableColumn<>("Jetés");
 
-        TableColumn<Product, Integer> colStock = new TableColumn<>("Stock");
-//        colStock.setCellValueFactory(param -> //TODO
-//                new ReadOnlyObjectWrapper<>(param.getValue().stock)
-//        );
+        columnCode.setCellValueFactory(new PropertyValueFactory<>("code"));
+        columnDate.setCellValueFactory(new PropertyValueFactory<>("date"));
+        columnSold.setCellValueFactory(new PropertyValueFactory<>("sold"));
+        columnThrown.setCellValueFactory(new PropertyValueFactory<>("thrown"));
 
-        TableColumn<Product, String> colPeremption = new TableColumn<>("Date de péremption");
-//        colPeremption.setCellValueFactory(param -> //TODO
-//                new ReadOnlyObjectWrapper<>(param.getValue().date)
-//        );
+        salesTable.getColumns().add(columnDate);
+        salesTable.getColumns().add(columnCode);
+        salesTable.getColumns().add(columnSold);
+        salesTable.getColumns().add(columnThrown);
+        salesTable.setPrefHeight(300);
 
-        tableProduits.getColumns().addAll(colNom, colStock, colPeremption);
-        tableProduits.setPrefHeight(300);
-
-        // Partie formulaire : saisir quantité, puis boutons Vente ou Déchet
         champQuantite = new TextField();
         champQuantite.setPromptText("Quantité");
 
-        boutonVente = new Button("Enregistrer la vente");
-        boutonVente.setOnAction(event -> {
-            // Ici, vous ferez l'appel HTTP pour soustraire la quantité vendue du stock
-            Product produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
-            if (produitSelectionne != null) {
-                try {
-                    int quantiteV = Integer.parseInt(champQuantite.getText());
-                    // Appel HTTP pour valider la vente
-                    // ex: api.vendreProduit(produitSelectionne.getId(), quantiteV);
-                    System.out.println("Vente de " + quantiteV + " unités de " + produitSelectionne.name);
-                } catch (NumberFormatException e) {
-                    System.err.println("Quantité invalide.");
-                }
-            }
-        });
+        Button boutonVente = getButton("Enregistrer la vente");
 
-        boutonDechet = new Button("Signaler en déchet");
-        boutonDechet.setOnAction(event -> {
-            // Ici, vous ferez l'appel HTTP pour signaler la perte de cette quantité en tant que déchet
-            Product produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
-            if (produitSelectionne != null) {
-                try {
-                    int quantiteD = Integer.parseInt(champQuantite.getText());
-                    // Appel HTTP pour signaler que cette quantité est jetée
-                    // ex: api.jeterProduit(produitSelectionne.getId(), quantiteD);
-                    System.out.println("Jeter " + quantiteD + " unités de " + produitSelectionne.name);
-                } catch (NumberFormatException e) {
-                    System.err.println("Quantité invalide.");
-                }
-            }
-        });
+        Button boutonDechet = getButton("Signaler en déchet");
 
         HBox hBoxForm = new HBox(10);
         hBoxForm.getChildren().addAll(new Label("Quantité :"), champQuantite, boutonVente, boutonDechet);
@@ -127,12 +95,28 @@ public class VueVentesDechets extends BorderPane {
 
         // Disposition verticale : Champ recherche, Table, Formulaire
         VBox vboxCenter = new VBox(10);
-        vboxCenter.getChildren().addAll(champRecherche, tableProduits, hBoxForm);
+        vboxCenter.getChildren().addAll(champRecherche, salesTable, hBoxForm);
 
         this.setCenter(vboxCenter);
 
         // Chargement initial des produits (simulé ici en dur)
         chargerProduitsParDefaut();
+    }
+
+    private Button getButton(String buttonText) {
+        Button boutonVente = new Button(buttonText);
+        boutonVente.setOnAction(event -> {
+            Sale selectedSale = salesTable.getSelectionModel().getSelectedItem();
+            if (selectedSale != null) {
+                try {
+                    Integer.parseInt(champQuantite.getText());
+                    // TODO: API call
+                } catch (NumberFormatException e) {
+                    System.err.println("Quantité invalide.");
+                }
+            }
+        });
+        return boutonVente;
     }
 
     /**
@@ -142,31 +126,30 @@ public class VueVentesDechets extends BorderPane {
     private void chargerProduitsParDefaut() throws IOException, URISyntaxException {
         //Exemple de connection à la bd pour récupérer les produits bientôt expirés
         HttpURLConnection connexion = RequestHelper.createConnexion(
-                "http://localhost:25565/api/products/all",
+                "http://localhost:25565/api/sales/all",
                 "GET");
         RequestHelper.sendRequest(connexion, HttpURLConnection.HTTP_OK);
         String answer = RequestHelper.getAnswer(connexion);
         var objectMapper = new ObjectMapper();
-        produits = objectMapper.readValue(answer, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Product.class));
-        tableProduits.getItems().setAll(produits);
+        List<Sale> deserializedSales = objectMapper.readValue(answer, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Sale.class));
+        sales.setAll(deserializedSales);
+        salesTable.setItems(sales);
     }
 
     /**
-     * Méthode pour filtrer les produits affichés dans le tableau,
-     * selon la chaîne de recherche passée en paramètre.
+     * Performs a search through all the sales.
+     *
+     * @param searchTerm the term to search for
      */
     private void filtrerProduits(String searchTerm) {
-        // Ici, on pourrait refaire un appel HTTP pour obtenir la liste filtrée.
-        // En attendant, on simule simplement un filtrage local sur la liste affichée.
-        List<Product> productAmountActuels = new ArrayList<>(tableProduits.getItems());
-        List<Product> resultats = new ArrayList<>();
+        if (searchTerm == null || searchTerm.isEmpty()) {
+            salesTable.setItems(sales);
+        } else {
+			ObservableList<Sale> filteredSales = FXCollections.observableArrayList(sales.stream()
+				.filter(s -> String.valueOf(s.getCode()).contains(searchTerm))
+				.toList());
 
-        for (Product p : productAmountActuels) {
-            if (p.name.toLowerCase().contains(searchTerm.toLowerCase())) {
-                resultats.add(p);
-            }
+            salesTable.setItems(filteredSales);
         }
-
-        tableProduits.getItems().setAll(resultats);
     }
 }
