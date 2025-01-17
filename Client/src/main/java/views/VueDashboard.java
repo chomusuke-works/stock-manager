@@ -7,6 +7,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Vue principale (tableau de bord) permettant :
@@ -50,7 +51,7 @@ public class VueDashboard extends BorderPane {
         boutonProduitsExpires.setOnAction(e -> {
             try {
                 Navigator.goToProduitsExpires();
-            } catch (IOException ex) {
+            } catch (IOException | URISyntaxException ex) {
                 throw new RuntimeException(ex);
             }
         });
@@ -59,7 +60,7 @@ public class VueDashboard extends BorderPane {
         boutonVentesDechets.setOnAction(e -> {
             try {
                 Navigator.goToVentesDechets();
-            } catch (IOException ex) {
+            } catch (IOException | URISyntaxException ex) {
                 throw new RuntimeException(ex);
             }
         });

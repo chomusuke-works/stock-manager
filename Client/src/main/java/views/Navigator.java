@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class Navigator {
 
@@ -30,7 +31,7 @@ public class Navigator {
     /**
      * Accès à la vue des produits expirés.
      */
-    public static void goToProduitsExpires() throws IOException {
+    public static void goToProduitsExpires() throws IOException, URISyntaxException {
         VueProduitsExpires vue = new VueProduitsExpires();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
@@ -41,7 +42,7 @@ public class Navigator {
     /**
      * Accès à la vue Ventes & Déchets.
      */
-    public static void goToVentesDechets() throws IOException {
+    public static void goToVentesDechets() throws IOException, URISyntaxException {
         VueVentesDechets vue = new VueVentesDechets();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);

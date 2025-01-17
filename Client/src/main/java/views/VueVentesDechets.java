@@ -1,15 +1,18 @@
 package views;
 
+import types.Product;
+import com.fasterxml.jackson.core.type.TypeReference;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import util.RequestHelper;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.time.LocalDate;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,14 +26,16 @@ public class VueVentesDechets extends BorderPane {
     // Champ de recherche
     private TextField champRecherche;
     // Table pour afficher la liste des produits
-    private TableView<Produit> tableProduits;
+    private TableView<Product> tableProduits;
     // Zone de saisie de quantité
     private TextField champQuantite;
     // Boutons d'action
     private Button boutonVente;
     private Button boutonDechet;
 
-    public VueVentesDechets() throws IOException {
+    private List<Product> produits;
+
+    public VueVentesDechets() throws IOException, URISyntaxException {
         // Padding autour de la vue
         this.setPadding(new Insets(15));
 
@@ -65,14 +70,21 @@ public class VueVentesDechets extends BorderPane {
 
         // Table des produits
         tableProduits = new TableView<>();
-        TableColumn<Produit, String> colNom = new TableColumn<>("Nom du produit");
-        colNom.setCellValueFactory(param -> param.getValue().nomProperty());
+        TableColumn<Product, String> colNom = new TableColumn<>("Nom du produit");
+        colNom.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().name)
+        );
 
-        TableColumn<Produit, Integer> colStock = new TableColumn<>("Stock");
-        colStock.setCellValueFactory(param -> param.getValue().stockProperty().asObject());
 
-        TableColumn<Produit, LocalDate> colPeremption = new TableColumn<>("Date de péremption");
-        colPeremption.setCellValueFactory(param -> param.getValue().datePeremptionProperty());
+        TableColumn<Product, Integer> colStock = new TableColumn<>("Stock");
+        colStock.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().stock)
+        );
+
+        TableColumn<Product, String> colPeremption = new TableColumn<>("Date de péremption");
+        colPeremption.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().date)
+        );
 
         tableProduits.getColumns().addAll(colNom, colStock, colPeremption);
         tableProduits.setPrefHeight(300);
@@ -84,13 +96,13 @@ public class VueVentesDechets extends BorderPane {
         boutonVente = new Button("Enregistrer la vente");
         boutonVente.setOnAction(event -> {
             // Ici, vous ferez l'appel HTTP pour soustraire la quantité vendue du stock
-            Produit produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
+            Product produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
             if (produitSelectionne != null) {
                 try {
                     int quantiteV = Integer.parseInt(champQuantite.getText());
                     // Appel HTTP pour valider la vente
                     // ex: api.vendreProduit(produitSelectionne.getId(), quantiteV);
-                    System.out.println("Vente de " + quantiteV + " unités de " + produitSelectionne.getNom());
+                    System.out.println("Vente de " + quantiteV + " unités de " + produitSelectionne.name);
                 } catch (NumberFormatException e) {
                     System.err.println("Quantité invalide.");
                 }
@@ -100,13 +112,13 @@ public class VueVentesDechets extends BorderPane {
         boutonDechet = new Button("Signaler en déchet");
         boutonDechet.setOnAction(event -> {
             // Ici, vous ferez l'appel HTTP pour signaler la perte de cette quantité en tant que déchet
-            Produit produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
+            Product produitSelectionne = tableProduits.getSelectionModel().getSelectedItem();
             if (produitSelectionne != null) {
                 try {
                     int quantiteD = Integer.parseInt(champQuantite.getText());
                     // Appel HTTP pour signaler que cette quantité est jetée
                     // ex: api.jeterProduit(produitSelectionne.getId(), quantiteD);
-                    System.out.println("Jeter " + quantiteD + " unités de " + produitSelectionne.getNom());
+                    System.out.println("Jeter " + quantiteD + " unités de " + produitSelectionne.name);
                 } catch (NumberFormatException e) {
                     System.err.println("Quantité invalide.");
                 }
@@ -131,26 +143,15 @@ public class VueVentesDechets extends BorderPane {
      * Méthode pour charger une liste initiale de produits (fictive).
      * À remplacer par un appel HTTP pour récupérer les produits depuis l'API.
      */
-    private void chargerProduitsParDefaut() throws IOException {
+    private void chargerProduitsParDefaut() throws IOException, URISyntaxException {
         //Exemple de connection à la bd pour récupérer les produits bientôt expirés
-        URL urlDechet = new URL("http://localhost:25565/api/???");
-        HttpURLConnection conDechet = (HttpURLConnection) urlDechet.openConnection();
-        //GET : Pour la lecture
-        //POST: Création d'un nouvel élément ou paramètres complexes
-        //PUT: Mise à jour d'une donnée
-        conDechet.setRequestMethod("GET");
-        //https://www.baeldung.com/java-http-request
-
-
-
-        List<Produit> produits = new ArrayList<>();
-        produits.add(new Produit("Yaourt nature", 50, LocalDate.now().plusDays(3)));
-        produits.add(new Produit("Pomme", 100, LocalDate.now().plusDays(7)));
-        produits.add(new Produit("Steak haché", 20, LocalDate.now().minusDays(1)));
-        produits.add(new Produit("Lait demi-écrémé", 30, LocalDate.now().minusDays(2)));
-
-        // On lie directement la liste au TableView
-        tableProduits.getItems().setAll(produits);
+        HttpURLConnection connexion = RequestHelper.createConnexion(
+                "http://localhost:25565/api/products/all",
+                "GET");
+        RequestHelper.sendRequest(connexion, 200);
+        produits = RequestHelper.parse(RequestHelper.getAnswer(connexion), new TypeReference<List<Product>>() {});
+        tableProduits.getItems().clear();
+        tableProduits.getItems().addAll(produits);
     }
 
     /**
@@ -160,11 +161,11 @@ public class VueVentesDechets extends BorderPane {
     private void filtrerProduits(String searchTerm) {
         // Ici, on pourrait refaire un appel HTTP pour obtenir la liste filtrée.
         // En attendant, on simule simplement un filtrage local sur la liste affichée.
-        List<Produit> produitsActuels = new ArrayList<>(tableProduits.getItems());
-        List<Produit> resultats = new ArrayList<>();
+        List<Product> productAmountActuels = new ArrayList<>(tableProduits.getItems());
+        List<Product> resultats = new ArrayList<>();
 
-        for (Produit p : produitsActuels) {
-            if (p.getNom().toLowerCase().contains(searchTerm.toLowerCase())) {
+        for (Product p : productAmountActuels) {
+            if (p.name.toLowerCase().contains(searchTerm.toLowerCase())) {
                 resultats.add(p);
             }
         }
@@ -172,40 +173,29 @@ public class VueVentesDechets extends BorderPane {
         tableProduits.getItems().setAll(resultats);
     }
 
-    /**
-     * Classe interne représentant un produit.
-     * On utilise des propriétés JavaFX (StringProperty, IntegerProperty...) pour faciliter le binding avec la TableView.
-     */
-    public static class Produit {
-        private final javafx.beans.property.SimpleStringProperty nom;
-        private final javafx.beans.property.SimpleIntegerProperty stock;
-        private final javafx.beans.property.ObjectProperty<LocalDate> datePeremption;
+//    /**
+//     * Classe interne représentant un produit.
+//     * On utilise des propriétés JavaFX (StringProperty, IntegerProperty...) pour faciliter le binding avec la TableView.
+//     */
+//    public static class ProductAmount {
+//        public String date;
+//        public long code;
+//        public int sold;
+//        public int thrown;
+//
+//        public ProductAmount() {
+//            code = 0;
+//            date = null;
+//            sold = 0;
+//            thrown = 0;
+//        }
+//
+//        public ProductAmount(String date, long code, int sold, int thrown) {
+//            this.code = code;
+//            this.date = date;
+//            this.sold = sold;
+//            this.thrown = thrown;
+//        }
+//    }
 
-        public Produit(String nom, int stock, LocalDate datePeremption) {
-            this.nom = new javafx.beans.property.SimpleStringProperty(nom);
-            this.stock = new javafx.beans.property.SimpleIntegerProperty(stock);
-            this.datePeremption = new javafx.beans.property.SimpleObjectProperty<>(datePeremption);
-        }
-
-        public String getNom() {
-            return nom.get();
-        }
-        public javafx.beans.property.StringProperty nomProperty() {
-            return nom;
-        }
-
-        public int getStock() {
-            return stock.get();
-        }
-        public javafx.beans.property.IntegerProperty stockProperty() {
-            return stock;
-        }
-
-        public LocalDate getDatePeremption() {
-            return datePeremption.get();
-        }
-        public javafx.beans.property.ObjectProperty<LocalDate> datePeremptionProperty() {
-            return datePeremption;
-        }
-    }
 }
