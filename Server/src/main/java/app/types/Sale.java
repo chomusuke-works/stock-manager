@@ -1,13 +1,10 @@
 package app.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class Sale {
+	public String date;
+	public long code;
+	public int sold;
+	public int thrown;
 
-import java.util.Date;
-
-public record Sale(
-	@JsonProperty("date") Date date,
-	@JsonProperty("code") long code,
-	@JsonProperty("sold") int sold,
-	@JsonProperty("thrown") int thrown
-) {
+	public Sale() {}
 }

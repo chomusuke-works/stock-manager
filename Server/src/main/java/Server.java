@@ -36,13 +36,14 @@ public class Server {
 		app.get("/api/products/soonExpired", productController::getSoonExpired)
 			.get("/api/products/expired", productController::getExpired)
 			.get("/api/products/{code}", productController::getOne)
-			.get("/api/products", productController::getAll)
+			.get("/api/products/all", productController::getAll)
 			.post("/api/products", productController::insert)
 			.delete("/api/products/{code}", productController::delete);
 
 		// Sales
-		app.get("/api/products/sell/{date}_{code}", salesController::getOne)
-			.put("/api/products/sell/{date}_{code}", salesController::sell);
+		app.get("/api/sales/all", salesController::getAll)
+			.get("/api/sales/{date}_{code}", salesController::getOne)
+			.put("/api/sales/{date}_{code}", salesController::sell);
 
 		// Shelf
 		app.post("/api/shelves/", shelfController::insert)

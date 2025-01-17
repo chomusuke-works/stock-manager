@@ -6,9 +6,11 @@ import app.util.DBInfo;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
+import java.time.format.DateTimeParseException;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Salescontroller extends Controller {
@@ -32,39 +34,23 @@ public class Salescontroller extends Controller {
 		context.status(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@Override
-	public void getOne(Context context) {
-		Date date;
-		long code;
-		int sold;
-		int thrown;
+	public void getAll(Context context) {
+		List<Sale> sales = new LinkedList<>();
 
-		try {
-			date = Date.valueOf(context.pathParam("date"));
-		} catch (IllegalArgumentException e) {
-			context.result("Wrong date format. Correct format: yyyy-[M]M-[d]d");
-			context.status(HttpStatus.BAD_REQUEST);
-
-			return;
-		}
-
-		code = ContextHelper.getLongPathParam(context, "code");
-
-		Sale sale;
 		try (
 			var connection = dbInfo.getConnection();
-			var statement = connection.prepareStatement(QUERY_GET)
+			var statement = connection.prepareStatement(QUERY_GETALL)
 		) {
-			statement.setDate(1, date);
-			statement.setLong(2, code);
-
 			ResultSet results = statement.executeQuery();
-			if (results.next()) {
-				sold = results.getInt(3);
-				thrown = results.getInt(4);
-			} else {
-				sold = 0;
-				thrown = 0;
+			while (results.next()) {
+				var sale = new Sale();
+
+				sale.date = results.getDate(1).toString();
+				sale.code = results.getLong(2);
+				sale.sold = results.getInt(3);
+				sale.thrown = results.getInt(4);
+
+				sales.add(sale);
 			}
 
 			results.close();
@@ -73,9 +59,49 @@ public class Salescontroller extends Controller {
 			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
 
 			return;
+		} catch (DateTimeParseException e) {
+			context.result("Wrong date format. Correct format: yyyy-[M]M-[d]d");
+			context.status(HttpStatus.BAD_REQUEST);
+
+			return;
 		}
 
-		sale = new Sale(date, code, sold, thrown);
+		context.json(sales);
+		context.status(HttpStatus.OK);
+	}
+
+	@Override
+	public void getOne(Context context) {
+		var sale = getSale(context);
+
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GET)
+		) {
+			statement.setDate(1, java.sql.Date.valueOf(sale.date));
+			statement.setLong(2, sale.code);
+
+			ResultSet results = statement.executeQuery();
+			if (results.next()) {
+				sale.sold = results.getInt(3);
+				sale.thrown = results.getInt(4);
+			} else {
+				sale.sold = 0;
+				sale.thrown = 0;
+			}
+
+			results.close();
+		} catch (SQLException e) {
+			context.result("Database error.");
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+
+			return;
+		} catch (DateTimeParseException e) {
+			context.result("Wrong date format. Correct format: yyyy-[M]M-[d]d");
+			context.status(HttpStatus.BAD_REQUEST);
+
+			return;
+		}
 
 		context.json(sale);
 		context.status(HttpStatus.OK);
@@ -94,25 +120,24 @@ public class Salescontroller extends Controller {
 			var insertStatement = connection.prepareStatement(QUERY_INSERT)
 		) {
 			Sale sale = getSale(context);
-			java.sql.Date sqlDate = new java.sql.Date(sale.date().getTime());
 
-			saleExistsStatement.setDate(1, sqlDate);
-			saleExistsStatement.setLong(2, sale.code());
+			saleExistsStatement.setDate(1, Date.valueOf(sale.date));
+			saleExistsStatement.setLong(2, sale.code);
 
 			boolean saleExists = getBoolAndClose(saleExistsStatement.executeQuery());
 
 			if (saleExists) {
-				updateStatement.setInt(1, sale.sold());
-				updateStatement.setInt(2, sale.thrown());
-				updateStatement.setDate(3, sqlDate);
-				updateStatement.setLong(4, sale.code());
+				updateStatement.setInt(1, sale.sold);
+				updateStatement.setInt(2, sale.thrown);
+				updateStatement.setDate(3, Date.valueOf(sale.date));
+				updateStatement.setLong(4, sale.code);
 
 				updateStatement.executeUpdate();
 			} else {
-				insertStatement.setDate(1, sqlDate);
-				insertStatement.setLong(2, sale.code());
-				insertStatement.setInt(3, sale.sold());
-				insertStatement.setInt(4, sale.thrown());
+				insertStatement.setDate(1, Date.valueOf(sale.date));
+				insertStatement.setLong(2, sale.code);
+				insertStatement.setInt(3, sale.sold);
+				insertStatement.setInt(4, sale.thrown);
 
 				insertStatement.executeUpdate();
 			}
@@ -132,27 +157,24 @@ public class Salescontroller extends Controller {
 	}
 
 	private Sale getSale(Context context) throws NullPointerException, IllegalArgumentException {
-		Date date;
-		long code;
-		int sold;
-		int thrown;
+		Sale sale = new Sale();
 
-		date = Date.valueOf(context.pathParam("date"));
-		code = ContextHelper.getLongPathParam(context, "code");
+		sale.date = context.pathParam("date");
+		sale.code = ContextHelper.getLongPathParam(context, "code");
 
 		try {
-			sold = ContextHelper.getIntQueryParam(context, "sold");
+			sale.sold = ContextHelper.getIntQueryParam(context, "sold");
 		} catch (NullPointerException e) {
-			sold = 0;
+			sale.sold = 0;
 		}
 
 		try {
-			thrown = ContextHelper.getIntQueryParam(context, "thrown");
+			sale.thrown = ContextHelper.getIntQueryParam(context, "thrown");
 		} catch (NullPointerException e) {
-			thrown = 0;
+			sale.thrown = 0;
 		}
 
-		return new Sale(date, code, sold, thrown);
+		return sale;
 	}
 
 	private boolean getBoolAndClose(ResultSet results) throws SQLException {
