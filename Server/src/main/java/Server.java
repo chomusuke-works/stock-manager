@@ -1,4 +1,5 @@
 import app.controllers.Salescontroller;
+import app.controllers.ShelfController;
 import app.util.DBInfo;
 import app.controllers.ProductController;
 import io.javalin.Javalin;
@@ -28,6 +29,7 @@ public class Server {
 
 		var productController = new ProductController(dbInfo);
 		var salesController = new Salescontroller(dbInfo);
+		var shelfController = new ShelfController(dbInfo);
 		Javalin app = Javalin.create();
 
 		// Products
@@ -37,12 +39,18 @@ public class Server {
 			.post("/api/products", productController::insert)
 			.delete("/api/products/{code}", productController::delete);
 
+		// Sales
 		app.get("/api/products/sell/{date}_{code}", salesController::getOne)
 			.put("/api/products/sell/{date}_{code}", salesController::sell);
 
 		//app.get("/api/products/orderList", null);
 
-
+		// Shelf
+		app.post("/api/shelves/", shelfController::insert)
+			.post("/api/shelves/{id}", shelfController::update)
+			.get("/api/shelves", shelfController::getAll)
+			.get("/api/shelves/{id}", shelfController::getOne)
+			.delete("/api/shelves/{id}", shelfController::delete);
 
 		app.start(APP_PORT);
 	}

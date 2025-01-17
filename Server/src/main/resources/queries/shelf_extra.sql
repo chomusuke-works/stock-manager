@@ -1,0 +1,1 @@
+UPDATE etagere SET nom = ?, eststock = ? WHERE id = ?;

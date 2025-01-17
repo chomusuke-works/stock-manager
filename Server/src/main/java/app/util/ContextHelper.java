@@ -12,6 +12,11 @@ public class ContextHelper {
 		return Long.parseLong(value);
 	}
 
+	public static int getIntPathParam(Context context, String key) throws NumberFormatException {
+		String value = context.pathParam(key);
+		return Integer.parseInt(value);
+	}
+
 	public static long getLongQueryParam(Context context, String key) throws NullPointerException, NumberFormatException {
 		String value = context.queryParam(key);
 		if (value == null) throw new NullPointerException("No value for key: " + key);
