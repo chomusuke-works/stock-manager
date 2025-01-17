@@ -6,6 +6,9 @@ public class Product {
 	public double price;
 	public int supplierId;
 
+	@SuppressWarnings("unused")
+	public Product() {}
+
 	public Product(long code, String name, double price, int supplierId) {
 		this.code = code;
 		this.name = name;
