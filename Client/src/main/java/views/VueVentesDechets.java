@@ -77,14 +77,14 @@ public class VueVentesDechets extends BorderPane {
 
 
         TableColumn<Product, Integer> colStock = new TableColumn<>("Stock");
-        colStock.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(param.getValue().stock)
-        );
+//        colStock.setCellValueFactory(param -> //TODO
+//                new ReadOnlyObjectWrapper<>(param.getValue().stock)
+//        );
 
         TableColumn<Product, String> colPeremption = new TableColumn<>("Date de péremption");
-        colPeremption.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(param.getValue().date)
-        );
+//        colPeremption.setCellValueFactory(param -> //TODO
+//                new ReadOnlyObjectWrapper<>(param.getValue().date)
+//        );
 
         tableProduits.getColumns().addAll(colNom, colStock, colPeremption);
         tableProduits.setPrefHeight(300);
