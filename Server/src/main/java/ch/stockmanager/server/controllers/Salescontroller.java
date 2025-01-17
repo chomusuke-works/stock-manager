@@ -77,16 +77,16 @@ public class Salescontroller extends Controller {
 			var connection = dbInfo.getConnection();
 			var statement = connection.prepareStatement(QUERY_GET)
 		) {
-			statement.setDate(1, java.sql.Date.valueOf(sale.getDate()));
-			statement.setLong(2, sale.getCode());
+			statement.setDate(1, java.sql.Date.valueOf(sale.date));
+			statement.setLong(2, sale.code);
 
 			ResultSet results = statement.executeQuery();
 			if (results.next()) {
-				sale.setSold(results.getInt(3));
-				sale.setThrown(results.getInt(4));
+				sale.sold = results.getInt(3);
+				sale.thrown = results.getInt(4);
 			} else {
-				sale.setSold(0);
-				sale.setThrown(0);
+				sale.sold = 0;
+				sale.thrown = 0;
 			}
 
 			results.close();
@@ -120,23 +120,23 @@ public class Salescontroller extends Controller {
 		) {
 			Sale sale = getSale(context);
 
-			saleExistsStatement.setDate(1, Date.valueOf(sale.getDate()));
-			saleExistsStatement.setLong(2, sale.getCode());
+			saleExistsStatement.setDate(1, Date.valueOf(sale.date));
+			saleExistsStatement.setLong(2, sale.code);
 
 			boolean saleExists = getBoolAndClose(saleExistsStatement.executeQuery());
 
 			if (saleExists) {
-				updateStatement.setInt(1, sale.getSold());
-				updateStatement.setInt(2, sale.getThrown());
-				updateStatement.setDate(3, Date.valueOf(sale.getDate()));
-				updateStatement.setLong(4, sale.getCode());
+				updateStatement.setInt(1, sale.sold);
+				updateStatement.setInt(2, sale.thrown);
+				updateStatement.setDate(3, Date.valueOf(sale.date));
+				updateStatement.setLong(4, sale.code);
 
 				updateStatement.executeUpdate();
 			} else {
-				insertStatement.setDate(1, Date.valueOf(sale.getDate()));
-				insertStatement.setLong(2, sale.getCode());
-				insertStatement.setInt(3, sale.getSold());
-				insertStatement.setInt(4, sale.getThrown());
+				insertStatement.setDate(1, Date.valueOf(sale.date));
+				insertStatement.setLong(2, sale.code);
+				insertStatement.setInt(3, sale.sold);
+				insertStatement.setInt(4, sale.thrown);
 
 				insertStatement.executeUpdate();
 			}
@@ -158,19 +158,19 @@ public class Salescontroller extends Controller {
 	private Sale getSale(Context context) throws NullPointerException, IllegalArgumentException {
 		Sale sale = new Sale();
 
-		sale.setDate(context.pathParam("date"));
-		sale.setCode(ContextHelper.getLongPathParam(context, "code"));
+		sale.date = context.pathParam("date");
+		sale.code = ContextHelper.getLongPathParam(context, "code");
 
 		try {
-			sale.setSold(ContextHelper.getIntQueryParam(context, "sold"));
+			sale.sold = ContextHelper.getIntQueryParam(context, "sold");
 		} catch (NullPointerException e) {
-			sale.setSold(0);
+			sale.sold = 0;
 		}
 
 		try {
-			sale.setThrown(ContextHelper.getIntQueryParam(context, "thrown"));
+			sale.thrown = ContextHelper.getIntQueryParam(context, "thrown");
 		} catch (NullPointerException e) {
-			sale.setThrown(0);
+			sale.thrown = 0;
 		}
 
 		return sale;

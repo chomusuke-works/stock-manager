@@ -68,7 +68,7 @@ public class VueProduitsExpires extends BorderPane {
         TableColumn<Product, String> colDateExpire = new TableColumn<>("Date péremption");
 
         colNomExpire.setCellValueFactory(param ->
-               new ReadOnlyObjectWrapper<>(param.getValue().name)
+               new ReadOnlyObjectWrapper<>(param.getValue().getName())
         );
 //        colDateExpire.setCellValueFactory(param -> //TODO
 //                new ReadOnlyObjectWrapper<>(param.getValue().)
@@ -80,7 +80,7 @@ public class VueProduitsExpires extends BorderPane {
         TableColumn<Product, String> colDateBientot = new TableColumn<>("Date péremption");
 
         colNomBientot.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(param.getValue().name)
+                new ReadOnlyObjectWrapper<>(param.getValue().getName())
         );
 //        colDateBientot.setCellValueFactory(param -> //TODO
 //                new ReadOnlyObjectWrapper<>(param.getValue().date)

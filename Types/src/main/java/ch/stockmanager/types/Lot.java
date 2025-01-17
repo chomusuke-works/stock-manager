@@ -8,6 +8,10 @@ public class Lot {
 	public int quantity;
 	public Date expirationDate;
 
+	@SuppressWarnings("unused")
+	public Lot() {
+	}
+
 	public Lot(Date receptionDate, long productCode, int quantity, Date expirationDate) {
 		this.receptionDate = receptionDate;
 		this.productCode = productCode;

@@ -113,7 +113,7 @@ public class SalesPane extends BorderPane {
         button.setOnAction(event -> {
             Sale selectedSale = selectedItem.getValue();
             if (selectedSale != null) {
-                System.out.printf("%s %d %s%n", buttonText, Integer.parseInt(quantitySource.getValue()), selectedSale.getCode());
+                System.out.printf("%s %d %s%n", buttonText, Integer.parseInt(quantitySource.getValue()), selectedSale.code);
                 // TODO: API call
             }
         });
@@ -158,7 +158,7 @@ public class SalesPane extends BorderPane {
                 sales.setAll(refreshedSales);
             } else {
                 ObservableList<Sale> filteredSales = FXCollections.observableArrayList(refreshedSales.stream()
-                    .filter(s -> String.valueOf(s.getCode()).contains(newValue))
+                    .filter(s -> String.valueOf(s.code).contains(newValue))
                     .toList());
 
                 sales.setAll(filteredSales);

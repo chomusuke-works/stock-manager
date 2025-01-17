@@ -7,6 +7,9 @@ public class YearSegment {
 	public String endDate;
 	public int priority;
 
+	@SuppressWarnings("unused")
+	public YearSegment() {}
+
 	public YearSegment(int id, String name, String from, String to, int priority) {
 		this.id = id;
 		this.name = name;

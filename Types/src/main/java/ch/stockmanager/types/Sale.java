@@ -2,10 +2,10 @@ package ch.stockmanager.types;
 
 @SuppressWarnings("unused")
 public class Sale {
-	private String date;
-	private long code;
-	private int sold;
-	private int thrown;
+	public String date;
+	public long code;
+	public int sold;
+	public int thrown;
 
 	public Sale() {}
 
@@ -21,31 +21,15 @@ public class Sale {
 		return date;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
-	}
-
 	public long getCode() {
 		return code;
-	}
-
-	public void setCode(long code) {
-		this.code = code;
 	}
 
 	public int getSold() {
 		return sold;
 	}
 
-	public void setSold(int sold) {
-		this.sold = sold;
-	}
-
 	public int getThrown() {
 		return thrown;
-	}
-
-	public void setThrown(int thrown) {
-		this.thrown = thrown;
 	}
 }

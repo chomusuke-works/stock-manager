@@ -43,10 +43,10 @@ public class ProductController extends Controller {
 		) {
 			Product product = context.bodyAsClass(Product.class);
 
-			statement.setLong(1, product.code);
-			statement.setString(2, product.name);
-			statement.setDouble(3, product.price);
-			statement.setInt(4, product.supplierId);
+			statement.setLong(1, product.getCode());
+			statement.setString(2, product.getName());
+			statement.setDouble(3, product.getPrice());
+			statement.setInt(4, product.getSupplierId());
 
 			statement.executeUpdate();
 			context.status(201);

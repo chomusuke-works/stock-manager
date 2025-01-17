@@ -5,6 +5,9 @@ public class ProductShelfQuantity {
 	public int quantity;
 	public String shelfName;
 
+	@SuppressWarnings("unused")
+	public ProductShelfQuantity() {}
+
 	public ProductShelfQuantity(String productName, int quantity, String shelfName) {
 		this.productName = productName;
 		this.quantity = quantity;

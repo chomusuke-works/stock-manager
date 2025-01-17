@@ -40,8 +40,8 @@ public class ShelfController extends Controller {
         ) {
             Shelf shelf = context.bodyAsClass(Shelf.class);
 
-            statement.setString(1, shelf.nom);
-            statement.setBoolean(2, shelf.estStock);
+            statement.setString(1, shelf.name);
+            statement.setBoolean(2, shelf.isStock);
 
             statement.executeUpdate();
             context.status(201);
@@ -125,8 +125,8 @@ public class ShelfController extends Controller {
             Shelf shelf = context.bodyAsClass(Shelf.class);
             int id = ContextHelper.getIntPathParam(context, "id");
 
-            statement.setString(1, shelf.nom);
-            statement.setBoolean(2, shelf.estStock);
+            statement.setString(1, shelf.name);
+            statement.setBoolean(2, shelf.isStock);
             statement.setInt(3, id);
 
             statement.executeUpdate();
