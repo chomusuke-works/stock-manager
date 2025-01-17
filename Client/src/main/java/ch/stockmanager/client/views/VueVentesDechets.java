@@ -1,7 +1,7 @@
 package ch.stockmanager.client.views;
 
 import ch.stockmanager.types.Product;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,15 +23,11 @@ import java.util.List;
  */
 public class VueVentesDechets extends BorderPane {
 
-    // Champ de recherche
-    private TextField champRecherche;
-    // Table pour afficher la liste des produits
-    private TableView<Product> tableProduits;
-    // Zone de saisie de quantité
-    private TextField champQuantite;
-    // Boutons d'action
-    private Button boutonVente;
-    private Button boutonDechet;
+    private final TextField champRecherche;
+    private final TableView<Product> tableProduits;
+    private final TextField champQuantite;
+    private final Button boutonVente;
+    private final Button boutonDechet;
 
     private List<Product> produits;
 
@@ -72,7 +68,7 @@ public class VueVentesDechets extends BorderPane {
         tableProduits = new TableView<>();
         TableColumn<Product, String> colNom = new TableColumn<>("Nom du produit");
         colNom.setCellValueFactory(param ->
-                new ReadOnlyObjectWrapper<>(param.getValue().name)
+            new ReadOnlyObjectWrapper<>(param.getValue().name)
         );
 
 
@@ -148,10 +144,11 @@ public class VueVentesDechets extends BorderPane {
         HttpURLConnection connexion = RequestHelper.createConnexion(
                 "http://localhost:25565/api/products/all",
                 "GET");
-        RequestHelper.sendRequest(connexion, 200);
-        produits = RequestHelper.parse(RequestHelper.getAnswer(connexion), new TypeReference<List<Product>>() {});
-        tableProduits.getItems().clear();
-        tableProduits.getItems().addAll(produits);
+        RequestHelper.sendRequest(connexion, HttpURLConnection.HTTP_OK);
+        String answer = RequestHelper.getAnswer(connexion);
+        var objectMapper = new ObjectMapper();
+        produits = objectMapper.readValue(answer, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Product.class));
+        tableProduits.getItems().setAll(produits);
     }
 
     /**
@@ -172,30 +169,4 @@ public class VueVentesDechets extends BorderPane {
 
         tableProduits.getItems().setAll(resultats);
     }
-
-//    /**
-//     * Classe interne représentant un produit.
-//     * On utilise des propriétés JavaFX (StringProperty, IntegerProperty...) pour faciliter le binding avec la TableView.
-//     */
-//    public static class ProductAmount {
-//        public String date;
-//        public long code;
-//        public int sold;
-//        public int thrown;
-//
-//        public ProductAmount() {
-//            code = 0;
-//            date = null;
-//            sold = 0;
-//            thrown = 0;
-//        }
-//
-//        public ProductAmount(String date, long code, int sold, int thrown) {
-//            this.code = code;
-//            this.date = date;
-//            this.sold = sold;
-//            this.thrown = thrown;
-//        }
-//    }
-
 }
