@@ -45,7 +45,7 @@ public class Server {
 
 		// Shelf
 		app.post("/api/shelves/", shelfController::insert)
-			.post("/api/shelves/{id}", shelfController::update)
+			.put("/api/shelves/{id}", shelfController::update)
 			.get("/api/shelves/products", shelfController::getProducts)
 			.get("/api/shelves", shelfController::getAll)
 			.get("/api/shelves/{id}", shelfController::getOne)
