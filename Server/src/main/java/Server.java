@@ -34,6 +34,7 @@ public class Server {
 
 		// Products
 		app.get("/api/products/soonExpired", productController::getSoonExpired)
+			.get("/api/products/expired", productController::getExpired)
 			.get("/api/products/{code}", productController::getOne)
 			.get("/api/products", productController::getAll)
 			.post("/api/products", productController::insert)

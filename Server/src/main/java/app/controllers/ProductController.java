@@ -15,7 +15,9 @@ import java.util.List;
 public class ProductController extends Controller {
 	private final DBInfo dbInfo;
 
-	private final String QUERY_GET_SOON_EXPIRED;
+	private final String
+		QUERY_GET_SOON_EXPIRED,
+		QUERY_GET_EXPIRED;
 
 	private static final int EXPIRY_THRESHOLD = 7;
 
@@ -25,7 +27,8 @@ public class ProductController extends Controller {
 		this.dbInfo = dbInfo;
 
 		List<String> extraQueries = getExtraQueries();
-		QUERY_GET_SOON_EXPIRED = extraQueries.getFirst();
+		QUERY_GET_SOON_EXPIRED = extraQueries.get(0);
+		QUERY_GET_EXPIRED = extraQueries.get(1);
 	}
 
 	@Override
@@ -120,7 +123,7 @@ public class ProductController extends Controller {
 
 	// TODO: add date
 	public void getSoonExpired(Context context) {
-		List<productQuantity> soonExpired = new LinkedList<>();
+		List<productQuantity> expired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -132,14 +135,37 @@ public class ProductController extends Controller {
 			while (results.next()) {
 				productQuantity row = getExpiredProductQuantity(results);
 
-				soonExpired.add(row);
+				expired.add(row);
 			}
 			results.close();
 
-			context.status(200);
-			context.json(soonExpired);
+			context.status(HttpStatus.OK);
+			context.json(expired);
 		} catch (SQLException e) {
-			context.status(500);
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+		}
+	}
+
+	public void getExpired(Context context) {
+		List<productQuantity> expired = new LinkedList<>();
+
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GET_EXPIRED)
+		) {
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				productQuantity row = getExpiredProductQuantity(results);
+
+				expired.add(row);
+			}
+			results.close();
+
+			context.status(HttpStatus.OK);
+			context.json(expired);
+		} catch (SQLException e) {
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
 			context.result("Database error");
 		}
 	}
