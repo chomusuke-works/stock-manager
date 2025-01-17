@@ -1,5 +1,7 @@
 package views;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -7,10 +9,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import util.RequestHelper;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +33,8 @@ public class VueLocalisationRayons extends BorderPane {
     // -----------------------------
     // SECTION DROITE : Rayons
     // -----------------------------
-    private ListView<String> listeRayons;
+    private List<Rayon> listeRayons;
+    private ListView<String> listeViewRayons;
     private TextField champNouveauRayon;
     private TextField champRenommerRayon;
 
@@ -98,8 +102,8 @@ public class VueLocalisationRayons extends BorderPane {
         Label labelRayons = new Label("Liste des rayons :");
         labelRayons.setFont(new Font("Arial", 14));
 
-        listeRayons = new ListView<>();
-        listeRayons.setPrefHeight(200);
+        listeViewRayons = new ListView<>();
+        listeViewRayons.setPrefHeight(200);
 
         // Champ pour ajouter un nouveau rayon
         champNouveauRayon = new TextField();
@@ -108,10 +112,7 @@ public class VueLocalisationRayons extends BorderPane {
         boutonAjouterRayon.setOnAction(e -> {
             String nouveauRayon = champNouveauRayon.getText().trim();
             if (!nouveauRayon.isEmpty()) {
-                // ICI, on pourrait faire un appel HTTP pour ajouter le rayon à la base
-                // ex: api.ajouterRayon(nouveauRayon);
-                // On met ensuite à jour la liste localement
-                listeRayons.getItems().add(nouveauRayon);
+                createRayon(nouveauRayon);
                 champNouveauRayon.clear();
             }
         });
@@ -121,14 +122,12 @@ public class VueLocalisationRayons extends BorderPane {
         champRenommerRayon.setPromptText("Nouveau nom pour le rayon sélectionné");
         Button boutonRenommerRayon = new Button("Renommer Rayon");
         boutonRenommerRayon.setOnAction(e -> {
-            String rayonSelectionne = listeRayons.getSelectionModel().getSelectedItem();
+            String rayonSelectionne = listeViewRayons.getSelectionModel().getSelectedItem();
             String nouveauNomRayon = champRenommerRayon.getText().trim();
             if (rayonSelectionne != null && !nouveauNomRayon.isEmpty()) {
-                // ICI, appel HTTP pour renommer le rayon côté backend
-                // ex: api.renommerRayon(rayonSelectionne, nouveauNomRayon);
-                // Mise à jour dans la ListView
-                int index = listeRayons.getSelectionModel().getSelectedIndex();
-                listeRayons.getItems().set(index, nouveauNomRayon);
+                int index = listeViewRayons.getSelectionModel().getSelectedIndex();
+                updateRayon(rayonSelectionne, nouveauNomRayon);
+                listeViewRayons.getItems().set(index, nouveauNomRayon);
                 champRenommerRayon.clear();
             }
         });
@@ -136,11 +135,11 @@ public class VueLocalisationRayons extends BorderPane {
         // Bouton pour supprimer un rayon
         Button boutonSupprimerRayon = new Button("Supprimer Rayon");
         boutonSupprimerRayon.setOnAction(e -> {
-            String rayonSelectionne = listeRayons.getSelectionModel().getSelectedItem();
+            String rayonSelectionne = listeViewRayons.getSelectionModel().getSelectedItem();
             if (rayonSelectionne != null) {
                 // ICI, appel HTTP pour supprimer le rayon dans la BD
                 // ex: api.supprimerRayon(rayonSelectionne);
-                listeRayons.getItems().remove(rayonSelectionne);
+                deleteRayon(rayonSelectionne);
             }
         });
 
@@ -149,7 +148,7 @@ public class VueLocalisationRayons extends BorderPane {
         HBox hboxRenommerRayon = new HBox(5, champRenommerRayon, boutonRenommerRayon);
         VBox vboxActionsRayons = new VBox(10, hboxNouvelleRayon, hboxRenommerRayon, boutonSupprimerRayon);
 
-        vboxDroite.getChildren().addAll(labelRayons, listeRayons, vboxActionsRayons);
+        vboxDroite.getChildren().addAll(labelRayons, listeViewRayons, vboxActionsRayons);
 
         // -----------------------------
         // Placement final
@@ -163,35 +162,87 @@ public class VueLocalisationRayons extends BorderPane {
         // -----------------------------
         // Initialisation de la vue
         // -----------------------------
-        chargerRayonsParDefaut();
-        chargerProduitsParDefaut();
+        try {
+            chargerRayons();
+            chargerProduitsParDefaut();
+        } catch (URISyntaxException e) {
+            //TODO: handle connexion errors with the server
+            System.out.println("Error while contacting the server : " + e.getMessage());
+        }
+
     }
 
     /**
      * Simulation de chargement initial des rayons.
      * À remplacer par un appel HTTP récupérant la liste des rayons depuis l'API.
      */
-    private void chargerRayonsParDefaut() throws IOException {
-        //Exemple de connection à la bd pour récupérer les produits bientôt expirés
-        URL urlRayon = new URL("http://localhost:25565/api/???");
-        HttpURLConnection conRayon = (HttpURLConnection) urlRayon.openConnection();
-        //GET : Pour la lecture
-        //POST: Création d'un nouvel élément ou paramètres complexes
-        //PUT: Mise à jour d'une donnée
-        //Le mieux pour simplement afficher les rayons est GET (juste pour la lecture)
-        conRayon.setRequestMethod("GET");
-        //https://www.baeldung.com/java-http-request
+    private void chargerRayons() throws IOException, URISyntaxException {
+        HttpURLConnection connexion = RequestHelper.createConnexion(
+                "http://localhost:25565/api/shelves",
+                "GET");
+        RequestHelper.sendRequest(connexion, 200);
+        listeRayons = RequestHelper.parse(RequestHelper.getAnswer(connexion), new TypeReference<List<Rayon>>() {});
+        List<String> nomsRayons = listeRayons.stream().map(Rayon::getNom).toList();
+        listeViewRayons.getItems().clear();
+        listeViewRayons.getItems().addAll(nomsRayons);
+    }
 
+    private void createRayon(String nom) {
+        try {
+            HttpURLConnection connexion = RequestHelper.createConnexion(
+                    "http://localhost:25565/api/shelves",
+                    "POST");
+            Rayon r = Rayon.forInsertion(nom);
+            RequestHelper.loadJson(connexion, r);
+            RequestHelper.sendRequest(connexion, 201);
+            chargerRayons(); // to have the new rayon with his index
+        }
+        catch (Exception e) {
+            // TODO: handle the exception here ?
+            System.out.println("Error in rayon creation : " + e);
+            for (var a : e.getStackTrace()) { System.out.println(a); }
+        }
+    }
 
+    private void deleteRayon(String nom) {
+        try {
+            int id = getId(nom);
+            HttpURLConnection connexion = RequestHelper.createConnexion(
+                    "http://localhost:25565/api/shelves/" + id,
+                    "DELETE");
+            RequestHelper.sendRequest(connexion, 200);
+            listeRayons.removeIf(r -> r.getId() == id);
+            listeViewRayons.getItems().remove(nom); // only if code is 200, else an Exception has been thrown
+        }
+        catch (Exception e) {
+            // TODO: handle the exception here ?
+            System.out.println("Error in rayon creation : " + e);
+            for (var a : e.getStackTrace()) { System.out.println(a); }
+        }
+    }
 
-        List<String> rayonsExemple = new ArrayList<>();
-        rayonsExemple.add("Frais");
-        rayonsExemple.add("Fruits & Légumes");
-        rayonsExemple.add("Boissons");
-        rayonsExemple.add("Épicerie");
-        rayonsExemple.add("Surgelés");
+    private void updateRayon(String oldName, String newName) {
+        try {
+            HttpURLConnection connexion = RequestHelper.createConnexion(
+                    "http://localhost:25565/api/shelves/"+getId(oldName),
+                    "POST");
+            Rayon r = Rayon.forInsertion(newName);
+            RequestHelper.loadJson(connexion, r);
+            RequestHelper.sendRequest(connexion, 200);
 
-        listeRayons.getItems().addAll(rayonsExemple);
+        }
+        catch (Exception e) {
+            // TODO: handle the exception here ?
+            System.out.println("Error in rayon creation : " + e);
+            for (var a : e.getStackTrace()) { System.out.println(a); }
+        }
+    }
+
+    private int getId(String nom) {
+        return listeRayons.stream()
+            .filter(r -> r.getNom().equals(nom))
+            .map(Rayon::getId)
+            .findFirst().orElseThrow();
     }
 
     /**
@@ -272,4 +323,42 @@ public class VueLocalisationRayons extends BorderPane {
             return rayon;
         }
     }
+
+    public static class Rayon {
+        private final SimpleIntegerProperty id;
+        private final SimpleStringProperty nom;
+        private final SimpleBooleanProperty estStock;
+
+        // Default constructor for Jackson
+        public Rayon() {
+            this.id = new SimpleIntegerProperty();
+            this.nom = new SimpleStringProperty();
+            this.estStock = new SimpleBooleanProperty();
+        }
+
+        public Rayon(int id, String nom, boolean estStock) {
+            this.id = new SimpleIntegerProperty(id);
+            this.nom = new SimpleStringProperty(nom);
+            this.estStock = new SimpleBooleanProperty(estStock);
+        }
+
+        public static Rayon forInsertion (String nom) { return new Rayon(0, nom, false); }
+
+        public int getId() { return id.get(); }
+        //public boolean isEstStock() { return estStock.get(); }
+        public String getNom() { return nom.get(); }
+        public void setId(int id) { this.id.set(id); }
+        public void setNom(String nom) { this.nom.set(nom); }
+        public void setEstStock(boolean estStock) { this.estStock.set(estStock); }
+        //public SimpleIntegerProperty idProperty() { return id; }
+        //public SimpleStringProperty nomProperty() { return nom; }
+        //public SimpleBooleanProperty estStockProperty() { return estStock; }
+
+        @Override
+        public String toString() {
+            return id.get() + " : " + nom.get() + ((estStock.get()) ? " (stock)" : "");
+        }
+    }
+
 }
+
