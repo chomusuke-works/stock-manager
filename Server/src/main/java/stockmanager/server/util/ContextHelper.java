@@ -1,4 +1,4 @@
-package app.util;
+package stockmanager.server.util;
 
 import io.javalin.http.Context;
 

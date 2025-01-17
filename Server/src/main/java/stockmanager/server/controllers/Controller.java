@@ -1,4 +1,4 @@
-package app.controllers;
+package stockmanager.server.controllers;
 
 import io.javalin.http.Context;
 

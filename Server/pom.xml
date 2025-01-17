@@ -6,11 +6,11 @@
 
 	<parent>
 		<groupId>stock-manager</groupId>
-		<artifactId>global</artifactId>
+		<artifactId>stockmanager</artifactId>
 		<version>1.0</version>
 	</parent>
 
-	<artifactId>server</artifactId>
+	<artifactId>stockmanager.server</artifactId>
 
 	<build>
 		<plugins>
@@ -20,7 +20,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>Server</mainClass>
+							<mainClass>stockmanager.server.Server</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

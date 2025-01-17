@@ -1,7 +1,9 @@
-import app.controllers.Salescontroller;
-import app.controllers.ShelfController;
-import app.util.DBInfo;
-import app.controllers.ProductController;
+package stockmanager.server;
+
+import stockmanager.server.controllers.Salescontroller;
+import stockmanager.server.controllers.ShelfController;
+import stockmanager.server.util.DBInfo;
+import stockmanager.server.controllers.ProductController;
 import io.javalin.Javalin;
 
 public class Server {

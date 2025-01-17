@@ -1,8 +1,8 @@
-package app.controllers;
+package stockmanager.server.controllers;
 
 import stockmanager.types.productDateQuantity;
-import app.util.ContextHelper;
-import app.util.DBInfo;
+import stockmanager.server.util.ContextHelper;
+import stockmanager.server.util.DBInfo;
 import stockmanager.types.Product;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;

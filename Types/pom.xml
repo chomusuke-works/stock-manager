@@ -6,9 +6,9 @@
 
 	<parent>
 		<groupId>stock-manager</groupId>
-		<artifactId>global</artifactId>
+		<artifactId>stockmanager</artifactId>
 		<version>1.0</version>
 	</parent>
 
-	<artifactId>types</artifactId>
+	<artifactId>stockmanager.types</artifactId>
 </project>

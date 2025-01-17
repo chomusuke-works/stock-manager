@@ -6,11 +6,11 @@
 
 	<parent>
 		<groupId>stock-manager</groupId>
-		<artifactId>global</artifactId>
+		<artifactId>stockmanager</artifactId>
 		<version>1.0</version>
 	</parent>
 
-	<artifactId>client</artifactId>
+	<artifactId>stockmanager.client</artifactId>
 
 	<build>
 		<plugins>
@@ -20,7 +20,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>Client</mainClass>
+							<mainClass>stockmanager.client.Client</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -36,7 +36,7 @@
 				<artifactId>javafx-maven-plugin</artifactId>
 				<version>0.0.8</version>
 				<configuration>
-					<mainClass>Client</mainClass>
+					<mainClass>stockmanager.client.Client</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -52,6 +52,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>stock-manager</groupId>
+			<artifactId>types</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>

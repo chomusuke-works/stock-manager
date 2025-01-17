@@ -1,9 +1,8 @@
-//import javafx.application.Application;
-//import javafx.scene.Scene;
+package stockmanager.client;//import javafx.scene.Scene;
 //import javafx.stage.Stage;
 //import views.*;
 //
-//public class Client extends Application {
+//public class stockmanager.client.Client extends Application {
 //
 //	@Override
 //	public void start(Stage stage) {
@@ -35,7 +34,7 @@
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import views.Navigator;
+import stockmanager.client.views.Navigator;
 
 public class Client extends Application {
 
