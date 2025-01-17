@@ -43,8 +43,6 @@ public class Server {
 		app.get("/api/products/sell/{date}_{code}", salesController::getOne)
 			.put("/api/products/sell/{date}_{code}", salesController::sell);
 
-		//app.get("/api/products/orderList", null);
-
 		// Shelf
 		app.post("/api/shelves/", shelfController::insert)
 			.post("/api/shelves/{id}", shelfController::update)
