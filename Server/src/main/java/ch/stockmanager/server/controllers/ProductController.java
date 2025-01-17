@@ -1,6 +1,6 @@
 package ch.stockmanager.server.controllers;
 
-import ch.stockmanager.types.productDateQuantity;
+import ch.stockmanager.types.ProductDateQuantity;
 import ch.stockmanager.server.util.*;
 import ch.stockmanager.types.Product;
 import io.javalin.http.Context;
@@ -121,7 +121,7 @@ public class ProductController extends Controller {
 	}
 
 	public void getSoonExpired(Context context) {
-		List<productDateQuantity> expired = new LinkedList<>();
+		List<ProductDateQuantity> expired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -131,7 +131,7 @@ public class ProductController extends Controller {
 
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
-				productDateQuantity row = getExpiredProductQuantity(results);
+				ProductDateQuantity row = getExpiredProductQuantity(results);
 
 				expired.add(row);
 			}
@@ -146,7 +146,7 @@ public class ProductController extends Controller {
 	}
 
 	public void getExpired(Context context) {
-		List<productDateQuantity> expired = new LinkedList<>();
+		List<ProductDateQuantity> expired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -154,7 +154,7 @@ public class ProductController extends Controller {
 		) {
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
-				productDateQuantity row = getExpiredProductQuantity(results);
+				ProductDateQuantity row = getExpiredProductQuantity(results);
 
 				expired.add(row);
 			}
@@ -179,8 +179,8 @@ public class ProductController extends Controller {
 		);
 	}
 
-	private productDateQuantity getExpiredProductQuantity(ResultSet resultSet) throws SQLException {
-		return new productDateQuantity(
+	private ProductDateQuantity getExpiredProductQuantity(ResultSet resultSet) throws SQLException {
+		return new ProductDateQuantity(
 			resultSet.getString(1),
 			resultSet.getDate(2),
 			resultSet.getInt(3)
