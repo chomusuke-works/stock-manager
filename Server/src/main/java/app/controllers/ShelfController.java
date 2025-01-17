@@ -1,5 +1,6 @@
 package app.controllers;
 
+import app.types.ProductShelfQuantity;
 import app.types.Shelf;
 import app.util.ContextHelper;
 import app.util.DBInfo;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ShelfController extends Controller {
     private final DBInfo dbInfo;
     private final String QUERY_UPDATE;
+    private final String QUERY_PRODUCTS;
 
 
     public ShelfController(DBInfo dbInfo) {
@@ -22,7 +24,8 @@ public class ShelfController extends Controller {
         this.dbInfo = dbInfo;
 
         List<String> extraQueries = getExtraQueries();
-        QUERY_UPDATE = extraQueries.getFirst();
+        QUERY_UPDATE = extraQueries.get(0);
+        QUERY_PRODUCTS = extraQueries.get(1);
     }
 
     @Override
@@ -117,8 +120,8 @@ public class ShelfController extends Controller {
     public void update(Context context) {
         System.out.println("update..." + QUERY_UPDATE);
         try (
-                var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_UPDATE)
+            var connection = dbInfo.getConnection();
+            var statement = connection.prepareStatement(QUERY_UPDATE)
         ) {
             Shelf shelf = context.bodyAsClass(Shelf.class);
             int id = ContextHelper.getIntPathParam(context, "id");
@@ -140,12 +143,39 @@ public class ShelfController extends Controller {
         }
     }
 
+    public void getProducts(Context context) {
+        try (
+            var connection = dbInfo.getConnection();
+            var statement = connection.prepareStatement(QUERY_PRODUCTS)
+        ) {
+            List<ProductShelfQuantity> products = new LinkedList<>();
+            ResultSet results = statement.executeQuery();
+            while (results.next()) {
+                products.add(getProductShelfQuantity(results));
+            }
+
+            context.status(HttpStatus.OK);
+            context.json(products);
+        } catch (SQLException e) {
+            context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            context.result("Database error");
+        }
+    }
+
 
     private Shelf getShelf(ResultSet resultSet) throws SQLException {
         return new Shelf(
                 resultSet.getInt(1),
                 resultSet.getString(2),
                 resultSet.getBoolean(3)
+        );
+    }
+
+    private ProductShelfQuantity getProductShelfQuantity(ResultSet resultSet) throws SQLException {
+        return new ProductShelfQuantity(
+            resultSet.getString(1),
+            resultSet.getInt(2),
+            resultSet.getString(3)
         );
     }
 }

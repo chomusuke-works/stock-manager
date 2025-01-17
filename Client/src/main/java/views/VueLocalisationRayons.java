@@ -169,7 +169,6 @@ public class VueLocalisationRayons extends BorderPane {
             //TODO: handle connexion errors with the server
             System.out.println("Error while contacting the server : " + e.getMessage());
         }
-
     }
 
     /**
@@ -225,7 +224,7 @@ public class VueLocalisationRayons extends BorderPane {
         try {
             HttpURLConnection connexion = RequestHelper.createConnexion(
                     "http://localhost:25565/api/shelves/"+getId(oldName),
-                    "POST");
+                    "PUT");
             Rayon r = Rayon.forInsertion(newName);
             RequestHelper.loadJson(connexion, r);
             RequestHelper.sendRequest(connexion, 200);
