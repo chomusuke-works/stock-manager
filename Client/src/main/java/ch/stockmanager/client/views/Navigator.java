@@ -43,7 +43,7 @@ public class Navigator {
      * Accès à la vue Ventes & Déchets.
      */
     public static void goToVentesDechets() throws IOException, URISyntaxException {
-        VueVentesDechets vue = new VueVentesDechets();
+        SalesPane vue = new SalesPane();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
         mainStage.setTitle("Ventes & Déchets");
