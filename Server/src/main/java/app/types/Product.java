@@ -1,19 +1,15 @@
 package app.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class Product {
+	public long code;
+	public String name;
+	public double price;
+	public int supplierId;
 
-public record Product(
-	@JsonProperty("code") long code,
-	@JsonProperty("name") String name,
-	@JsonProperty("price") double price,
-	@JsonProperty("supplierId") int supplierId
-) {
-	public CountedProduct count(int count) {
-		return new CountedProduct(this, count);
+	public Product(long code, String name, double price, int supplierId) {
+		this.code = code;
+		this.name = name;
+		this.price = price;
+		this.supplierId = supplierId;
 	}
-
-	public record CountedProduct(
-		Product product,
-		@JsonProperty("count") int count
-	) {}
 }

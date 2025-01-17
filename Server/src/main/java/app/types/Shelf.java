@@ -1,11 +1,13 @@
 package app.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+public class Shelf {
+	public int id;
+	public String nom;
+	public boolean estStock;
 
-public record Shelf(
-    @JsonProperty("id") int id,
-    @JsonProperty("nom") String nom,
-    @JsonProperty("estStock") boolean estStock
-) {
-
+	public Shelf(int id, String nom, boolean estStock) {
+		this.id = id;
+		this.nom = nom;
+		this.estStock = estStock;
+	}
 }

@@ -1,11 +1,17 @@
 package app.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Date;
 
-public record Lot (
-    @JsonProperty("datereception") Date receptionDate,
-    @JsonProperty("codeproduit") long productCode,
-    @JsonProperty("quantite") int quantity,
-    @JsonProperty("dateexpiration") Date expirationDate) { }
+public class Lot {
+	public Date receptionDate;
+	public long productCode;
+	public int quantity;
+	public Date expirationDate;
+
+	public Lot(Date receptionDate, long productCode, int quantity, Date expirationDate) {
+		this.receptionDate = receptionDate;
+		this.productCode = productCode;
+		this.quantity = quantity;
+		this.expirationDate = expirationDate;
+	}
+}
