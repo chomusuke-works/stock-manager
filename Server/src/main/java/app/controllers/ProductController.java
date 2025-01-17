@@ -1,6 +1,6 @@
 package app.controllers;
 
-import app.types.productQuantity;
+import app.types.productDateQuantity;
 import app.util.ContextHelper;
 import app.util.DBInfo;
 import app.types.Product;
@@ -121,9 +121,8 @@ public class ProductController extends Controller {
 		}
 	}
 
-	// TODO: add date
 	public void getSoonExpired(Context context) {
-		List<productQuantity> expired = new LinkedList<>();
+		List<productDateQuantity> expired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -133,7 +132,7 @@ public class ProductController extends Controller {
 
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
-				productQuantity row = getExpiredProductQuantity(results);
+				productDateQuantity row = getExpiredProductQuantity(results);
 
 				expired.add(row);
 			}
@@ -148,7 +147,7 @@ public class ProductController extends Controller {
 	}
 
 	public void getExpired(Context context) {
-		List<productQuantity> expired = new LinkedList<>();
+		List<productDateQuantity> expired = new LinkedList<>();
 
 		try (
 			var connection = dbInfo.getConnection();
@@ -156,7 +155,7 @@ public class ProductController extends Controller {
 		) {
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
-				productQuantity row = getExpiredProductQuantity(results);
+				productDateQuantity row = getExpiredProductQuantity(results);
 
 				expired.add(row);
 			}
@@ -181,10 +180,10 @@ public class ProductController extends Controller {
 		);
 	}
 
-	private productQuantity getExpiredProductQuantity(ResultSet resultSet) throws SQLException {
-		return new productQuantity(
-			resultSet.getLong(1),
-			resultSet.getString(2),
+	private productDateQuantity getExpiredProductQuantity(ResultSet resultSet) throws SQLException {
+		return new productDateQuantity(
+			resultSet.getString(1),
+			resultSet.getDate(2),
 			resultSet.getInt(3)
 		);
 	}

@@ -1,2 +1,2 @@
-SELECT code, nom, sum(quantite) FROM produit JOIN lot ON produit.code = lot.codeproduit WHERE lot.dateexpiration - current_date BETWEEN 0 AND ? GROUP BY code, nom;
-SELECT code, nom, sum(quantite) FROM produit JOIN lot ON produit.code = lot.codeproduit WHERE lot.dateexpiration - current_date < 0 GROUP BY code, nom;
+SELECT nom, lot.dateexpiration, quantite FROM lot JOIN produit ON lot.codeproduit = produit.code WHERE lot.dateexpiration - current_date BETWEEN 0 AND ?;
+SELECT nom, lot.dateexpiration, quantite FROM lot JOIN produit ON lot.codeproduit = produit.code WHERE lot.dateexpiration - current_date < 0;
