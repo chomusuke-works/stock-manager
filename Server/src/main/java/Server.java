@@ -33,10 +33,10 @@ public class Server {
 		Javalin app = Javalin.create();
 
 		// Products
-		app.get("/api/products/soonExpired", productController::getSoonExpired)
+		app.get("/api/products/all", productController::getAll)
+			.get("/api/products/soonExpired", productController::getSoonExpired)
 			.get("/api/products/expired", productController::getExpired)
 			.get("/api/products/{code}", productController::getOne)
-			.get("/api/products/all", productController::getAll)
 			.post("/api/products", productController::insert)
 			.delete("/api/products/{code}", productController::delete);
 
@@ -46,10 +46,10 @@ public class Server {
 			.put("/api/sales/{date}_{code}", salesController::sell);
 
 		// Shelf
-		app.post("/api/shelves/", shelfController::insert)
+		app.post("/api/shelves", shelfController::insert)
+			.get("/api/shelves/all", shelfController::getAll)
 			.put("/api/shelves/{id}", shelfController::update)
 			.get("/api/shelves/products", shelfController::getProducts)
-			.get("/api/shelves", shelfController::getAll)
 			.get("/api/shelves/{id}", shelfController::getOne)
 			.delete("/api/shelves/{id}", shelfController::delete);
 
