@@ -1,7 +1,7 @@
 package ch.stockmanager.client.views;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
@@ -70,7 +70,7 @@ public class ShelvesPane extends BorderPane {
      * TODO: API call
      */
     private List<ProductShelfQuantity> fetchProducts() {
-        return new ArrayList<>();
+        return HTTPHelper.getList(PATH_PREFIX + "products", ProductShelfQuantity.class);
     }
 
     /**
@@ -127,19 +127,14 @@ public class ShelvesPane extends BorderPane {
     }
 
     private TableView<ProductShelfQuantity> getTable() {
+        LinkedList<String> columnNames = new LinkedList<>(List.of("Nom", "Stock", "Rayon"));
         TableView<ProductShelfQuantity> table = new TableView<>();
-        TableColumn<ProductShelfQuantity, String> nameColumn = new TableColumn<>("Nom");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        TableColumn<ProductShelfQuantity, Number> columnStock = new TableColumn<>("Stock");
-        columnStock.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-
-        TableColumn<ProductShelfQuantity, String> columnShelf = new TableColumn<>("Rayon");
-        columnShelf.setCellValueFactory(new PropertyValueFactory<>("shelf"));
-
-        table.getColumns().add(nameColumn);
-        table.getColumns().add(columnStock);
-        table.getColumns().add(columnShelf);
+        for (String name : Arrays.stream(ProductShelfQuantity.class.getDeclaredFields()).map(Field::getName).toList()) {
+            TableColumn<ProductShelfQuantity, String> column = new TableColumn<>(columnNames.pop());
+            column.setCellValueFactory(new PropertyValueFactory<>(name));
+            table.getColumns().add(column);
+        }
         table.setPrefHeight(400);
 
         new Thread(() -> table.getItems().setAll(fetchProducts()))
