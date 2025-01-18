@@ -17,41 +17,16 @@ import java.io.IOException;
 import java.util.List;
 
 public class ExpiryDatesPane extends BorderPane {
-
-	private final TableView<ProductDateQuantity> expiredProductsTable;
-	private final TableView<ProductDateQuantity> soonExpiredProductsTable;
-
 	public ExpiryDatesPane() {
 		this.setPadding(new Insets(15));
 
 		HBox topBar = getTopBar();
 		BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
 
-		expiredProductsTable = getTable();
-		soonExpiredProductsTable = getTable();
-
-		Label expiredLabel = new Label("Produits expirés :");
-		Label soonExpiredLabel = new Label("Produits bientôt expirés :");
-
-		VBox tables = new VBox(10,
-			expiredLabel,
-			expiredProductsTable,
-			soonExpiredLabel,
-			soonExpiredProductsTable
-		);
+		VBox tables = getTables();
 
 		this.setTop(topBar);
 		this.setCenter(tables);
-
-		new Thread(() -> {
-			try {
-				expiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.EXPIRED)));
-				soonExpiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.SOON_EXPIRED)));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}).start();
-
 	}
 
 	private List<ProductDateQuantity> fetchData(EntryType entryType) throws IOException {
@@ -64,7 +39,7 @@ public class ExpiryDatesPane extends BorderPane {
 		topBar.setSpacing(10);
 		topBar.setAlignment(Pos.CENTER_LEFT);
 
-		Label titre = new Label("Vue des Products expirés");
+		Label titre = new Label("Dates d'expiration proches");
 		titre.setFont(new Font("Arial", 24));
 
 		// Bouton retour en haut à droite
@@ -92,6 +67,32 @@ public class ExpiryDatesPane extends BorderPane {
 		table.getColumns().add(columnQuantity);
 
 		return table;
+	}
+
+	private VBox getTables() {
+		TableView<ProductDateQuantity> expiredProductsTable = getTable();
+		TableView<ProductDateQuantity> soonExpiredProductsTable = getTable();
+
+		Label expiredLabel = new Label("Produits expirés :");
+		Label soonExpiredLabel = new Label("Produits bientôt expirés :");
+
+		VBox tables = new VBox(10,
+			expiredLabel,
+			expiredProductsTable,
+			soonExpiredLabel,
+			soonExpiredProductsTable
+		);
+
+		new Thread(() -> {
+			try {
+				expiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.EXPIRED)));
+				soonExpiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.SOON_EXPIRED)));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}).start();
+
+		return tables;
 	}
 
 	private enum EntryType {

@@ -54,7 +54,7 @@ public class Navigator {
      * Accès à la vue Localisation & Rayons.
      */
     public static void goToLocalisationRayons() throws IOException {
-        VueLocalisationRayons vue = new VueLocalisationRayons();
+        ShelvesPane vue = new ShelvesPane();
         Scene scene = new Scene(vue, 1000, 600);
         mainStage.setScene(scene);
         mainStage.setTitle("Localisation & Rayons");

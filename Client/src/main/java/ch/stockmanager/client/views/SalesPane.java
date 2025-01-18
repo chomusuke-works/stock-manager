@@ -1,9 +1,8 @@
 package ch.stockmanager.client.views;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -24,33 +23,43 @@ import ch.stockmanager.client.util.HTTPHelper;
  * It allows to search for a specific product, and enter a new sale or waste.
  */
 public class SalesPane extends BorderPane {
-	public SalesPane() throws IOException, URISyntaxException {
-        this.setPadding(new Insets(15));
+	public SalesPane() {
+        HBox topBar = getTopBar();
 
-        // Top bar
+        TableView<Sale> salesTable = getTable();
+
+        VBox centerBox = getCenterBox(salesTable);
+
+        HBox transactionBox = getTransactionBox(salesTable.getSelectionModel().selectedItemProperty());
+
+        this.setPadding(new Insets(15));
+        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
+
+        this.setTop(topBar);
+        this.setCenter(centerBox);
+        this.setBottom(transactionBox);
+    }
+
+    private HBox getTopBar() {
+        HBox topBar = new HBox();
+        topBar.setPadding(new Insets(10));
+        topBar.setSpacing(10);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
         Label titre = new Label("Ventes & Gestion de Déchets");
         titre.setFont(new Font("Arial", 24));
 
         Button backButton = new Button("<--");
         backButton.setOnAction(e -> Navigator.goToDashboard());
 
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10));
-        topBar.setSpacing(10);
-        topBar.setAlignment(Pos.CENTER_LEFT);
         topBar.getChildren().addAll(backButton, titre);
 
-        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
+        return topBar;
+    }
 
-        // Main table for sales data
-        TableView<Sale> salesTable = new TableView<>();
-        salesTable.setPrefHeight(300);
-
-        // Search field
-        var searchField = new TextField();
-        searchField.setPromptText("Rechercher un produit...");
-        searchField.setPrefWidth(200);
-        searchField.textProperty().addListener(new FilterListener(salesTable.getItems()));
+    private TableView<Sale> getTable() {
+        TableView<Sale> table = new TableView<>();
+        table.setPrefHeight(300);
 
         // Columns
         TableColumn<Sale, String> columnDate = new TableColumn<>("Date");
@@ -63,42 +72,29 @@ public class SalesPane extends BorderPane {
         columnSold.setCellValueFactory(new PropertyValueFactory<>("sold"));
         columnThrown.setCellValueFactory(new PropertyValueFactory<>("thrown"));
 
-        salesTable.getColumns().add(columnDate);
-        salesTable.getColumns().add(columnCode);
-        salesTable.getColumns().add(columnSold);
-        salesTable.getColumns().add(columnThrown);
+        table.getColumns().add(columnDate);
+        table.getColumns().add(columnCode);
+        table.getColumns().add(columnSold);
+        table.getColumns().add(columnThrown);
 
-        TextField quantityField = new TextField();
-        quantityField.setPromptText("Quantité");
-        quantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
+        new Thread(() -> table.getItems().setAll(fetchSales()))
+            .start();
 
-        // Transaction buttons
-        ObservableValue<Sale> selectedItem = salesTable.getSelectionModel().selectedItemProperty();
-        ObservableValue<String> quantity = quantityField.textProperty();
-        Button buttonSale = getTransactionButton(
-            "Vendu",
-            selectedItem,
-            quantity
-        );
-        Button ButtonWaste = getTransactionButton(
-            "Jeté",
-            selectedItem,
-            quantity
-        );
+        return table;
+    }
 
-        HBox hBoxForm = new HBox(10);
-        hBoxForm.getChildren().addAll(quantityField, buttonSale, ButtonWaste);
-        hBoxForm.setPadding(new Insets(10, 0, 0, 0));
+    private VBox getCenterBox(TableView<Sale> salesTable) {
+        VBox box = new VBox(10);
 
-        // Main layout
-        VBox vboxCenter = new VBox(10);
-        vboxCenter.getChildren().addAll(searchField, salesTable);
+        // Search field
+        var searchField = new TextField();
+        searchField.setPromptText("Rechercher un produit...");
+        searchField.setPrefWidth(200);
+        searchField.textProperty().addListener(new FilterListener(salesTable.getItems()));
 
-        this.setTop(topBar);
-        this.setCenter(vboxCenter);
-        this.setBottom(hBoxForm);
+        box.getChildren().setAll(searchField, salesTable);
 
-        salesTable.getItems().setAll(fetchSales());
+        return box;
     }
 
     private Button getTransactionButton(String buttonText, ObservableValue<Sale> selectedItem, ObservableValue<String> quantitySource) {
@@ -113,10 +109,36 @@ public class SalesPane extends BorderPane {
         return button;
     }
 
+    private HBox getTransactionBox(ReadOnlyObjectProperty<Sale> selectedSale) {
+        HBox box = new HBox(10);
+        box.setPadding(new Insets(10, 0, 0, 0));
+
+        TextField quantityField = new TextField();
+        quantityField.setPromptText("Quantité");
+        quantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
+
+        // Transaction buttons
+        ObservableValue<String> quantity = quantityField.textProperty();
+        Button buttonSale = getTransactionButton(
+            "Vendu",
+            selectedSale,
+            quantity
+        );
+        Button ButtonWaste = getTransactionButton(
+            "Jeté",
+            selectedSale,
+            quantity
+        );
+
+        box.getChildren().addAll(quantityField, buttonSale, ButtonWaste);
+
+        return box;
+    }
+
     /**
      * Connects to the API to fetch sales data.
      */
-    private List<Sale> fetchSales() throws IOException, URISyntaxException {
+    private List<Sale> fetchSales() {
         return HTTPHelper.getList("http://localhost:25565/api/sales/all", Sale.class);
     }
 
@@ -130,15 +152,7 @@ public class SalesPane extends BorderPane {
 
         @Override
         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-            List<Sale> refreshedSales;
-            try {
-                refreshedSales = fetchSales();
-            } catch (URISyntaxException | IOException e) {
-                System.err.println("An error occured while fetching sales.");
-                System.err.println(e.getMessage());
-
-                return;
-            }
+            List<Sale> refreshedSales = fetchSales();
             if (newValue == null || newValue.isEmpty()) {
                 sales.setAll(refreshedSales);
             } else {

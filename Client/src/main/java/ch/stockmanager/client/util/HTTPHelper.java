@@ -34,23 +34,31 @@ public class HTTPHelper {
         return objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, type));
     }
 
-    public static <T> T get(String url, Class<T> type) throws JsonProcessingException {
-        String response = getResourceAt(url);
+    public static <T> T get(String url, Class<T> type) {
+		try {
+			String response = getResourceAt(url);
 
-        return parse(response, type);
-    }
+			return parse(response, type);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    public static <T> List<T> getList(String url, Class<T> type) throws JsonProcessingException {
-        String response = getResourceAt(url);
+    public static <T> List<T> getList(String url, Class<T> type) {
+        try {
+            String response = getResourceAt(url);
 
-        return parseList(response, type);
+            return parseList(response, type);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <T> void post(String url, T object) {
         modifyingRequest(url, object, "POST", HttpURLConnection.HTTP_CREATED);
     }
 
-    public static <T> void put(String url, T object) throws JsonProcessingException {
+    public static <T> void put(String url, T object) {
         modifyingRequest(url, object, "PUT", HttpURLConnection.HTTP_OK);
     }
 
