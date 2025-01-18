@@ -32,7 +32,7 @@ public class Navigator {
      * Accès à la vue des produits expirés.
      */
     public static void goToProduitsExpires() throws IOException, URISyntaxException {
-        VueProduitsExpires vue = new VueProduitsExpires();
+        ExpiryDatesPane vue = new ExpiryDatesPane();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
         mainStage.setTitle("Produits Expirés");

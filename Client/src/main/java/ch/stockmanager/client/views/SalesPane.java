@@ -1,12 +1,8 @@
 package ch.stockmanager.client.views;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,15 +17,13 @@ import javafx.scene.text.Font;
 import javafx.util.converter.NumberStringConverter;
 
 import ch.stockmanager.types.Sale;
-import ch.stockmanager.client.util.RequestHelper;
+import ch.stockmanager.client.util.HTTPHelper;
 
 /**
  * This pane displays all sales and waste data.
  * It allows to search for a specific product, and enter a new sale or waste.
  */
 public class SalesPane extends BorderPane {
-    private final ObservableList<Sale> sales = FXCollections.observableArrayList();
-
 	public SalesPane() throws IOException, URISyntaxException {
         this.setPadding(new Insets(15));
 
@@ -48,16 +42,15 @@ public class SalesPane extends BorderPane {
 
         BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
 
+        // Main table for sales data
+        TableView<Sale> salesTable = new TableView<>();
+        salesTable.setPrefHeight(300);
+
         // Search field
         var searchField = new TextField();
         searchField.setPromptText("Rechercher un produit...");
         searchField.setPrefWidth(200);
-        searchField.textProperty().addListener(new FilterListener(sales));
-
-        // Main table for sales data
-        TableView<Sale> salesTable = new TableView<>();
-        salesTable.setPrefHeight(300);
-        salesTable.setItems(sales);
+        searchField.textProperty().addListener(new FilterListener(salesTable.getItems()));
 
         // Columns
         TableColumn<Sale, String> columnDate = new TableColumn<>("Date");
@@ -105,7 +98,7 @@ public class SalesPane extends BorderPane {
         this.setCenter(vboxCenter);
         this.setBottom(hBoxForm);
 
-        sales.setAll(fetchSales());
+        salesTable.getItems().setAll(fetchSales());
     }
 
     private Button getTransactionButton(String buttonText, ObservableValue<Sale> selectedItem, ObservableValue<String> quantitySource) {
@@ -124,15 +117,7 @@ public class SalesPane extends BorderPane {
      * Connects to the API to fetch sales data.
      */
     private List<Sale> fetchSales() throws IOException, URISyntaxException {
-        HttpURLConnection connection = RequestHelper.createConnexion(
-                "http://localhost:25565/api/sales/all",
-                "GET");
-        RequestHelper.sendRequest(connection, HttpURLConnection.HTTP_OK);
-        String answer = RequestHelper.getAnswer(connection);
-        connection.disconnect();
-
-        var objectMapper = new ObjectMapper();
-        return objectMapper.readValue(answer, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, Sale.class));
+        return HTTPHelper.getList("http://localhost:25565/api/sales/all", Sale.class);
     }
 
     private class FilterListener implements ChangeListener<String> {
