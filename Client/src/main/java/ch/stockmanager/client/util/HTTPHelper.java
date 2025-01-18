@@ -46,7 +46,7 @@ public class HTTPHelper {
         return parseList(response, type);
     }
 
-    public static <T> void post(String url, T object) throws JsonProcessingException {
+    public static <T> void post(String url, T object) {
         modifyingRequest(url, object, "POST", HttpURLConnection.HTTP_CREATED);
     }
 
@@ -63,7 +63,7 @@ public class HTTPHelper {
         }
     }
 
-    private static <T> void modifyingRequest(String url, T object, String method, int expectedCode) throws JsonProcessingException {
+    private static <T> void modifyingRequest(String url, T object, String method, int expectedCode) {
         try {
             HttpURLConnection connection = createConnexion(url, method);
             serialize(connection, object);
