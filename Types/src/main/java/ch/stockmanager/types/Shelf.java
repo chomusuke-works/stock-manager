@@ -1,7 +1,7 @@
 package ch.stockmanager.types;
 
 @SuppressWarnings("unused")
-public class Shelf implements Cloneable{
+public class Shelf {
 	public int id;
 	public String name;
 	public boolean isStock;
