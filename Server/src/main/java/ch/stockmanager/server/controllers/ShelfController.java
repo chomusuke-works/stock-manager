@@ -150,6 +150,7 @@ public class ShelfController extends Controller {
             List<ProductShelfQuantity> products = new LinkedList<>();
             ResultSet results = statement.executeQuery();
             while (results.next()) {
+                System.out.println(results.toString());
                 products.add(getProductShelfQuantity(results));
             }
 
@@ -174,7 +175,9 @@ public class ShelfController extends Controller {
         return new ProductShelfQuantity(
             resultSet.getString(1),
             resultSet.getInt(2),
-            resultSet.getString(3)
+            resultSet.getString(3),
+            resultSet.getLong(4),
+            resultSet.getInt(5)
         );
     }
 }

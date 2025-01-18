@@ -1,5 +1,6 @@
 package ch.stockmanager.server;
 
+import ch.stockmanager.server.controllers.ProductShelfController;
 import ch.stockmanager.server.controllers.Salescontroller;
 import ch.stockmanager.server.controllers.ShelfController;
 import ch.stockmanager.server.util.DBInfo;
@@ -32,6 +33,8 @@ public class Server {
 		var productController = new ProductController(dbInfo);
 		var salesController = new Salescontroller(dbInfo);
 		var shelfController = new ShelfController(dbInfo);
+		var productShelfController = new ProductShelfController(dbInfo);
+
 		Javalin app = Javalin.create();
 
 		// Products
@@ -54,7 +57,9 @@ public class Server {
 			.get("/api/shelves/products", shelfController::getProducts)
 			.get("/api/shelves/{id}", shelfController::getOne)
 			.delete("/api/shelves/{id}", shelfController::delete);
-
+		// ProductShelf (only relevant for shelves)
+		app.post("/api/shelves/products", productShelfController::insert)
+			.delete("/api/shelves/products/{productCode}/{shelfId}", productShelfController::delete);
 		app.start(APP_PORT);
 	}
 }

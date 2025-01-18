@@ -1,6 +1,7 @@
 package ch.stockmanager.client.views;
 
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.util.*;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -66,9 +67,15 @@ public class ShelvesPane extends BorderPane {
         HTTPHelper.put(PATH_PREFIX + id, shelf);
     }
 
-    /**
-     * TODO: API call
-     */
+    private void addProductShelf(ProductShelfQuantity productShelfQuantity, Shelf shelf) {
+        HTTPHelper.post(PATH_PREFIX + "products", new ProductShelfQuantity(productShelfQuantity.productName, 0, shelf.name, productShelfQuantity.productCode, shelf.id));
+    }
+
+    private void deleteProductShelf(ProductShelfQuantity productShelfQuantity) {
+        HTTPHelper.delete(PATH_PREFIX + "products/" + productShelfQuantity.productCode + "/" +
+                productShelfQuantity.shelfId);
+    }
+
     private List<ProductShelfQuantity> fetchProducts() {
         return HTTPHelper.getList(PATH_PREFIX + "products", ProductShelfQuantity.class);
     }
@@ -120,8 +127,12 @@ public class ShelvesPane extends BorderPane {
             filterProducts(newValue, table.getItems())
         );
 
+        // Bouton "Changer le rayon"
+        Button changeShelfButton = getButton("Changer le rayon",
+                e -> openChangeShelfDialog(table));
+
         // Ajout des éléments au vbox de gauche
-        box.getChildren().setAll(champRecherche, table);
+        box.getChildren().setAll(champRecherche, table, changeShelfButton);
 
         return box;
     }
@@ -134,6 +145,7 @@ public class ShelvesPane extends BorderPane {
             TableColumn<ProductShelfQuantity, String> column = new TableColumn<>(columnNames.pop());
             column.setCellValueFactory(new PropertyValueFactory<>(name));
             table.getColumns().add(column);
+            if (columnNames.isEmpty()) break;
         }
         table.setPrefHeight(400);
 
@@ -209,6 +221,58 @@ public class ShelvesPane extends BorderPane {
         HBox hboxRenommerRayon = new HBox(5, fieldShelfRename, buttonShelfRename);
 
         return new VBox(10, hboxNouvelleRayon, hboxRenommerRayon, buttonShelfDelete);
+    }
+
+    private void openChangeShelfDialog(TableView<ProductShelfQuantity> table) {
+        ProductShelfQuantity selectedProduct = table.getSelectionModel().getSelectedItem();
+
+        if (selectedProduct == null) {
+            showAlert("Aucun produit sélectionné", "Veuillez sélectionner un produit pour changer son rayon.");
+            return;
+        }
+
+        Dialog<Shelf> dialog = new Dialog<>();
+        dialog.setTitle("Changer le rayon");
+        dialog.setHeaderText("Sélectionnez un nouveau rayon pour le produit : " + selectedProduct.getProductName());
+
+        ButtonType confirmButtonType = new ButtonType("Confirmer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+
+        ComboBox<Shelf> shelfComboBox = new ComboBox<>();
+        shelfComboBox.getItems().setAll(fetchShelves());
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Rayon :"), 0, 0);
+        grid.add(shelfComboBox, 1, 0);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == confirmButtonType) {
+                return shelfComboBox.getSelectionModel().getSelectedItem();
+            }
+            return null;
+        });
+
+        Optional<Shelf> result = dialog.showAndWait();
+        result.ifPresent(newShelf -> {
+            deleteProductShelf(selectedProduct);
+            addProductShelf(selectedProduct, newShelf);
+            new Thread(() -> table.getItems().setAll(fetchProducts()))
+                    .start();
+        });
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
 
