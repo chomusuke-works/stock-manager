@@ -41,6 +41,7 @@ public class Server {
 		app.get("/api/products/all", productController::getAll)
 			.get("/api/products/soonExpired", productController::getSoonExpired)
 			.get("/api/products/expired", productController::getExpired)
+			.get("/api/products/orders", productController::getOrders)
 			.get("/api/products/{code}", productController::getOne)
 			.post("/api/products", productController::insert)
 			.delete("/api/products/{code}", productController::delete);
@@ -50,7 +51,7 @@ public class Server {
 			.get("/api/sales/{date}_{code}", salesController::getOne)
 			.put("/api/sales/{date}_{code}", salesController::sell);
 
-		// Shelf
+		// Shelves
 		app.post("/api/shelves", shelfController::insert)
 			.get("/api/shelves/all", shelfController::getAll)
 			.put("/api/shelves/{id}", shelfController::update)
@@ -60,6 +61,7 @@ public class Server {
 		// ProductShelf (only relevant for shelves)
 		app.post("/api/shelves/products", productShelfController::insert)
 			.delete("/api/shelves/products/{productCode}/{shelfId}", productShelfController::delete);
+
 		app.start(APP_PORT);
 	}
 }

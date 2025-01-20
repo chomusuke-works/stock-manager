@@ -1,5 +1,6 @@
 package ch.stockmanager.server.controllers;
 
+import ch.stockmanager.types.Order;
 import ch.stockmanager.types.ProductDateQuantity;
 import ch.stockmanager.server.util.*;
 import ch.stockmanager.types.Product;
@@ -8,6 +9,7 @@ import io.javalin.http.HttpStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,7 +18,8 @@ public class ProductController extends Controller {
 
 	private final String
 		QUERY_GET_SOON_EXPIRED,
-		QUERY_GET_EXPIRED;
+		QUERY_GET_EXPIRED,
+		QUERY_GET_ORDERS;
 
 	private static final int EXPIRY_THRESHOLD = 7;
 
@@ -28,6 +31,7 @@ public class ProductController extends Controller {
 		List<String> extraQueries = getExtraQueries();
 		QUERY_GET_SOON_EXPIRED = extraQueries.get(0);
 		QUERY_GET_EXPIRED = extraQueries.get(1);
+		QUERY_GET_ORDERS = extraQueries.get(2);
 	}
 
 	@Override
@@ -168,6 +172,29 @@ public class ProductController extends Controller {
 		}
 	}
 
+	public void getOrders(Context context) {
+		List<Order> orders = new LinkedList<>();
+
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GET_ORDERS)
+		) {
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				Order row = getOrder(results);
+
+				orders.add(row);
+			}
+			results.close();
+
+			context.status(HttpStatus.OK);
+			context.json(orders);
+		} catch (SQLException e) {
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+		}
+	}
+
 	private Product getProduct(ResultSet resultSet) throws SQLException {
 		int supplierId = resultSet.getInt(4);
 
@@ -184,6 +211,13 @@ public class ProductController extends Controller {
 			resultSet.getString(1),
 			resultSet.getDate(2),
 			resultSet.getInt(3)
+		);
+	}
+
+	private Order getOrder(ResultSet resultSet) throws SQLException {
+		return new Order(
+			resultSet.getString(1),
+			resultSet.getInt(2)
 		);
 	}
 }

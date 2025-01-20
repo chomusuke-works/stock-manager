@@ -34,9 +34,8 @@ public class VueGestionCommandes extends BorderPane {
     private TextField champNomProduit;
     private TextField champQuantite;
     private TextField champPrixUnitaire;
-    private Button boutonAjouterCommande;
 
-    public VueGestionCommandes() throws IOException {
+	public VueGestionCommandes() throws IOException {
         // Mise en forme générale
         this.setPadding(new Insets(15));
 
@@ -95,7 +94,7 @@ public class VueGestionCommandes extends BorderPane {
         champPrixUnitaire = new TextField();
         champPrixUnitaire.setPromptText("Prix unitaire");
 
-        boutonAjouterCommande = new Button("Ajouter commande");
+		Button boutonAjouterCommande = new Button("Ajouter commande");
         boutonAjouterCommande.setOnAction(e -> {
             // ICI, appel HTTP pour ajouter une commande
             // ex: api.ajouterCommande(nomProduit, qte, prixUnit);
