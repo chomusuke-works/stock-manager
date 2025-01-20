@@ -19,43 +19,19 @@ public abstract class Controller {
 
 	public Controller() {
 		// Load basic query templates
-		try {
-			var is = new BufferedReader(new InputStreamReader(
-				Objects.requireNonNull(Controller.class.getClassLoader().getResourceAsStream("queries/%s_default.sql".formatted(getDataType()))),
-				StandardCharsets.UTF_8
-			));
+		String fileName = "queries/%s_default.sql".formatted(getDataType());
+		List<String> queries = getQueries(fileName);
 
-			QUERY_INSERT = is.readLine();
-			QUERY_GETALL = is.readLine();
-			QUERY_GET    = is.readLine();
-			QUERY_DELETE = is.readLine();
-
-			is.close();
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading query file for %s.\n".formatted(getClass().getSimpleName()));
-		}
+		QUERY_INSERT = queries.get(0);
+		QUERY_GETALL = queries.get(1);
+		QUERY_GET    = queries.get(2);
+		QUERY_DELETE = queries.get(3);
 	}
 
 	protected List<String> getExtraQueries() {
-		List<String> queries = new LinkedList<>();
+		String fileName = "queries/%s_extra.sql".formatted(getDataType());
 
-		try {
-			var is = new BufferedReader(new InputStreamReader(
-				Objects.requireNonNull(Controller.class.getClassLoader().getResourceAsStream("queries/%s_extra.sql".formatted(getDataType()))),
-				StandardCharsets.UTF_8
-			));
-
-			String query;
-			while ((query = is.readLine()) != null) {
-				queries.add(query);
-			}
-
-			is.close();
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading extra query file for %s.\n".formatted(getClass().getSimpleName()));
-		}
-
-		return queries;
+		return getQueries(fileName);
 	}
 
 	public abstract void insert(Context context);
@@ -63,4 +39,37 @@ public abstract class Controller {
 	public abstract void delete(Context context);
 
 	protected abstract String getDataType();
+
+	private String getNextQuery(BufferedReader source) throws IOException {
+		StringBuilder query = new StringBuilder();
+		String line;
+		while ((line = source.readLine()) != null &&
+				query.append(line).charAt(query.length() - 1) != ';') {
+			query.append('\n');
+		}
+
+		return query.toString().trim();
+	}
+
+	private List<String> getQueries(String fileName) {
+		List<String> queries = new LinkedList<>();
+
+		try {
+			var is = new BufferedReader(new InputStreamReader(
+				Objects.requireNonNull(Controller.class.getClassLoader().getResourceAsStream(fileName)),
+				StandardCharsets.UTF_8
+			));
+
+			String query;
+			while (!(query = getNextQuery(is)).isEmpty()) {
+				queries.add(query);
+			}
+
+			is.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Error reading query file for %s.\n".formatted(getClass().getSimpleName()));
+		}
+
+		return queries;
+	}
 }
