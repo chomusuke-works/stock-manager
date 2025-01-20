@@ -25,8 +25,6 @@ public class OrdersPane extends BorderPane {
         this.setPadding(new Insets(15));
 
         HBox topBar = getTopBar();
-        this.setTop(topBar);
-
         BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
 
         TableView<Order> ordersTable = getTable();
@@ -37,6 +35,7 @@ public class OrdersPane extends BorderPane {
         // Mise en page verticale
         VBox centerBox = new VBox(10, ordersTable);
 
+        this.setTop(topBar);
         this.setCenter(centerBox);
         this.setBottom(formBox);
     }

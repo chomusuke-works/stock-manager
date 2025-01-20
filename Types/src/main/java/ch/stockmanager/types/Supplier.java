@@ -15,4 +15,20 @@ public class Supplier {
 		this.email = email;
 		this.orderFrequency = orderFrequency;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public int getOrderFrequency() {
+		return orderFrequency;
+	}
 }
