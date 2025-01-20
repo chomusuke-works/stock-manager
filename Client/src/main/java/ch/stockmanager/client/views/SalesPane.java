@@ -8,7 +8,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -24,7 +23,11 @@ import ch.stockmanager.client.util.HTTPHelper;
  */
 public class SalesPane extends BorderPane {
 	public SalesPane() {
-        HBox topBar = getTopBar();
+        this.setPadding(new Insets(15));
+
+        Label title = new Label("Ventes & Gestion de Déchets");
+        title.setFont(new Font("Arial", 24));
+        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         TableView<Sale> salesTable = getTable();
 
@@ -32,29 +35,9 @@ public class SalesPane extends BorderPane {
 
         HBox transactionBox = getTransactionBox(salesTable.getSelectionModel().selectedItemProperty());
 
-        this.setPadding(new Insets(15));
-        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
-
-        this.setTop(topBar);
+        this.setTop(title);
         this.setCenter(centerBox);
         this.setBottom(transactionBox);
-    }
-
-    private HBox getTopBar() {
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10));
-        topBar.setSpacing(10);
-        topBar.setAlignment(Pos.CENTER_LEFT);
-
-        Label titre = new Label("Ventes & Gestion de Déchets");
-        titre.setFont(new Font("Arial", 24));
-
-        Button backButton = new Button("<--");
-        backButton.setOnAction(e -> Navigator.goToDashboard());
-
-        topBar.getChildren().addAll(backButton, titre);
-
-        return topBar;
     }
 
     private TableView<Sale> getTable() {

@@ -3,8 +3,6 @@ package ch.stockmanager.client.views;
 import ch.stockmanager.types.ProductDateQuantity;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -20,35 +18,18 @@ public class ExpiryDatesPane extends BorderPane {
 	public ExpiryDatesPane() {
 		this.setPadding(new Insets(15));
 
-		HBox topBar = getTopBar();
-		BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
+		Label title = new Label("Dates d'expiration proches");
+		title.setFont(new Font("Arial", 24));
+		BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
 		VBox tables = getTables();
 
-		this.setTop(topBar);
+		this.setTop(title);
 		this.setCenter(tables);
 	}
 
 	private List<ProductDateQuantity> fetchData(EntryType entryType) throws IOException {
 		return HTTPHelper.getList("http://localhost:25565/api/products/" + entryType.getPathSuffix(), ProductDateQuantity.class);
-	}
-
-	private HBox getTopBar() {
-		HBox topBar = new HBox();
-		topBar.setPadding(new Insets(10));
-		topBar.setSpacing(10);
-		topBar.setAlignment(Pos.CENTER_LEFT);
-
-		Label titre = new Label("Dates d'expiration proches");
-		titre.setFont(new Font("Arial", 24));
-
-		// Bouton retour en haut à droite
-		Button backButton = new Button("<--");
-		backButton.setOnAction(e -> Navigator.goToDashboard());
-
-		topBar.getChildren().addAll(backButton, titre);
-
-		return topBar;
 	}
 
 	private TableView<ProductDateQuantity> getTable() {

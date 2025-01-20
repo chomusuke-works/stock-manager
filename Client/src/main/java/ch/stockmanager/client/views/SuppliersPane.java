@@ -8,7 +8,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -28,24 +27,12 @@ public class SuppliersPane extends BorderPane {
     public SuppliersPane() {
         this.setPadding(new Insets(15));
 
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10));
-        topBar.setSpacing(10);
-        topBar.setAlignment(Pos.CENTER_LEFT);
 
-        // Titre principal
         Label title = new Label("Vue des fournisseurs");
         title.setFont(new Font("Arial", 24));
 
-        Button backButton = new Button("Retour Dashboard");
-        backButton.setOnAction(e -> Navigator.goToDashboard());
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        topBar.getChildren().addAll(backButton, title);
-
         //this.setTop(titre);
-        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
+        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         ListView<Supplier> suppliersList = new ListView<>();
         suppliersList.setPrefWidth(200);
@@ -59,16 +46,13 @@ public class SuppliersPane extends BorderPane {
         splitPane.getItems().addAll(suppliersList, supplierDetails);
         splitPane.setDividerPositions(0.3); // 30% / 70%
 
-        this.setTop(topBar);
+        this.setTop(title);
         this.setCenter(splitPane);
 
-        //suppliersList.getItems().setAll(fetchSuppliers());
+        new Thread(() -> suppliersList.getItems().setAll(fetchSuppliers()))
+            .start();
     }
 
-    /**
-     * Charge la liste des fournisseurs (en dur ici).
-     * À remplacer par un appel HTTP pour récupérer la liste depuis l'API.
-     */
     private List<Supplier> fetchSuppliers() {
         throw new RuntimeException("This function is not implemented yet");
     }

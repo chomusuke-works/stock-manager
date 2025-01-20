@@ -8,7 +8,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -29,7 +28,11 @@ public class ShelvesPane extends BorderPane {
     private static final String PATH_PREFIX = "http://localhost:25565/api/shelves/";
 
     public ShelvesPane() {
-        HBox topBar = getTopBar();
+        this.setPadding(new Insets(15));
+
+        Label title = new Label("Localisation des Products & Gestion des rayons");
+        title.setFont(new Font("Arial", 20));
+        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         VBox leftBox = getLeftBox();
         VBox rightBox = getRightBox();
@@ -38,10 +41,7 @@ public class ShelvesPane extends BorderPane {
         splitPane.getItems().setAll(leftBox, rightBox);
         splitPane.setDividerPositions(0.6);  // 60% / 40%
 
-        this.setPadding(new Insets(15));
-        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
-
-        this.setTop(topBar);
+        this.setTop(title);
         this.setCenter(splitPane);
     }
 
@@ -91,25 +91,6 @@ public class ShelvesPane extends BorderPane {
             .toList();
         
         dest.setAll(filteredProducts);
-    }
-
-    private HBox getTopBar() {
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10));
-        topBar.setSpacing(10);
-        topBar.setAlignment(Pos.CENTER_LEFT);
-        // -----------------------------
-        // Titre principal
-        // -----------------------------
-        Label title = new Label("Localisation des Products & Gestion des rayons");
-        title.setFont(new Font("Arial", 20));
-
-        Button backButton = new Button("<--");
-        backButton.setOnAction(e -> Navigator.goToDashboard());
-
-        topBar.getChildren().addAll(backButton, title);
-
-        return topBar;
     }
 
     private VBox getLeftBox() {

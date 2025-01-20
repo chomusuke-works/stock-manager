@@ -4,7 +4,6 @@ import java.util.List;
 
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
@@ -24,8 +23,9 @@ public class OrdersPane extends BorderPane {
 	public OrdersPane() {
         this.setPadding(new Insets(15));
 
-        HBox topBar = getTopBar();
-        BorderPane.setMargin(topBar, new Insets(0, 0, 20, 0));
+        Label title = new Label("Gestion des commandes");
+        title.setFont(new Font("Arial", 24));
+        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         TableView<Order> ordersTable = getTable();
 
@@ -35,30 +35,13 @@ public class OrdersPane extends BorderPane {
         // Mise en page verticale
         VBox centerBox = new VBox(10, ordersTable);
 
-        this.setTop(topBar);
+        this.setTop(title);
         this.setCenter(centerBox);
         this.setBottom(formBox);
     }
 
     private List<Order> fetchOrders() {
         return HTTPHelper.getList("http://localhost:25565/api/products/orders", Order.class);
-    }
-
-    private HBox getTopBar() {
-        HBox topBar = new HBox();
-        topBar.setPadding(new Insets(10));
-        topBar.setSpacing(10);
-        topBar.setAlignment(Pos.CENTER_LEFT);
-
-        Label title = new Label("Gestion des commandes");
-        title.setFont(new Font("Arial", 24));
-
-        Button backButton = new Button("<--");
-        backButton.setOnAction(e -> Navigator.goToDashboard());
-
-        topBar.getChildren().addAll(backButton, title);
-
-        return topBar;
     }
 
     private TableView<Order> getTable() {
