@@ -1,16 +1,17 @@
 package ch.stockmanager.server.controllers;
 
-import ch.stockmanager.types.Sale;
-import ch.stockmanager.server.util.*;
-import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
-
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedList;
 import java.util.List;
+
+import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+
+import ch.stockmanager.types.Sale;
+import ch.stockmanager.server.util.*;
 
 public class Salescontroller extends Controller {
 	private final String

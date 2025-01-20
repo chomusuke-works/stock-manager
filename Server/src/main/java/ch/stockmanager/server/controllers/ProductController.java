@@ -1,16 +1,17 @@
 package ch.stockmanager.server.controllers;
 
-import ch.stockmanager.types.Order;
-import ch.stockmanager.types.ProductDateQuantity;
-import ch.stockmanager.server.util.*;
-import ch.stockmanager.types.Product;
-import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+
+import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+
+import ch.stockmanager.types.Order;
+import ch.stockmanager.types.ProductDateQuantity;
+import ch.stockmanager.server.util.*;
+import ch.stockmanager.types.Product;
 
 public class ProductController extends Controller {
 	private final DBInfo dbInfo;

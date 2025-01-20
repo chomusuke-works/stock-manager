@@ -1,11 +1,12 @@
 package ch.stockmanager.server.controllers;
 
+import java.sql.SQLException;
+
+import io.javalin.http.Context;
+
 import ch.stockmanager.server.util.ContextHelper;
 import ch.stockmanager.server.util.DBInfo;
 import ch.stockmanager.types.ProductShelfQuantity;
-import io.javalin.http.Context;
-
-import java.sql.SQLException;
 
 
 public class ProductShelfController extends Controller {

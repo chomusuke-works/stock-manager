@@ -1,11 +1,12 @@
 package ch.stockmanager.server;
 
+import io.javalin.Javalin;
+
 import ch.stockmanager.server.controllers.ProductShelfController;
 import ch.stockmanager.server.controllers.Salescontroller;
 import ch.stockmanager.server.controllers.ShelfController;
 import ch.stockmanager.server.util.DBInfo;
 import ch.stockmanager.server.controllers.ProductController;
-import io.javalin.Javalin;
 
 public class Server {
 	// Database credentials
