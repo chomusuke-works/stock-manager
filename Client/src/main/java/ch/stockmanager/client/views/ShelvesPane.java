@@ -1,7 +1,6 @@
 package ch.stockmanager.client.views;
 
 import java.lang.reflect.Field;
-import java.net.URLEncoder;
 import java.util.*;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -72,8 +71,7 @@ public class ShelvesPane extends BorderPane {
     }
 
     private void deleteProductShelf(ProductShelfQuantity productShelfQuantity) {
-        HTTPHelper.delete(PATH_PREFIX + "products/" + productShelfQuantity.productCode + "/" +
-                productShelfQuantity.shelfId);
+        HTTPHelper.delete(String.format("%s/products/%d_%d", PATH_PREFIX, productShelfQuantity.productCode, productShelfQuantity.shelfId));
     }
 
     private List<ProductShelfQuantity> fetchProducts() {
@@ -227,7 +225,12 @@ public class ShelvesPane extends BorderPane {
         ProductShelfQuantity selectedProduct = table.getSelectionModel().getSelectedItem();
 
         if (selectedProduct == null) {
-            showAlert("Aucun produit sélectionné", "Veuillez sélectionner un produit pour changer son rayon.");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Aucun produit sélectionné");
+            alert.setHeaderText(null);
+            alert.setContentText("Veuillez sélectionner un produit pour changer son rayon.");
+            alert.showAndWait();
+
             return;
         }
 
@@ -265,14 +268,6 @@ public class ShelvesPane extends BorderPane {
             new Thread(() -> table.getItems().setAll(fetchProducts()))
                     .start();
         });
-    }
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }
 
