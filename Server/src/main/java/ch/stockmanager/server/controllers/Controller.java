@@ -43,8 +43,11 @@ public abstract class Controller {
 	private String getNextQuery(BufferedReader source) throws IOException {
 		StringBuilder query = new StringBuilder();
 		String line;
-		while ((line = source.readLine()) != null &&
-				query.append(line).charAt(query.length() - 1) != ';') {
+		while ((line = source.readLine()) != null) {
+			query.append(line);
+			if (query.isEmpty()) continue;  // Skip empty lines
+			if (query.charAt(query.length() - 1) == ';') break;  // End of query
+
 			query.append('\n');
 		}
 
