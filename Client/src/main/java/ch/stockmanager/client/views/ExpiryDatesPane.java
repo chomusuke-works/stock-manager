@@ -1,6 +1,7 @@
 package ch.stockmanager.client.views;
 
-import ch.stockmanager.types.ProductDateQuantity;
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -9,10 +10,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import ch.stockmanager.client.util.HTTPHelper;
 
-import java.io.IOException;
-import java.util.List;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.types.ProductDateQuantity;
 
 public class ExpiryDatesPane extends BorderPane {
 	public ExpiryDatesPane() {
@@ -28,7 +28,7 @@ public class ExpiryDatesPane extends BorderPane {
 		this.setCenter(tables);
 	}
 
-	private List<ProductDateQuantity> fetchData(EntryType entryType) throws IOException {
+	private List<ProductDateQuantity> fetchData(EntryType entryType) {
 		return HTTPHelper.getList("http://localhost:25565/api/products/" + entryType.getPathSuffix(), ProductDateQuantity.class);
 	}
 
@@ -65,12 +65,8 @@ public class ExpiryDatesPane extends BorderPane {
 		);
 
 		new Thread(() -> {
-			try {
-				expiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.EXPIRED)));
-				soonExpiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.SOON_EXPIRED)));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+			expiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.EXPIRED)));
+			soonExpiredProductsTable.setItems(FXCollections.observableArrayList(fetchData(EntryType.SOON_EXPIRED)));
 		}).start();
 
 		return tables;

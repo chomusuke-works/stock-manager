@@ -17,31 +17,21 @@ import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 
 /**
- * Vue purement informative permettant de consulter :
- * - la liste des fournisseurs
- * - les détails du fournisseur sélectionné (contact, délai de livraison)
- * - les produits associés à ce fournisseur
- * - l'historique des commandes passées auprès de ce fournisseur
+ * This pane displays information about suppliers and which products they provide.
  */
 public class SuppliersPane extends BorderPane {
     public SuppliersPane() {
         this.setPadding(new Insets(15));
 
-
         Label title = new Label("Vue des fournisseurs");
         title.setFont(new Font("Arial", 24));
-
-        //this.setTop(titre);
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         ListView<Supplier> suppliersList = new ListView<>();
         suppliersList.setPrefWidth(200);
 
-        // Supplier details
         VBox supplierDetails = getSupplierDetails(suppliersList.getSelectionModel().selectedItemProperty());
 
-        // SplitPane pour séparer la liste des fournisseurs à gauche
-        // et les détails du fournisseur sélectionné à droite
         SplitPane splitPane = new SplitPane();
         splitPane.getItems().addAll(suppliersList, supplierDetails);
         splitPane.setDividerPositions(0.3); // 30% / 70%
@@ -112,7 +102,7 @@ public class SuppliersPane extends BorderPane {
             supplierContactLabel,
             supplierOrderFrequencyLabel;
 
-        ObservableList<Product> products;
+        private final ObservableList<Product> products;
 
         public supplierDetailsUpdater(
             StringProperty supplierNameLabel,
