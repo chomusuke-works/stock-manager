@@ -65,7 +65,7 @@ public class Navigator {
      * Accès à la vue Gestion des commandes.
      */
     public static void goToGestionCommandes() throws IOException {
-        VueGestionCommandes vue = new VueGestionCommandes();
+        OrdersPane vue = new OrdersPane();
         Scene scene = new Scene(vue, 900, 600);
         mainStage.setScene(scene);
         mainStage.setTitle("Gestion des commandes");

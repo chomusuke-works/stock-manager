@@ -9,7 +9,6 @@ import io.javalin.http.HttpStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +31,7 @@ public class ProductController extends Controller {
 		QUERY_GET_SOON_EXPIRED = extraQueries.get(0);
 		QUERY_GET_EXPIRED = extraQueries.get(1);
 		QUERY_GET_ORDERS = extraQueries.get(2);
+		System.out.println("done");
 	}
 
 	@Override
