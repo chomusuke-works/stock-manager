@@ -81,7 +81,9 @@ public class ShelvesPane extends BorderPane {
     }
 
     private void deleteProductShelf(ProductShelfQuantity productShelfQuantity) {
-        HTTPHelper.delete(String.format("%s/products/%d_%d", PATH_PREFIX, productShelfQuantity.productCode, productShelfQuantity.shelfId));
+        HTTPHelper.delete(String.format(PATH_PREFIX + "products"
+                + "/" + productShelfQuantity.productCode
+                + "/" + productShelfQuantity.shelfId));
     }
 
     private List<ProductShelfQuantity> fetchProducts() {
@@ -170,7 +172,11 @@ public class ShelvesPane extends BorderPane {
                         deleteProductShelf(selectedProduct);
                         new Thread(this::filterProducts).start();
                     } else {
-                        showAlert("Aucun produit sélectionné", "Veuillez sélectionner un produit pour l'enlever de l'étagère.");
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Aucun produit sélectionné");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Veuillez sélectionner un produit pour changer son rayon.");
+                        alert.showAndWait();
                     }
                 });
 
@@ -339,7 +345,7 @@ public class ShelvesPane extends BorderPane {
 
         Optional<Shelf> result = dialog.showAndWait();
         result.ifPresent(newShelf -> {
-            deleteProductShelf(selectedProduct);
+            if (selectedProduct.shelfId != 0) deleteProductShelf(selectedProduct);
             addProductShelf(selectedProduct, newShelf);
             new Thread(this::filterProducts).start();
         });
