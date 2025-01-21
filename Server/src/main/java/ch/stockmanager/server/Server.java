@@ -61,7 +61,7 @@ public class Server {
 			.delete("/api/shelves/{id}", shelfController::delete);
 		// ProductShelf (only relevant for shelves)
 		app.post("/api/shelves/products", productShelfController::insert)
-			.delete("/api/shelves/products/{productCode}/{shelfId}", productShelfController::delete);
+			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
 
 		app.start(APP_PORT);
 	}

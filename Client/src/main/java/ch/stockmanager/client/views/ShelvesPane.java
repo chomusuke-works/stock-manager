@@ -83,7 +83,7 @@ public class ShelvesPane extends BorderPane {
     private void deleteProductShelf(ProductShelfQuantity productShelfQuantity) {
         HTTPHelper.delete(String.format(PATH_PREFIX + "products"
                 + "/" + productShelfQuantity.productCode
-                + "/" + productShelfQuantity.shelfId));
+                + "_" + productShelfQuantity.shelfId));
     }
 
     private List<ProductShelfQuantity> fetchProducts() {
