@@ -157,7 +157,9 @@ public class Salescontroller extends Controller {
 	}
 
 	private Sale getSale(Context context) throws NullPointerException, IllegalArgumentException {
-		Sale sale = new Sale();
+		return context.bodyAsClass(Sale.class);
+
+		/*Sale sale = new Sale();
 
 		sale.date = context.pathParam("date");
 		sale.code = ContextHelper.getLongPathParam(context, "code");
@@ -174,7 +176,7 @@ public class Salescontroller extends Controller {
 			sale.thrown = 0;
 		}
 
-		return sale;
+		return sale;*/
 	}
 
 	private boolean getBoolAndClose(ResultSet results) throws SQLException {

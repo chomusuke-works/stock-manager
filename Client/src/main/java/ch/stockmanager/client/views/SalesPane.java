@@ -1,6 +1,11 @@
 package ch.stockmanager.client.views;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -13,6 +18,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.converter.NumberStringConverter;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 
 import ch.stockmanager.types.Sale;
 import ch.stockmanager.client.util.HTTPHelper;
@@ -22,6 +29,11 @@ import ch.stockmanager.client.util.HTTPHelper;
  * It allows to search for a specific product, and enter a new sale or waste.
  */
 public class SalesPane extends BorderPane {
+    private final String PATH_PREFIX = "http://localhost:25565/api/sales/";
+
+    private Button buttonSale;
+    private Button buttonWaste;
+
 	public SalesPane() {
         this.setPadding(new Insets(15));
 
@@ -33,7 +45,7 @@ public class SalesPane extends BorderPane {
 
         VBox centerBox = getCenterBox(salesTable);
 
-        HBox transactionBox = getTransactionBox(salesTable.getSelectionModel().selectedItemProperty());
+        HBox transactionBox = getTransactionBox(salesTable);
 
         this.setTop(title);
         this.setCenter(centerBox);
@@ -80,19 +92,15 @@ public class SalesPane extends BorderPane {
         return box;
     }
 
-    private Button getTransactionButton(String buttonText, ObservableValue<Sale> selectedItem, ObservableValue<String> quantitySource) {
+    private Button getTransactionButton(String buttonText, EventHandler<ActionEvent> handler) {
         Button button = new Button(buttonText);
-        button.setOnAction(event -> {
-            Sale selectedSale = selectedItem.getValue();
-            if (selectedSale != null) {
-                System.out.printf("%s %d %s%n", buttonText, Integer.parseInt(quantitySource.getValue()), selectedSale.code);
-                // TODO: API call
-            }
-        });
+        button.setOnAction(handler);
         return button;
     }
 
-    private HBox getTransactionBox(ReadOnlyObjectProperty<Sale> selectedSale) {
+    private HBox getTransactionBox(TableView<Sale> table) {
+        ReadOnlyObjectProperty<Sale> selectedSale = table.getSelectionModel().selectedItemProperty();
+
         HBox box = new HBox(10);
         box.setPadding(new Insets(10, 0, 0, 0));
 
@@ -100,29 +108,67 @@ public class SalesPane extends BorderPane {
         quantityField.setPromptText("Quantité");
         quantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
 
+        TextField productCodeField = new TextField();
+        productCodeField.setPromptText("Code Produit");
+
+        // Update product code field when selecting an item in the table
+        selectedSale.addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                productCodeField.setText(String.valueOf(newSelection.code));
+            }
+        });
+
         // Transaction buttons
         ObservableValue<String> quantity = quantityField.textProperty();
-        Button buttonSale = getTransactionButton(
-            "Vendu",
-            selectedSale,
-            quantity
+        buttonSale = getTransactionButton(
+                "Vendu", e -> {
+                    if (quantity.getValue().isEmpty()) return;
+                    try {
+                        sell(Integer.parseInt(quantity.getValue()), 0,
+                                Long.parseLong(productCodeField.getText()));
+                        updateTable(table);
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Invalid product code format");
+                    }
+                }
         );
-        Button ButtonWaste = getTransactionButton(
-            "Jeté",
-            selectedSale,
-            quantity
+        buttonWaste = getTransactionButton(
+                "Jeté", e -> {
+                    if (quantity.getValue().isEmpty()) return;
+                    try {
+                        sell(0, Integer.parseInt(quantity.getValue()),
+                                Long.parseLong(productCodeField.getText()));
+                        updateTable(table);
+                    } catch (NumberFormatException ex) {
+                        System.out.println("Invalid product code format");
+                    }
+                }
         );
 
-        box.getChildren().addAll(quantityField, buttonSale, ButtonWaste);
+        box.getChildren().addAll(quantityField, productCodeField, buttonSale, buttonWaste);
 
         return box;
+    }
+
+    private void sell (int sold, int thrown, long code) {
+        Date date = Date.from(Instant.now());
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = localDate.format(formatter);
+        HTTPHelper.put(PATH_PREFIX, new Sale(formattedDate, code, sold, thrown));
+    }
+
+    private void updateTable(TableView<Sale> table) {
+        //int index = table.getSelectionModel().getSelectedIndex();
+        table.getItems().setAll(fetchSales());
+        //table.getSelectionModel().select(index);
     }
 
     /**
      * Connects to the API to fetch sales data.
      */
     private List<Sale> fetchSales() {
-        return HTTPHelper.getList("http://localhost:25565/api/sales/all", Sale.class);
+        return HTTPHelper.getList(PATH_PREFIX + "all", Sale.class);
     }
 
     private class FilterListener implements ChangeListener<String> {
