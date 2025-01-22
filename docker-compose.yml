@@ -14,5 +14,25 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  stockmanager-backend:
+    build:
+      context: ./Server
+      tags:
+        - "stockmanager-backend.latest"
+    expose:
+      - "25565"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zoo-api.rule=Host(`localhost`) && PathPrefix(`/api`)"
+
+  reverse-proxy:
+    image: traefik
+    command: --api.insecure=true --providers.docker --accesslog
+    ports:
+      - "80:80"      # HTTP
+      - "8080:8080"  # Web UI (enabled by --api.insecure=true)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   pgdata:
