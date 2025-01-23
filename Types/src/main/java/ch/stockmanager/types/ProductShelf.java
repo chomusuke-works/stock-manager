@@ -28,7 +28,7 @@ public class ProductShelf {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(productCode, productName, shelfId, shelfName, isStock);
+		return Objects.hash(productCode, shelfId);
 	}
 
 	@Override
