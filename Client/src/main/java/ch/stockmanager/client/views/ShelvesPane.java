@@ -123,6 +123,17 @@ public class ShelvesPane extends BorderPane {
             updateProducts();
         });
 
+        String changeShelfTitle = "Changer le rayon";
+        Button changeShelfButton = getButton(changeShelfTitle, e -> {
+            Shelf newShelf = shelfSelectionDialog(changeShelfTitle);
+            if (newShelf == null) return;
+
+            addProductToShelf(lastSelectedProduct.getValue(), newShelf);
+            deleteProductShelf(lastSelectedProduct.getValue());
+
+            updateProducts();
+        });
+
         Button removeFromShelfButton = getButton("Enlever de l'étagère",
                 e -> {
                     if (lastSelectedProduct != null) {
@@ -137,7 +148,7 @@ public class ShelvesPane extends BorderPane {
                     }
                 });
 
-        HBox buttonBox = new HBox(10, addToShelfButton, removeFromShelfButton);
+        HBox buttonBox = new HBox(10, addToShelfButton, changeShelfButton, removeFromShelfButton);
 
         VBox box = new VBox(10);
         box.setPadding(new Insets(10));
