@@ -10,10 +10,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
 public class ProductShelfTable extends TableView<ProductShelf> {
-	public ProductShelfTable() {
-		super();
-	}
-
 	public ProductShelfTable(ObservableList<ProductShelf> products) {
 		super();
 		this.setItems(products);
