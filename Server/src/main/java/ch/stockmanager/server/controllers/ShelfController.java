@@ -8,7 +8,7 @@ import java.util.List;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
-import ch.stockmanager.types.ProductShelfQuantity;
+import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
 import ch.stockmanager.server.util.*;
 
@@ -148,10 +148,10 @@ public class ShelfController extends Controller {
             var connection = dbInfo.getConnection();
             var statement = connection.prepareStatement(QUERY_PRODUCTS)
         ) {
-            List<ProductShelfQuantity> products = new LinkedList<>();
+            List<ProductShelf> products = new LinkedList<>();
             ResultSet results = statement.executeQuery();
             while (results.next()) {
-                products.add(getProductShelfQuantity(results));
+                products.add(getProductShelf(results));
             }
 
             context.status(HttpStatus.OK);
@@ -171,13 +171,13 @@ public class ShelfController extends Controller {
         );
     }
 
-    private ProductShelfQuantity getProductShelfQuantity(ResultSet resultSet) throws SQLException {
-        return new ProductShelfQuantity(
-            resultSet.getString(1),
-            resultSet.getInt(2),
-            resultSet.getString(3),
-            resultSet.getLong(4),
-            resultSet.getInt(5)
+    private ProductShelf getProductShelf(ResultSet resultSet) throws SQLException {
+        return new ProductShelf(
+            resultSet.getLong(1),
+            resultSet.getString(2),
+            resultSet.getInt(3),
+            resultSet.getString(4),
+            resultSet.getBoolean(5)
         );
     }
 }

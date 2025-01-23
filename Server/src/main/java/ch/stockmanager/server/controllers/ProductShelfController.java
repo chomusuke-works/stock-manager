@@ -6,7 +6,7 @@ import io.javalin.http.Context;
 
 import ch.stockmanager.server.util.ContextHelper;
 import ch.stockmanager.server.util.DBInfo;
-import ch.stockmanager.types.ProductShelfQuantity;
+import ch.stockmanager.types.ProductShelf;
 
 
 public class ProductShelfController extends Controller {
@@ -23,7 +23,7 @@ public class ProductShelfController extends Controller {
                 var connection = dbInfo.getConnection();
                 var statement = connection.prepareStatement(QUERY_INSERT)
         ) {
-            ProductShelfQuantity productShelf = context.bodyAsClass(ProductShelfQuantity.class);
+            ProductShelf productShelf = context.bodyAsClass(ProductShelf.class);
 
             statement.setLong(1, productShelf.productCode);
             statement.setInt(2, productShelf.shelfId);
