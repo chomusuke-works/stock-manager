@@ -1,13 +1,11 @@
 package ch.stockmanager.client.views;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.*;
 
-import ch.stockmanager.types.Product;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.collections.ListChangeListener;
+import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,7 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
 import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.types.ProductShelfQuantity;
+import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
 
 /**
@@ -29,12 +27,12 @@ import ch.stockmanager.types.Shelf;
  * * on the right, the shelves and buttons to add/rename/delete them
  */
 public class ShelvesPane extends BorderPane {
-    private static final String PATH_PREFIX = "http://localhost:25565/api/shelves/";
+    private static final String PATH_PREFIX = "http://localhost:25565/api/shelves";
 
-    TableView<ProductShelfQuantity> productsTableView;
-    TextField champRecherche;
-    ListView<Shelf> shelvesList;
-    TableView<ProductShelfQuantity> latestTableViewSelected;
+    ObservableList<ProductShelf> products = FXCollections.observableArrayList();
+    ObservableList<Shelf> shelves = FXCollections.observableArrayList();
+    ObservableValue<ProductShelf> lastSelectedProduct;
+    ObservableStringValue searchFieldContent;
 
 
     public ShelvesPane() {
@@ -55,12 +53,8 @@ public class ShelvesPane extends BorderPane {
         this.setCenter(splitPane);
     }
 
-    /**
-     * Simulation de chargement initial des rayons.
-     * À remplacer par un appel HTTP récupérant la liste des rayons depuis l'API.
-     */
     private List<Shelf> fetchShelves() {
-        return HTTPHelper.getList(PATH_PREFIX + "all", Shelf.class);
+        return HTTPHelper.getList(String.format("%s/all", PATH_PREFIX), Shelf.class);
     }
 
     private void postShelf(Shelf shelf) {
@@ -68,109 +62,79 @@ public class ShelvesPane extends BorderPane {
     }
 
     private void deleteShelf(Shelf shelf) {
-        HTTPHelper.delete(PATH_PREFIX + shelf.getId());
+        HTTPHelper.delete(String.format("%s/%d", PATH_PREFIX, shelf.getId()));
     }
 
     private void updateShelf(Shelf shelf) {
         int id = shelf.getId();
-        HTTPHelper.put(PATH_PREFIX + id, shelf);
+        HTTPHelper.put(String.format("%s/%d", PATH_PREFIX, id), shelf);
     }
 
-    private void addProductShelf(ProductShelfQuantity productShelfQuantity, Shelf shelf) {
-        HTTPHelper.post(PATH_PREFIX + "products", new ProductShelfQuantity(productShelfQuantity.productName, 0, shelf.name, productShelfQuantity.productCode, shelf.id));
+    private void addProductShelf(ProductShelf productShelf, Shelf shelf) {
+        ProductShelf toInsert = new ProductShelf(
+            productShelf.getProductCode(),
+            productShelf.getProductName(),
+            shelf.getId(),
+            shelf.getName(),
+            shelf.getIsStock()
+        );
+
+        HTTPHelper.post(String.format("%s/products", PATH_PREFIX), toInsert);
     }
 
-    private void deleteProductShelf(ProductShelfQuantity productShelfQuantity) {
-        HTTPHelper.delete(String.format(PATH_PREFIX + "products"
-                + "/" + productShelfQuantity.productCode
-                + "_" + productShelfQuantity.shelfId));
+    private void deleteProductShelf(ProductShelf productShelfQuantity) {
+        HTTPHelper.delete(String.format("%s/products/%d_%d",
+            PATH_PREFIX,
+            productShelfQuantity.productCode,
+            productShelfQuantity.shelfId
+        ));
     }
 
-    private List<ProductShelfQuantity> fetchProducts() {
-        return HTTPHelper.getList(PATH_PREFIX + "products", ProductShelfQuantity.class);
+    private List<ProductShelf> fetchProducts() {
+        return HTTPHelper.getList(String.format("%s/products", PATH_PREFIX), ProductShelf.class);
     }
 
     /**
      * Filtrer les Products affichés en fonction du texte saisi dans la barre de recherche.
      * Simulation locale pour l'instant, peut être remplacée par un vrai appel HTTP.
      */
-    private void filterProducts() {
-        String searchedTerm = champRecherche.getText();
-        if (searchedTerm == null || searchedTerm.trim().isEmpty())
-            productsTableView.getItems().setAll(fetchProducts());
+    private void applySearch() {
+        String searchTerm = searchFieldContent.getValue().trim().toLowerCase();
+        products.setAll(fetchProducts());
+        if (searchTerm.isEmpty()) return;
 
-        String lowercaseTerm = searchedTerm.trim().toLowerCase();
-
-        List<ProductShelfQuantity> filteredProducts =  fetchProducts().stream()
-            .filter(e -> e.productName.toLowerCase().contains(lowercaseTerm))
+        List<ProductShelf> filteredProducts = products.stream()
+            .filter(e -> e.productName.toLowerCase().contains(searchTerm))
             .toList();
 
-        productsTableView.getItems().setAll(filteredProducts);
+        products.setAll(filteredProducts);
     }
 
     private VBox getLeftBox() {
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
+        TableView<ProductShelf> productsTable = getProductsTable();
 
-        productsTableView = getEmptyTableView();
-        TableView<ProductShelfQuantity> store = getEmptyTableView();
-        latestTableViewSelected = store;
-        TableView<ProductShelfQuantity> stock = getEmptyTableView();
+        // Get references to items lists of the tables
+        productsTable.setItems(this.products);
+        lastSelectedProduct = productsTable.getSelectionModel().selectedItemProperty();
 
-        BiConsumer<TableView<ProductShelfQuantity>, Boolean> getProductList =
-            (tv, isStock) -> {
-                LinkedList<ProductShelfQuantity> list = new LinkedList<>(productsTableView.getItems());
-                LinkedList<ProductShelfQuantity> result = new LinkedList<>();
-                while (!list.isEmpty()) {
-                    var psq = list.pop();
-                    var other = otherOrWithShelfNull(psq, list);
-                    result.add(isStockFromId(psq.shelfId, isStock) ?  psq : other);
-                    list.remove(other);
-                }
+        TextField searchField = new TextField();
+        searchFieldContent = searchField.textProperty();
+        searchField.setPromptText("Rechercher un Produit...");
+        searchField.textProperty().addListener((obs, oldValue, newValue) -> applySearch());
 
-                tv.getItems().setAll(result);
-            };
+        Button changeShelfButton = getButton("Changer le rayon", e -> {
+            Shelf newShelf = askNewShelfDialog();
+            if (newShelf == null) return;
 
-        // Use the lambda in the listener
-        productsTableView.getItems().addListener((ListChangeListener<ProductShelfQuantity>) c -> {
-            while (c.next()) {
-                if (c.wasAdded() || c.wasRemoved() || c.wasUpdated()) {
-                    getProductList.accept(store, false);
-                    getProductList.accept(stock, true);
-                }
-            }
-        });
-        store.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) latestTableViewSelected = store;
+            addProductShelf(lastSelectedProduct.getValue(), newShelf);
+            deleteProductShelf(lastSelectedProduct.getValue());
         });
 
-        stock.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) latestTableViewSelected = stock;
-        });
-
-        new Thread(() -> {
-            productsTableView.getItems().setAll(fetchProducts());
-            getProductList.accept(store, false);
-            getProductList.accept(stock, true);
-        })
-                .start();
-
-        // Champ de recherche
-        champRecherche = new TextField();
-        champRecherche.setPromptText("Rechercher un Produit...");
-        champRecherche.textProperty().addListener((obs, oldValue, newValue) -> filterProducts());
-
-        // Bouton "Changer le rayon"
-        Button changeShelfButton = getButton("Changer le rayon",
-                e -> openChangeShelfDialog(latestTableViewSelected, latestTableViewSelected == stock));
-
-        // Bouton "Enlever de l'étagère"
         Button removeFromShelfButton = getButton("Enlever de l'étagère",
                 e -> {
-                    ProductShelfQuantity selectedProduct = latestTableViewSelected.getSelectionModel().getSelectedItem();
-                    if (selectedProduct != null) {
-                        deleteProductShelf(selectedProduct);
-                        new Thread(this::filterProducts).start();
+                    if (lastSelectedProduct != null) {
+                        deleteProductShelf(lastSelectedProduct.getValue());
+                        new Thread(this::applySearch).start();
                     } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Aucun produit sélectionné");
@@ -182,40 +146,37 @@ public class ShelvesPane extends BorderPane {
 
         HBox buttonBox = new HBox(10, changeShelfButton, removeFromShelfButton);
 
-        // Wrap TableViews in TitledPanes
-        TitledPane storePane = new TitledPane("Magasin", store);
-        TitledPane stockPane = new TitledPane("Stock", stock);
-
-        // Ajout des éléments au vbox de gauche
-        box.getChildren().setAll(champRecherche, storePane, stockPane, buttonBox);
+        VBox box = new VBox(10);
+        box.setPadding(new Insets(10));
+        box.getChildren().setAll(searchField, productsTable, buttonBox);
 
         return box;
     }
 
-    private boolean isStockFromId (Integer id, Boolean isStock) {
-        return shelvesList.getItems().filtered(s -> s.id == id).stream()
-                .findFirst()
-                .map(s -> s.isStock == isStock)
-                .orElse(true);
-    }
-    //!shelvesList.getItems().filtered(s -> s.id == id && s.isStock).isEmpty();
-    private ProductShelfQuantity otherOrWithShelfNull (ProductShelfQuantity psq, List<ProductShelfQuantity> list) {
-        return list.stream().filter(i -> i.productCode == psq.productCode).findFirst().orElseGet(
-                () -> new ProductShelfQuantity(psq.productName, psq.quantity, "", psq.productCode, 0));
-    };
+    private TableView<ProductShelf> getProductsTable() {
+        TableColumn<ProductShelf, String> productNameColumn = new TableColumn<>("Produit");
+        productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
 
+        TableColumn<ProductShelf, String> shelfNameColumn = new TableColumn<>("Etagère");
+        shelfNameColumn.setCellValueFactory(new PropertyValueFactory<>("shelfName"));
 
-    private TableView<ProductShelfQuantity> getEmptyTableView() {
-        LinkedList<String> columnNames = new LinkedList<>(List.of("Nom", "Stock", "Rayon"));
-        TableView<ProductShelfQuantity> table = new TableView<>();
+        /*
+        TableColumn<ProductShelf, String> storeSectionColumn = new TableColumn<>("section");
+        storeSectionColumn.setCellValueFactory(param -> {
+			if (param.getValue().)
+			return null;
+		});
 
-        for (String name : Arrays.stream(ProductShelfQuantity.class.getDeclaredFields()).map(Field::getName).toList()) {
-            TableColumn<ProductShelfQuantity, String> column = new TableColumn<>(columnNames.pop());
-            column.setCellValueFactory(new PropertyValueFactory<>(name));
-            table.getColumns().add(column);
-            if (columnNames.isEmpty()) break;
-        }
+         */
+
+        TableView<ProductShelf> table = new TableView<>();
         table.setPrefHeight(400);
+
+        table.getColumns().add(productNameColumn);
+        table.getColumns().add(shelfNameColumn);
+
+        new Thread(() -> products.setAll(fetchProducts()))
+            .start();
 
         return table;
     }
@@ -227,8 +188,10 @@ public class ShelvesPane extends BorderPane {
         Label labelRayons = new Label("Liste des rayons :");
         labelRayons.setFont(new Font("Arial", 14));
 
-        shelvesList = new ListView<>();
+        ListView<Shelf> shelvesList = new ListView<>();
+        shelvesList.setItems(this.shelves);
         shelvesList.setPrefHeight(200);
+
         VBox actionsBox = getActionsBox(shelvesList.getItems(), shelvesList.getSelectionModel().selectedItemProperty());
 
         box.getChildren().setAll(labelRayons, shelvesList, actionsBox);
@@ -281,7 +244,7 @@ public class ShelvesPane extends BorderPane {
 
             updateShelf(newShelf);
             shelvesList.setAll(fetchShelves());
-            filterProducts();
+            applySearch();
 
             fieldShelfRename.clear();
         });
@@ -292,7 +255,7 @@ public class ShelvesPane extends BorderPane {
 
             deleteShelf(selectedShelf);
             shelvesList.remove(selectedShelf);
-            filterProducts();
+            applySearch();
         });
 
         // Disposition pour la gestion des rayons
@@ -303,28 +266,25 @@ public class ShelvesPane extends BorderPane {
         return new VBox(10, hboxNouveauRayonStore, hboxNouveauRayonStock, hboxRenommerRayon, buttonShelfDelete);
     }
 
-    private void openChangeShelfDialog(TableView<ProductShelfQuantity> table, Boolean isStock) {
-        ProductShelfQuantity selectedProduct = table.getSelectionModel().getSelectedItem();
-
-        if (selectedProduct == null) {
+    private Shelf askNewShelfDialog() {
+        if (lastSelectedProduct.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Aucun produit sélectionné");
             alert.setHeaderText(null);
             alert.setContentText("Veuillez sélectionner un produit pour changer son rayon.");
             alert.showAndWait();
 
-            return;
+            return null;
         }
 
         Dialog<Shelf> dialog = new Dialog<>();
         dialog.setTitle("Changer le rayon");
-        dialog.setHeaderText("Sélectionnez un nouveau rayon pour le produit : " + selectedProduct.getProductName());
+        dialog.setHeaderText("Sélectionnez un nouveau rayon pour le produit : " + lastSelectedProduct.getValue().getProductName());
 
-        ButtonType confirmButtonType = new ButtonType("Confirmer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
 
         ComboBox<Shelf> shelfComboBox = new ComboBox<>();
-        shelfComboBox.getItems().setAll(fetchShelves().stream().filter(s -> s.isStock == isStock).toList());
+        shelfComboBox.getItems().setAll(fetchShelves());
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -337,18 +297,15 @@ public class ShelvesPane extends BorderPane {
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == confirmButtonType) {
+            if (dialogButton == ButtonType.APPLY) {
                 return shelfComboBox.getSelectionModel().getSelectedItem();
             }
+
             return null;
         });
 
         Optional<Shelf> result = dialog.showAndWait();
-        result.ifPresent(newShelf -> {
-            if (selectedProduct.shelfId != 0) deleteProductShelf(selectedProduct);
-            addProductShelf(selectedProduct, newShelf);
-            new Thread(this::filterProducts).start();
-        });
+        return result.orElse(null);
     }
 }
 
