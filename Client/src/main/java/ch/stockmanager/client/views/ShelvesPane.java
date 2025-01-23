@@ -100,7 +100,7 @@ public class ShelvesPane extends BorderPane {
      */
     private void applySearch() {
         String searchTerm = searchFieldContent.getValue().trim().toLowerCase();
-        products.setAll(fetchProducts());
+        updateProducts();
         if (searchTerm.isEmpty()) return;
 
         List<ProductShelf> filteredProducts = products.stream()
@@ -113,7 +113,6 @@ public class ShelvesPane extends BorderPane {
     private VBox getLeftBox() {
         TableView<ProductShelf> productsTable = new ProductShelfTable(products);
 
-        // Get references to items lists of the tables
         productsTable.setItems(this.products);
         updateProducts();
         lastSelectedProduct = productsTable.getSelectionModel().selectedItemProperty();
@@ -184,30 +183,25 @@ public class ShelvesPane extends BorderPane {
     }
 
     private VBox getActionsBox(ObservableList<Shelf> shelvesList, ReadOnlyObjectProperty<Shelf> selectedItem) {
-        TextField fieldShelfStoreCreate = new TextField();
+        TextField shelfNameField = new TextField();
         TextField fieldShelfStockCreate = new TextField();
         TextField fieldShelfRename = new TextField();
 
-        fieldShelfStoreCreate.setPromptText("Nouveau rayon");
+        shelfNameField.setPromptText("Nouveau rayon");
         fieldShelfStockCreate.setPromptText("Nouveau rayon");
         fieldShelfRename.setPromptText("Nouveau nom pour le rayon sélectionné");
 
-        Button buttonShelfAddStore = getButton("Ajouter au magasin", e -> {
-            Shelf newShelf = new Shelf(0, fieldShelfStoreCreate.getText().trim(), false);
+        CheckBox isShelfInStockCheckbox = new CheckBox();
+        isShelfInStockCheckbox.setTooltip(new Tooltip("Cocher si le rayon est dans le stock."));
+
+        Button addShelfButton = getButton("Ajouter au magasin", e -> {
+            Shelf newShelf = new Shelf(0, shelfNameField.getText().trim(), isShelfInStockCheckbox.selectedProperty().getValue());
             if (newShelf.getName().isEmpty()) return;
 
             postShelf(newShelf);
-            shelvesList.setAll(fetchShelves());
-            fieldShelfStoreCreate.clear();
-        });
-
-        Button buttonShelfAddStock = getButton("Ajouter au stock", e -> {
-            Shelf newShelf = new Shelf(0, fieldShelfStockCreate.getText().trim(), true);
-            if (newShelf.getName().isEmpty()) return;
-
-            postShelf(newShelf);
-            shelvesList.setAll(fetchShelves());
-            fieldShelfStockCreate.clear();
+            updateShelves();
+            shelfNameField.clear();
+            isShelfInStockCheckbox.setSelected(false);
         });
 
         Button buttonShelfRename = getButton("Renommer", e -> {
@@ -217,8 +211,7 @@ public class ShelvesPane extends BorderPane {
             if (oldShelf.getName() == null || newShelf.getName().isEmpty()) return;
 
             updateShelf(newShelf);
-            shelvesList.setAll(fetchShelves());
-            applySearch();
+            //updateProducts();
 
             fieldShelfRename.clear();
         });
@@ -232,12 +225,10 @@ public class ShelvesPane extends BorderPane {
             applySearch();
         });
 
-        // Disposition pour la gestion des rayons
-        HBox hboxNouveauRayonStore = new HBox(5, fieldShelfStoreCreate, buttonShelfAddStore);
-        HBox hboxNouveauRayonStock = new HBox(5, fieldShelfStockCreate, buttonShelfAddStock);
-        HBox hboxRenommerRayon = new HBox(5, fieldShelfRename, buttonShelfRename);
+        HBox newShelfControls = new HBox(5, shelfNameField, isShelfInStockCheckbox, addShelfButton);
+        HBox renameControls = new HBox(5, fieldShelfRename, buttonShelfRename);
 
-        return new VBox(10, hboxNouveauRayonStore, hboxNouveauRayonStock, hboxRenommerRayon, buttonShelfDelete);
+        return new VBox(10, newShelfControls, renameControls, buttonShelfDelete);
     }
 
     private Shelf askNewShelfDialog() {
