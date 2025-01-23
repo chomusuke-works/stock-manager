@@ -2,6 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.*;
 
+import ch.stockmanager.client.views.elements.ProductShelfTable;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -11,7 +12,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
@@ -111,10 +111,11 @@ public class ShelvesPane extends BorderPane {
     }
 
     private VBox getLeftBox() {
-        TableView<ProductShelf> productsTable = getProductsTable();
+        TableView<ProductShelf> productsTable = new ProductShelfTable(products);
 
         // Get references to items lists of the tables
         productsTable.setItems(this.products);
+        updateProducts();
         lastSelectedProduct = productsTable.getSelectionModel().selectedItemProperty();
 
         TextField searchField = new TextField();
@@ -128,13 +129,15 @@ public class ShelvesPane extends BorderPane {
 
             addProductShelf(lastSelectedProduct.getValue(), newShelf);
             deleteProductShelf(lastSelectedProduct.getValue());
+            
+            products.setAll(fetchProducts());
         });
 
         Button removeFromShelfButton = getButton("Enlever de l'étagère",
                 e -> {
                     if (lastSelectedProduct != null) {
                         deleteProductShelf(lastSelectedProduct.getValue());
-                        new Thread(this::applySearch).start();
+                        updateProducts();
                     } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Aucun produit sélectionné");
@@ -153,34 +156,6 @@ public class ShelvesPane extends BorderPane {
         return box;
     }
 
-    private TableView<ProductShelf> getProductsTable() {
-        TableColumn<ProductShelf, String> productNameColumn = new TableColumn<>("Produit");
-        productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
-
-        TableColumn<ProductShelf, String> shelfNameColumn = new TableColumn<>("Etagère");
-        shelfNameColumn.setCellValueFactory(new PropertyValueFactory<>("shelfName"));
-
-        /*
-        TableColumn<ProductShelf, String> storeSectionColumn = new TableColumn<>("section");
-        storeSectionColumn.setCellValueFactory(param -> {
-			if (param.getValue().)
-			return null;
-		});
-
-         */
-
-        TableView<ProductShelf> table = new TableView<>();
-        table.setPrefHeight(400);
-
-        table.getColumns().add(productNameColumn);
-        table.getColumns().add(shelfNameColumn);
-
-        new Thread(() -> products.setAll(fetchProducts()))
-            .start();
-
-        return table;
-    }
-
     private VBox getRightBox() {
         VBox box = new VBox(10);
         box.setPadding(new Insets(10));
@@ -196,8 +171,7 @@ public class ShelvesPane extends BorderPane {
 
         box.getChildren().setAll(labelRayons, shelvesList, actionsBox);
 
-        new Thread(() -> shelvesList.getItems().setAll(fetchShelves()))
-            .start();
+        updateShelves();
 
         return box;
     }
@@ -306,6 +280,16 @@ public class ShelvesPane extends BorderPane {
 
         Optional<Shelf> result = dialog.showAndWait();
         return result.orElse(null);
+    }
+    
+    public void updateProducts() {
+        new Thread(() -> products.setAll(fetchProducts()))
+            .start();
+    }
+    
+    public void updateShelves() {
+        new Thread(() -> shelves.setAll(fetchShelves()))
+            .start();
     }
 }
 
