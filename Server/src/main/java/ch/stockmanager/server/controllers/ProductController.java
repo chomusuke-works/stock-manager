@@ -196,7 +196,7 @@ public class ProductController extends Controller {
 		}
 	}
 
-	private Product getProduct(ResultSet resultSet) throws SQLException {
+	static Product getProduct(ResultSet resultSet) throws SQLException {
 		int supplierId = resultSet.getInt(4);
 
 		return new Product(

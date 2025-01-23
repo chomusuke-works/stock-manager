@@ -1,12 +1,9 @@
 package ch.stockmanager.server;
 
+import ch.stockmanager.server.controllers.*;
 import io.javalin.Javalin;
 
-import ch.stockmanager.server.controllers.ProductShelfController;
-import ch.stockmanager.server.controllers.Salescontroller;
-import ch.stockmanager.server.controllers.ShelfController;
 import ch.stockmanager.server.util.DBInfo;
-import ch.stockmanager.server.controllers.ProductController;
 
 public class Server {
 	// Database credentials
@@ -35,6 +32,7 @@ public class Server {
 		var salesController = new Salescontroller(dbInfo);
 		var shelfController = new ShelfController(dbInfo);
 		var productShelfController = new ProductShelfController(dbInfo);
+		var supplierController = new SupplierController(dbInfo);
 
 		Javalin app = Javalin.create();
 
@@ -62,6 +60,14 @@ public class Server {
 		// ProductShelf (only relevant for shelves)
 		app.post("/api/shelves/products", productShelfController::insert)
 			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
+
+		// Supplier
+		app.post("/api/supplier", supplierController::insert)
+			.get("/api/supplier/all", supplierController::getAll)
+			.get("/api/supplier/{id}/products", supplierController::getSupplierProducts)
+			.get("/api/supplier/{id}", supplierController::getOne)
+			.delete("/api/supplier/{id}", supplierController::delete)
+			.put("/api/supplier/{id}", supplierController::update);
 
 		app.start(APP_PORT);
 	}
