@@ -2,6 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.List;
 
+import ch.stockmanager.client.Client;
 import ch.stockmanager.client.util.HTTPHelper;
 import ch.stockmanager.client.util.JavaFxHelper;
 import javafx.beans.property.StringProperty;
@@ -16,20 +17,16 @@ import javafx.scene.text.Font;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 
-import javax.swing.plaf.TableHeaderUI;
-
 /**
  * This pane displays information about suppliers and which products they provide.
  */
 public class SuppliersPane extends BorderPane {
 
-    private final static String PATH_PREFIX = "http://localhost:25565/api/supplier/";
+    private final static String PATH_PREFIX = String.format("http://%s/api/supplier", Client.SERVER_IP);
     ListView<Supplier> suppliersList = new ListView<>();
 
-
-
     private List<Supplier> fetchSuppliers() {
-        return HTTPHelper.getList(PATH_PREFIX + "all", Supplier.class);
+        return HTTPHelper.getList(String.format("%s/all", PATH_PREFIX), Supplier.class);
     }
 
     private Supplier fetchSupplier(int id) {
@@ -107,7 +104,7 @@ public class SuppliersPane extends BorderPane {
                 productsTable.getItems())
         );
         // - Modify the ListView Cells so they display the name of the supplier
-        suppliersList.setCellFactory(param -> new ListCell<Supplier>() {
+        suppliersList.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(Supplier supplier, boolean empty) {
                 super.updateItem(supplier, empty);
