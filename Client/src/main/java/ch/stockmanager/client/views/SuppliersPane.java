@@ -62,7 +62,10 @@ public class SuppliersPane extends BorderPane {
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         // - List of suppliers (name only)
+        VBox suppliersListBox = new VBox();
         suppliersList.setPrefWidth(200);
+        Button addSupplierButton = new Button("Ajouter un fournisseur");
+        suppliersListBox.getChildren().addAll(suppliersList, addSupplierButton);
 
 
         // - Details of the supplier
@@ -92,7 +95,7 @@ public class SuppliersPane extends BorderPane {
 
         // - UI division
         SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(suppliersList, supplierDetailsBox);
+        splitPane.getItems().addAll(suppliersListBox, supplierDetailsBox);
         splitPane.setDividerPositions(0.3); // 30% / 70%
 
         // Logic
@@ -115,8 +118,15 @@ public class SuppliersPane extends BorderPane {
                 }
             }
         });
-        // - Edit button action
-        editButton.setOnAction(event -> showEditFields(supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, suppliersList.getSelectionModel().getSelectedItem()));
+        // - Edit supplier button action
+        editButton.setOnAction(event -> showEditOrCreateFields(false, supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, suppliersList.getSelectionModel().getSelectedItem()));
+        // - Create supplier button action
+        addSupplierButton.setOnAction(event -> {
+            Supplier s = new Supplier(0, "", "", 0);
+            suppliersList.getItems().add(s);
+            suppliersList.getSelectionModel().select(s);
+            showEditOrCreateFields(true, supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, suppliersList.getSelectionModel().getSelectedItem());
+        });
 
         // Pane creation
         this.setTop(title);
@@ -126,7 +136,7 @@ public class SuppliersPane extends BorderPane {
         new Thread(() -> suppliersList.getItems().setAll(fetchSuppliers())).start();
     }
 
-    private void showEditFields(Label nameLabel, Label contactLabel, Label orderFrequencyLabel, Supplier supplier) {
+    private void showEditOrCreateFields(boolean isNewSupplier, Label nameLabel, Label contactLabel, Label orderFrequencyLabel, Supplier supplier) {
         if (supplier == null) return;
 
         // Create the dialog
@@ -165,7 +175,11 @@ public class SuppliersPane extends BorderPane {
 
         // Show the dialog and wait for the result
         dialog.showAndWait().ifPresent(newSupplier -> {
-            modifySupplier(newSupplier);
+            if (isNewSupplier) {
+                addSupplier(newSupplier);
+            } else {
+                modifySupplier(newSupplier);
+            }
             // Instantly changes the values
             nameLabel.setText("Nom : " + newSupplier.getName());
             contactLabel.setText("Contact : " + newSupplier.getEmail());
