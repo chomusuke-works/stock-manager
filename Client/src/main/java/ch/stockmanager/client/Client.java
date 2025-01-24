@@ -20,14 +20,14 @@ public class Client extends Application {
 			new Tab("Dates d'expiration", new ExpiryDatesPane()),
 			new Tab("Commandes", new OrdersPane()),
 			new Tab("Ventes & invendus", new SalesPane()),
-			new Tab("Etagères", new ShelvesPane()),
+			new Tab("Rayons", new ShelvesPane()),
 			new Tab("Fournisseurs", new SuppliersPane())
 		);
 		mainPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
 		Scene scene = new Scene(mainPane, 900, 600);
 		stage.setScene(scene);
-		stage.setTitle("Application - Dashboard");
+		stage.setTitle("Stock Manager");
 		stage.show();
 	}
 

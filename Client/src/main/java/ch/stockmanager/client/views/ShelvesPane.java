@@ -39,7 +39,7 @@ public class ShelvesPane extends BorderPane {
     public ShelvesPane() {
         this.setPadding(new Insets(15));
 
-        Label title = new Label("Localisation des Products & Gestion des rayons");
+        Label title = new Label("Gestion des rayons");
         title.setFont(new Font("Arial", 20));
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
@@ -135,7 +135,7 @@ public class ShelvesPane extends BorderPane {
             updateProducts();
         });
 
-        Button removeFromShelfButton = getButton("Enlever de l'étagère",
+        Button removeFromShelfButton = getButton("Enlever du rayon",
                 e -> {
                     if (lastSelectedProduct != null) {
                         deleteProductShelf(lastSelectedProduct.getValue());
