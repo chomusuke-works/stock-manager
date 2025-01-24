@@ -24,7 +24,7 @@ CREATE TABLE produit (
 );
 
 CREATE TABLE vente (
-	dateVente DATE,
+	dateVente TIMESTAMP,
 	codeProduit BIGINT,
 	vendus INTEGER,
 	jetes INTEGER,

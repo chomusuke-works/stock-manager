@@ -1,12 +1,9 @@
 package ch.stockmanager.client.views;
 
 
+import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.function.BiFunction;
 
 import javafx.beans.property.StringProperty;
@@ -41,7 +38,7 @@ public class SalesPane extends BorderPane {
      * @param code the product code
      */
     private void sell (int sold, int thrown, long code) {
-        HTTPHelper.put(PATH_PREFIX, new Sale(today(), code, sold, thrown));
+        HTTPHelper.post(PATH_PREFIX, new Sale(now(), code, sold, thrown));
     }
 
     /**
@@ -64,7 +61,7 @@ public class SalesPane extends BorderPane {
         // - Main box -> search bar and table of sales
         TableView<Sale> salesTable = JavaFxHelper.getTable(
             new String[]{"Date", "Produit", "Vendus", "Jetés"},
-            new String[]{"date", "code", "sold", "thrown"}
+            new String[]{"timestamp", "code", "sold", "thrown"}
         );
 
         TextField searchField = new TextField();
@@ -163,10 +160,7 @@ public class SalesPane extends BorderPane {
     /**
      * @return today's date as a string, in format "yyyy-MM-dd" as used by the api and database
      */
-    private String today() {
-        Date date = Date.from(Instant.now());
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return localDate.format(formatter);
+    private Timestamp now() {
+        return Timestamp.from(Instant.now());
     }
 }

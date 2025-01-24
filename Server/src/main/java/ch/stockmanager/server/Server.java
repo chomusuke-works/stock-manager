@@ -58,7 +58,7 @@ public class Server {
 		// Sales
 		app.get("/api/sales/all", salesController::getAll)
 			.get("/api/sales/{date}_{code}", salesController::getOne)
-			.put("/api/sales/", salesController::sell);
+			.post("/api/sales", salesController::insert);
 
 		// Shelves
 		app.post("/api/shelves", shelfController::insert)

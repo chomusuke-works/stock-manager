@@ -1,24 +1,26 @@
 package ch.stockmanager.types;
 
+import java.sql.Timestamp;
+
 @SuppressWarnings("unused")
 public class Sale {
-	public String date;
+	public Timestamp timestamp;
 	public long code;
 	public int sold;
 	public int thrown;
 
 	public Sale() {}
 
-	public Sale(String date, long code, int sold, int thrown) {
-		this.date = date;
+	public Sale(Timestamp timestamp, long code, int sold, int thrown) {
+		this.timestamp = timestamp;
 		this.code = code;
 		this.sold = sold;
 		this.thrown = thrown;
 	}
 
 
-	public String getDate() {
-		return date;
+	public Timestamp getTimestamp() {
+		return timestamp;
 	}
 
 	public long getCode() {
