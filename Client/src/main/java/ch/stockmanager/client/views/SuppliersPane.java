@@ -63,10 +63,7 @@ public class SuppliersPane extends BorderPane {
         VBox suppliersListBox = new VBox();
         suppliersListBox.getChildren().setAll(new HBox(10, addSupplierButton, removeSupplierButton), suppliersList);
 
-        // - Details of the supplier
-        VBox supplierDetailsBox = new VBox(10);
-        supplierDetailsBox.setPadding(new Insets(10));
-
+        // Supplier details
         Label supplierNameLabel = new Label("Nom : ");
         Label supplierContactLabel = new Label("Contact : ");
         Label supplierOrderFrequencyLabel = new Label("Délai de livraison : ");
@@ -81,11 +78,12 @@ public class SuppliersPane extends BorderPane {
         );
         productsTable.setPrefHeight(150);
 
-        supplierDetailsBox.getChildren().setAll(
-                detailsBox,
-                new Label("Produits du fournisseur :"),
-                productsTable
+        VBox supplierDetailsBox = new VBox(10,
+            detailsBox,
+            new Label("Produits du fournisseur :"),
+            productsTable
         );
+        supplierDetailsBox.setPadding(new Insets(10));
 
         // - UI division
         SplitPane splitPane = new SplitPane();
