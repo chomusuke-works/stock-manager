@@ -2,9 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.List;
 
-import ch.stockmanager.client.Client;
-import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.client.util.JavaFxHelper;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -14,6 +12,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
+import ch.stockmanager.client.Client;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 
@@ -50,16 +51,17 @@ public class SuppliersPane extends BorderPane {
 
         // Components (Structure)
         // - Title
-        Label title = new Label("Vue des fournisseurs");
+        Label title = new Label("Fournisseurs");
         title.setFont(new Font("Arial", 24));
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
-        // - List of suppliers (name only)
-        VBox suppliersListBox = new VBox();
         suppliersList.setPrefWidth(200);
-        Button addSupplierButton = new Button("Ajouter un fournisseur");
-        suppliersListBox.getChildren().addAll(suppliersList, addSupplierButton);
+        VBox.setVgrow(suppliersList, Priority.ALWAYS);
+        Button addSupplierButton = new Button("+");
+        Button removeSupplierButton = new Button("-");
 
+        VBox suppliersListBox = new VBox();
+        suppliersListBox.getChildren().setAll(new HBox(10, addSupplierButton, removeSupplierButton), suppliersList);
 
         // - Details of the supplier
         VBox supplierDetailsBox = new VBox(10);
@@ -88,7 +90,7 @@ public class SuppliersPane extends BorderPane {
 
         // - UI division
         SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(suppliersListBox, supplierDetailsBox);
+        splitPane.getItems().setAll(suppliersListBox, supplierDetailsBox);
         splitPane.setDividerPositions(0.3); // 30% / 70%
 
         // Logic
@@ -119,6 +121,13 @@ public class SuppliersPane extends BorderPane {
             suppliersList.getItems().add(s);
             suppliersList.getSelectionModel().select(s);
             showEditOrCreateFields(true, supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, suppliersList.getSelectionModel().getSelectedItem());
+        });
+
+        ReadOnlyObjectProperty<Supplier> selectedSupplier = suppliersList.getSelectionModel().selectedItemProperty();
+        removeSupplierButton.disableProperty().bind(selectedSupplier.isNull());  // Can't delete a supplier if no selection
+        removeSupplierButton.setOnAction(event -> {
+            removeSupplier(suppliersList.getSelectionModel().getSelectedItem().getId());
+            suppliersList.getItems().setAll(fetchSuppliers());
         });
 
         // Pane creation
@@ -186,36 +195,19 @@ public class SuppliersPane extends BorderPane {
         });
     }
 
-    private static class supplierDetailsUpdater implements ChangeListener<Supplier> {
-        private final StringProperty supplierNameLabel,
-                supplierContactLabel,
-                supplierOrderFrequencyLabel;
-
-        private final ObservableList<Product> products;
-
-        public supplierDetailsUpdater(
-                StringProperty supplierNameLabel,
-                StringProperty supplierContactLabel,
-                StringProperty supplierOrderFrequencyLabel,
-                ObservableList<Product> products
-
-        ) {
-            this.supplierNameLabel = supplierNameLabel;
-            this.supplierContactLabel = supplierContactLabel;
-            this.supplierOrderFrequencyLabel = supplierOrderFrequencyLabel;
-
-            this.products = products;
-        }
+    private record supplierDetailsUpdater(StringProperty supplierNameLabel, StringProperty supplierContactLabel,
+                                          StringProperty supplierOrderFrequencyLabel,
+                                          ObservableList<Product> products) implements ChangeListener<Supplier> {
 
         @Override
-        public void changed(ObservableValue<? extends Supplier> observable, Supplier oldValue, Supplier newValue) {
-            if (newValue == null) return;
+            public void changed(ObservableValue<? extends Supplier> observable, Supplier oldValue, Supplier newValue) {
+                if (newValue == null) return;
 
-            supplierNameLabel.setValue("Nom : " + newValue.getName());
-            supplierContactLabel.setValue("Contact : " + newValue.getEmail());
-            supplierOrderFrequencyLabel.setValue("Délai de livraison : " + newValue.getOrderFrequency() + " jours");
+                supplierNameLabel.setValue("Nom : " + newValue.getName());
+                supplierContactLabel.setValue("Contact : " + newValue.getEmail());
+                supplierOrderFrequencyLabel.setValue("Délai de livraison : " + newValue.getOrderFrequency() + " jours");
 
-            products.setAll(fetchSupplierProducts(newValue.getId()));
+                products.setAll(fetchSupplierProducts(newValue.getId()));
+            }
         }
-    }
 }
