@@ -138,7 +138,7 @@ public class SupplierController extends Controller {
     public void getSupplierProducts(Context context) {
         try (
                 var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_GETALL)
+                var statement = connection.prepareStatement(QUERY_SUPPLIER_PRODUCTS)
         ) {
             int supplierId = ContextHelper.getIntPathParam(context, "id");
             statement.setInt(1, supplierId);
