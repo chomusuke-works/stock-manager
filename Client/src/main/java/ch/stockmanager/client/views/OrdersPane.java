@@ -2,6 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.List;
 
+import ch.stockmanager.client.Client;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -41,7 +42,7 @@ public class OrdersPane extends BorderPane {
     }
 
     private List<Order> fetchOrders() {
-        return HTTPHelper.getList("http://localhost:25565/api/products/orders", Order.class);
+        return HTTPHelper.getList(String.format("http://%s/api/products/orders", Client.SERVER_IP), Order.class);
     }
 
     private TableView<Order> getTable() {

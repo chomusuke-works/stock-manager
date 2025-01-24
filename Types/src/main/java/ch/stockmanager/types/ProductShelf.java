@@ -1,5 +1,7 @@
 package ch.stockmanager.types;
 
+import java.util.Objects;
+
 @SuppressWarnings("unused")
 public class ProductShelf {
 	public long productCode;
@@ -24,5 +26,19 @@ public class ProductShelf {
 	public String getShelfName() { return shelfName; }
 	public boolean getIsStock() { return isStock; }
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(productCode, shelfId);
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (obj.getClass() != getClass()) return false;
+		if (this == obj) return true;
+
+		// The product code and shelf code are the primary keys in the database model
+		ProductShelf other = (ProductShelf) obj;
+		return this.productCode == other.productCode && this.shelfId == other.shelfId;
+	}
 }

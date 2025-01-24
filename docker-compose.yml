@@ -1,0 +1,32 @@
+name: stock-manager
+services:
+  database:
+    container_name: bdr_postgresql_16
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_USER=kowag
+      - POSTGRES_PASSWORD=cjcex@&08GWzqRy6zMCqBR7E%ZYCFM5f
+      - POSTGRES_DB=stoman
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./Server
+    expose:
+      - "25565"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stockmanager.rule=Host(`localhost`) && PathPrefix(`/api`)"
+
+  reverse-proxy:
+    image: traefik
+    command: --providers.docker --providers.docker.exposedByDefault=false
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  pgdata:
