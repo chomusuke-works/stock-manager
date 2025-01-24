@@ -3,6 +3,7 @@ package ch.stockmanager.client.views;
 import java.util.*;
 
 import ch.stockmanager.client.Client;
+import ch.stockmanager.client.util.JavaFxHelper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +19,6 @@ import javafx.scene.text.Font;
 import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
 import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.client.views.elements.ProductShelfTable;
 
 /**
  * This pane displays information about the shelves on which the products are placed:
@@ -73,7 +73,7 @@ public class ShelvesPane extends BorderPane {
             productShelf.getProductName(),
             shelf.getId(),
             shelf.getName(),
-            shelf.getIsStock()
+            shelf.getIsStock() ? "stock" : "magasin"
         );
 
         if (products.contains(toInsert)) return;
@@ -103,7 +103,10 @@ public class ShelvesPane extends BorderPane {
     }
 
     private VBox getLeftBox() {
-        TableView<ProductShelf> productsTable = new ProductShelfTable(products);
+        TableView<ProductShelf> productsTable = JavaFxHelper.getTable(
+            new String[]{"Produit", "Rayon", "Secteur"},
+            new String[]{"productName", "shelfName", "sector"}
+        );
 
         productsTable.setItems(this.products);
         updateProducts();

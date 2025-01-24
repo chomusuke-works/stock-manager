@@ -75,10 +75,9 @@ public class SuppliersPane extends BorderPane {
         VBox detailsBox = new VBox(10, supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, editButton);
 
         // - Table of the supplier's products
-        TableView<Product> productsTable = JavaFxHelper.createTable(
-                new String[]{"Produit", "Prix"},
-                new Class<?>[]{String.class, Long.class},
-                new String[]{"name", "price"}
+        TableView<Product> productsTable = JavaFxHelper.getTable(
+            new String[]{"Produit", "Prix"},
+            new String[]{"code", "price"}
         );
         productsTable.setPrefHeight(150);
 

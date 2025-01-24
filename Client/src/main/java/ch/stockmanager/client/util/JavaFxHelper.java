@@ -2,12 +2,6 @@ package ch.stockmanager.client.util;
 
 import javafx.scene.control.Alert;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.*;
 
@@ -21,7 +15,10 @@ public class JavaFxHelper {
         alert.showAndWait();
     }
 
-    public static <T> TableView<T> createTable(String[] columnNames, Class<?>[] columnTypes, String[] propertyNames) {
+    public static <T> TableView<T> getTable(String[] columnNames, String[] propertyNames) {
+        if (columnNames.length != propertyNames.length)
+            throw new IllegalArgumentException("Must have an equal number of column and property names.");
+
         TableView<T> table = new TableView<>();
 
         for (int i = 0; i < columnNames.length; i++) {
