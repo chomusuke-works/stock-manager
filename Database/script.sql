@@ -91,6 +91,49 @@ CREATE TABLE produit_etagere (
 
 
 
+CREATE OR REPLACE FUNCTION deductSales()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS $$
+DECLARE
+    plusAncienLot lot%ROWTYPE;
+    aSoustraire INTEGER;
+BEGIN
+    aSoustraire := NEW.vendus + NEW.jetes;
+
+    LOOP
+        IF aSoustraire = 0 THEN EXIT;
+        END IF;
+
+        SELECT * INTO plusAncienLot
+        FROM lot
+        WHERE lot.codeproduit = NEW.codeproduit AND quantite > 0
+        ORDER BY lot.dateexpiration
+        LIMIT 1;
+
+        plusAncienLot.quantite = plusAncienLot.quantite - aSoustraire;
+        UPDATE lot
+        SET quantite = plusAncienLot.quantite
+        WHERE lot.codeproduit = plusAncienLot.codeproduit AND
+            lot.datereception = plusAncienLot.datereception;
+        IF plusAncienLot.quantite < 0 THEN
+            -- If there are still units to deduct
+            aSoustraire := abs(plusAncienLot.quantite);
+        ELSE aSoustraire := 0;
+        end if;
+    END LOOP;
+
+    DELETE FROM lot WHERE quantite <= 0;
+
+    RETURN NEW;
+END
+$$;
+
+CREATE TRIGGER registerSale BEFORE INSERT ON vente
+    FOR EACH ROW EXECUTE FUNCTION deductSales();
+
+
+
 CREATE VIEW produit_etagere_extended AS
 SELECT
     produit.code AS codeProduit,
