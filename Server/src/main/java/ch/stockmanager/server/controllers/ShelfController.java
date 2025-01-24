@@ -177,7 +177,7 @@ public class ShelfController extends Controller {
             resultSet.getString(2),
             resultSet.getInt(3),
             resultSet.getString(4),
-            resultSet.getBoolean(5)
+            resultSet.getString(5)
         );
     }
 }

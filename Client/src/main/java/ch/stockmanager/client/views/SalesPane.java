@@ -9,8 +9,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.BiFunction;
 
-import ch.stockmanager.client.Client;
-import ch.stockmanager.client.util.JavaFxHelper;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -25,6 +24,8 @@ import javafx.event.ActionEvent;
 
 import ch.stockmanager.types.Sale;
 import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.Client;
+import ch.stockmanager.client.util.JavaFxHelper;
 
 /**
  * This pane displays all sales and waste data.
@@ -61,38 +62,57 @@ public class SalesPane extends BorderPane {
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
         // - Main box -> search bar and table of sales
-        TableView<Sale> salesTable = JavaFxHelper.createTable(
-                new String[]{"Date", "produit", "Vendus", "Jetés"},
-                new Class<?>[]{String.class, Long.class, Integer.class, Integer.class},
-                new String[]{"date", "code", "sold", "thrown"});
+        TableView<Sale> salesTable = JavaFxHelper.getTable(
+            new String[]{"Date", "Produit", "Vendus", "Jetés"},
+            new String[]{"date", "code", "sold", "thrown"}
+        );
 
         TextField searchField = new TextField();
         searchField.setPromptText("Rechercher un produit...");
 
-        VBox mainBox = new VBox();
-        mainBox.getChildren().setAll(searchField, salesTable);
+        VBox mainBox = new VBox(searchField, salesTable);
 
-        // Transaction box -> button and fields to sell of throw products
-        HBox transactionBox = new HBox(10);
+        StringProperty quantity;
+        StringProperty productCode;
+        HBox transactionBox; {
+            TextField productQuantityField = new TextField();
+            productQuantityField.setPromptText("Quantité");
+            quantity = productQuantityField.textProperty();
 
-        Button sellButton = new Button("Vendu");
-        Button throwButton = new Button("Jeté");
+            TextField productCodeField = new TextField();
+            productCodeField.setPromptText("Code Produit");
+            productQuantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
+            productCode = productCodeField.textProperty();
 
-        TextField productQuantityField = new TextField();
-        productQuantityField.setPromptText("Quantité");
+            Button sellButton = new Button("Vendu");
+            Button throwButton = new Button("Jeté");
 
-        TextField productCodeField = new TextField();
-        productCodeField.setPromptText("Code Produit");
+            BiFunction<ObservableValue<String>, ObservableValue<String>, EventHandler<ActionEvent>> handler = (sold, thrown) ->
+                (EventHandler<ActionEvent>) event -> {
+                    if (quantity.getValue().isEmpty()) return;
+                    try {
+                        int s = (sold == null || sold.getValue().isEmpty()) ?
+                            0 : Integer.parseInt(sold.getValue());
+                        int t = (thrown == null || thrown.getValue().isEmpty()) ?
+                            0 : Integer.parseInt(thrown.getValue());
+                        sell(s, t, Long.parseLong(productCodeField.getText()));
+                        // fetch the updated data after modification
+                        salesTable.getItems().setAll(fetchSales());
+                    } catch (NumberFormatException ex) {
+                        JavaFxHelper.showAlert("Invalid code format", "The product code is invalid, or you have not selected any product.");
+                    }
+                };
 
-        transactionBox.getChildren().addAll(
-                productQuantityField, productCodeField, sellButton, throwButton);
+            sellButton.setOnAction(handler.apply(quantity, null));
+            throwButton.setOnAction(handler.apply(null, quantity));
+
+            transactionBox = new HBox(10, productQuantityField, productCodeField, sellButton, throwButton);
+        }
 
 
         // Size preferences
         salesTable.setPrefHeight(300);
         searchField.setPrefWidth(200);
-        transactionBox.setPadding(new Insets(10, 0, 0, 0));
-
 
         // Logic
         // - Update and filter the sales field when the content of the search bar changes
@@ -101,30 +121,8 @@ public class SalesPane extends BorderPane {
         salesTable.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldSelection, newSelection) -> {
                     if (newSelection != null)
-                        productCodeField.setText(String.valueOf(newSelection.code));
+                        productCode.setValue(String.valueOf(newSelection.code));
                 });
-        // - The product quantity field only accepts integers
-        productQuantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
-        // - Transaction buttons
-        ObservableValue<String> quantity = productQuantityField.textProperty();
-        //   (the same logic goes for both buttons)
-        BiFunction<ObservableValue<String>, ObservableValue<String>, EventHandler<ActionEvent>> handler = (sold, thrown) ->
-                (EventHandler<ActionEvent>) event -> {
-                    if (quantity.getValue().isEmpty()) return;
-                    try {
-                        int s = (sold == null || sold.getValue().isEmpty()) ?
-                                0 : Integer.parseInt(sold.getValue());
-                        int t = (thrown == null || thrown.getValue().isEmpty()) ?
-                                0 : Integer.parseInt(thrown.getValue());
-                        sell(s, t, Long.parseLong(productCodeField.getText()));
-                        // fetch the updated data after modification
-                        salesTable.getItems().setAll(fetchSales());
-                    } catch (NumberFormatException ex) {
-                        JavaFxHelper.showAlert("Invalid code format", "The product code is invalid, or you have not selected any product.");
-                    }
-                };
-        sellButton.setOnAction(handler.apply(quantity, null));
-        throwButton.setOnAction(handler.apply(null, quantity));
 
         // Pane creation
         this.setTop(title);

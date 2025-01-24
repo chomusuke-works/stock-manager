@@ -8,23 +8,23 @@ public class ProductShelf {
 	public String productName;
 	public int shelfId;
 	public String shelfName;
-	public boolean isStock;
+	public String sector;
 
 	public ProductShelf() {}
 
-	public ProductShelf(long productCode, String productName, int shelfId, String shelfName, boolean isStock) {
+	public ProductShelf(long productCode, String productName, int shelfId, String shelfName,  String sector) {
 		this.productCode = productCode;
 		this.productName = productName;
 		this.shelfId = shelfId;
 		this.shelfName = shelfName;
-		this.isStock = isStock;
+		this.sector = sector;
 	}
 
 	public long getProductCode() { return productCode; }
 	public String getProductName() { return productName; }
 	public int getShelfId() { return shelfId; }
 	public String getShelfName() { return shelfName; }
-	public boolean getIsStock() { return isStock; }
+	public String getSector() { return sector; }
 
 	@Override
 	public int hashCode() {
