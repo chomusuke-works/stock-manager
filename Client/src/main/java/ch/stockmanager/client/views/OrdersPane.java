@@ -2,17 +2,17 @@ package ch.stockmanager.client.views;
 
 import java.util.List;
 
-import ch.stockmanager.client.Client;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.converter.NumberStringConverter;
 
-import ch.stockmanager.client.util.HTTPHelper;
 import ch.stockmanager.types.Order;
+import ch.stockmanager.client.Client;
+import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.HTTPHelper;
 
 
 /**
@@ -28,7 +28,10 @@ public class OrdersPane extends BorderPane {
         title.setFont(new Font("Arial", 24));
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
-        TableView<Order> ordersTable = getTable();
+        TableView<Order> ordersTable = JavaFxHelper.getTable(
+            new String[]{"Produit", "Quantité"},
+            new String[]{"name", "quantity"}
+        );
 
         // Section basse : formulaire pour commander manuellement
         HBox formBox = getOrderForm(ordersTable.getItems());
@@ -39,31 +42,13 @@ public class OrdersPane extends BorderPane {
         this.setTop(title);
         this.setCenter(centerBox);
         this.setBottom(formBox);
+
+        new Thread(() -> ordersTable.getItems().setAll(fetchOrders()))
+            .start();
     }
 
     private List<Order> fetchOrders() {
         return HTTPHelper.getList(String.format("http://%s/api/products/orders", Client.SERVER_IP), Order.class);
-    }
-
-    private TableView<Order> getTable() {
-        TableView<Order> ordersTable = new TableView<>();
-        ordersTable.setPrefHeight(300);
-
-        TableColumn<Order, String> columnProduct = new TableColumn<>("Produit");
-        columnProduct.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Order, Number> columnQuantity = new TableColumn<>("Quantité");
-        columnQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-
-        // TODO unit and total price of a row
-
-        ordersTable.getColumns().add(columnProduct);
-        ordersTable.getColumns().add(columnQuantity);
-
-        new Thread(() -> ordersTable.getItems().setAll(fetchOrders()))
-            .start();
-
-        return ordersTable;
     }
 
     private HBox getOrderForm(ObservableList<Order> orderDestination) {
