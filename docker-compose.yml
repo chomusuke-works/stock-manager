@@ -14,8 +14,6 @@ services:
   backend:
     build:
       context: ./Server
-      tags:
-        - "stockmanager-backend.latest"
     expose:
       - "25565"
     labels:
@@ -26,7 +24,7 @@ services:
     image: traefik
     command: --providers.docker --providers.docker.exposedByDefault=false
     ports:
-      - "80:80"      # HTTP
+      - "80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
