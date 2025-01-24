@@ -29,24 +29,20 @@ public class SuppliersPane extends BorderPane {
         return HTTPHelper.getList(String.format("%s/all", PATH_PREFIX), Supplier.class);
     }
 
-    private Supplier fetchSupplier(int id) {
-        return HTTPHelper.get(PATH_PREFIX + id, Supplier.class);
-    }
-
     private void addSupplier(Supplier supplier) {
         HTTPHelper.post(PATH_PREFIX, supplier);
     }
 
     private void modifySupplier(Supplier supplier) {
-        HTTPHelper.put(PATH_PREFIX + supplier.getId(), supplier);
+        HTTPHelper.put(String.format("%s/%d", PATH_PREFIX, supplier.getId()), supplier);
     }
 
     private void removeSupplier(int id) {
-        HTTPHelper.delete(PATH_PREFIX + id);
+        HTTPHelper.delete(String.format("%s/%d", PATH_PREFIX, id));
     }
 
     private static List<Product> fetchSupplierProducts(int id) {
-        return HTTPHelper.getList(PATH_PREFIX + id + "/products", Product.class);
+        return HTTPHelper.getList(String.format("%s/%d/products", PATH_PREFIX, id), Product.class);
     }
 
     public SuppliersPane() {
