@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.function.BiFunction;
 
+import ch.stockmanager.client.Client;
 import ch.stockmanager.client.util.JavaFxHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,7 +31,7 @@ import ch.stockmanager.client.util.HTTPHelper;
  * It allows to search for a specific product, and enter a new sale or waste.
  */
 public class SalesPane extends BorderPane {
-    private final String PATH_PREFIX = "http://localhost:25565/api/sales/";
+    private final String PATH_PREFIX = String.format("http://%s/api/sales", Client.SERVER_IP);
 
     /**
      * Connect to the API to update the total of units sold a thrown on a date, for one product
@@ -46,7 +47,7 @@ public class SalesPane extends BorderPane {
      * Connects to the API to fetch sales data.
      */
     private List<Sale> fetchSales() {
-        return HTTPHelper.getList(PATH_PREFIX + "all", Sale.class);
+        return HTTPHelper.getList(String.format("%s/all", PATH_PREFIX), Sale.class);
     }
 
 	public SalesPane() {

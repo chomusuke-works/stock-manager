@@ -10,6 +10,8 @@ import ch.stockmanager.client.views.*;
 
 public class Client extends Application {
 
+	public static String SERVER_IP = "localhost";
+
 	@Override
 	public void start(Stage stage) {
 		TabPane mainPane = new TabPane();
@@ -30,6 +32,12 @@ public class Client extends Application {
 	}
 
 	public static void main(String[] args) {
+		if (args.length == 2) {
+			if (!args[0].equals("--host")) return;
+
+			SERVER_IP = args[1];
+		}
+
 		launch();
 	}
 }
