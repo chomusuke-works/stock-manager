@@ -1,114 +1,196 @@
 package ch.stockmanager.client.views;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 
+import javax.swing.plaf.TableHeaderUI;
+
 /**
  * This pane displays information about suppliers and which products they provide.
  */
 public class SuppliersPane extends BorderPane {
+
+    private final static String PATH_PREFIX = "http://localhost:25565/api/supplier/";
+    ListView<Supplier> suppliersList = new ListView<>();
+
+
+
+    private List<Supplier> fetchSuppliers() {
+        return HTTPHelper.getList(PATH_PREFIX + "all", Supplier.class);
+    }
+
+    private Supplier fetchSupplier(int id) {
+        return HTTPHelper.get(PATH_PREFIX + id, Supplier.class);
+    }
+
+    private void addSupplier(Supplier supplier) {
+        HTTPHelper.post(PATH_PREFIX, supplier);
+    }
+
+    private void modifySupplier(Supplier supplier) {
+        HTTPHelper.put(PATH_PREFIX + supplier.getId(), supplier);
+    }
+
+    private void removeSupplier(int id) {
+        HTTPHelper.delete(PATH_PREFIX + id);
+    }
+
+    private static List<Product> fetchSupplierProducts(int id) {
+        return HTTPHelper.getList(PATH_PREFIX + id + "/products", Product.class);
+    }
+
     public SuppliersPane() {
         this.setPadding(new Insets(15));
 
+        // Components (Structure)
+        // - Title
         Label title = new Label("Vue des fournisseurs");
         title.setFont(new Font("Arial", 24));
         BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
-        ListView<Supplier> suppliersList = new ListView<>();
+        // - List of suppliers (name only)
         suppliersList.setPrefWidth(200);
 
-        VBox supplierDetails = getSupplierDetails(suppliersList.getSelectionModel().selectedItemProperty());
 
-        SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(suppliersList, supplierDetails);
-        splitPane.setDividerPositions(0.3); // 30% / 70%
+        // - Details of the supplier
+        VBox supplierDetailsBox = new VBox(10);
+        supplierDetailsBox.setPadding(new Insets(10));
 
-        this.setTop(title);
-        this.setCenter(splitPane);
-
-        new Thread(() -> suppliersList.getItems().setAll(fetchSuppliers()))
-            .start();
-    }
-
-    private List<Supplier> fetchSuppliers() {
-        throw new RuntimeException("This function is not implemented yet");
-    }
-
-    @SuppressWarnings("unused")
-    private List<Product> fetchProducts(Supplier supplier) {
-        throw new RuntimeException("This function is not implemented yet");
-    }
-
-    private TableView<Product> getProductsTable() {
-        TableView<Product> table = new TableView<>();
-        table.setPrefHeight(150);
-
-        TableColumn<Product, String> colProduit = new TableColumn<>("Produit");
-        colProduit.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Product, BigDecimal> colPrix = new TableColumn<>("Prix");
-        colPrix.setCellValueFactory(new PropertyValueFactory<>("price"));
-
-        table.getColumns().add(colProduit);
-        table.getColumns().add(colPrix);
-
-        return table;
-    }
-
-    private VBox getSupplierDetails(ObservableValue<Supplier> selectedSupplier) {
-        // Labels pour afficher le nom, le contact et le délai de livraison
         Label supplierNameLabel = new Label("Nom : ");
         Label supplierContactLabel = new Label("Contact : ");
         Label supplierOrderFrequencyLabel = new Label("Délai de livraison : ");
+        Button editButton = new Button("Edit");
 
-        TableView<Product> productsTable = getProductsTable();
+        VBox detailsBox = new VBox(10, supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, editButton);
 
-        selectedSupplier.addListener(new supplierDetailsUpdater(
-            supplierNameLabel.textProperty(),
-            supplierContactLabel.textProperty(),
-            supplierOrderFrequencyLabel.textProperty(),
-            productsTable.getItems())
+        // - Table of the supplier's products
+        TableView<Product> productsTable = JavaFxHelper.createTable(
+                new String[]{"Produit", "Prix"},
+                new Class<?>[]{String.class, Long.class},
+                new String[]{"name", "price"}
+        );
+        productsTable.setPrefHeight(150);
+
+        supplierDetailsBox.getChildren().setAll(
+                detailsBox,
+                new Label("Produits du fournisseur :"),
+                productsTable
         );
 
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
+        // - UI division
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(suppliersList, supplierDetailsBox);
+        splitPane.setDividerPositions(0.3); // 30% / 70%
 
-        box.getChildren().addAll(
-            supplierNameLabel,
-            supplierContactLabel,
-            supplierOrderFrequencyLabel,
-            new Label("Produits du fournisseur :"),
-            productsTable
+        // Logic
+        // - Display the details of the supplier selected
+        suppliersList.getSelectionModel().selectedItemProperty().addListener(new supplierDetailsUpdater(
+                supplierNameLabel.textProperty(),
+                supplierContactLabel.textProperty(),
+                supplierOrderFrequencyLabel.textProperty(),
+                productsTable.getItems())
         );
+        // - Modify the ListView Cells so they display the name of the supplier
+        suppliersList.setCellFactory(param -> new ListCell<Supplier>() {
+            @Override
+            protected void updateItem(Supplier supplier, boolean empty) {
+                super.updateItem(supplier, empty);
+                if (empty || supplier == null) {
+                    setText(null);
+                } else {
+                    setText(supplier.getName());
+                }
+            }
+        });
+        // - Edit button action
+        editButton.setOnAction(event -> showEditFields(supplierNameLabel, supplierContactLabel, supplierOrderFrequencyLabel, suppliersList.getSelectionModel().getSelectedItem()));
 
-        return box;
+        // Pane creation
+        this.setTop(title);
+        this.setCenter(splitPane);
+
+        // Initialisation
+        new Thread(() -> suppliersList.getItems().setAll(fetchSuppliers())).start();
     }
 
-    private class supplierDetailsUpdater implements ChangeListener<Supplier> {
+    private void showEditFields(Label nameLabel, Label contactLabel, Label orderFrequencyLabel, Supplier supplier) {
+        if (supplier == null) return;
+
+        // Create the dialog
+        Dialog<Supplier> dialog = new Dialog<>();
+        dialog.setTitle("Edit Supplier");
+
+        // Set the button types
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // Create the fields
+        TextField nameField = new TextField(supplier.getName());
+        TextField contactField = new TextField(supplier.getEmail());
+        TextField orderFrequencyField = new TextField(String.valueOf(supplier.getOrderFrequency()));
+
+        // Create the layout
+        VBox editBox = new VBox(10, new Label("Name:"), nameField, new Label("Contact:"), contactField, new Label("Order Frequency:"), orderFrequencyField);
+        dialog.getDialogPane().setContent(editBox);
+
+        // Convert the result to a supplier when the save button is clicked
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                String newName = nameField.getText();
+                String newContact = contactField.getText();
+                int newOrderFrequency;
+                try {
+                    newOrderFrequency = Integer.parseInt(orderFrequencyField.getText());
+                } catch (NumberFormatException e) {
+                    JavaFxHelper.showAlert("Mauvais format", "La fréquence de livraison doit être un nombre entier.");
+                    return null;
+                }
+                return new Supplier(supplier.getId(), newName, newContact, newOrderFrequency);
+            }
+            return null;
+        });
+
+        // Show the dialog and wait for the result
+        dialog.showAndWait().ifPresent(newSupplier -> {
+            modifySupplier(newSupplier);
+            // Instantly changes the values
+            nameLabel.setText("Nom : " + newSupplier.getName());
+            contactLabel.setText("Contact : " + newSupplier.getEmail());
+            orderFrequencyLabel.setText("Délai de livraison : " + newSupplier.getOrderFrequency() + " jours");
+            // Then loads from server to assure they're true
+            suppliersList.getItems().setAll(fetchSuppliers());
+            suppliersList.getItems().forEach(item -> {
+                if (item.name.equals(newSupplier.getName()))
+                    suppliersList.getSelectionModel().select(item);}
+            );
+        });
+    }
+
+    private static class supplierDetailsUpdater implements ChangeListener<Supplier> {
         private final StringProperty supplierNameLabel,
-            supplierContactLabel,
-            supplierOrderFrequencyLabel;
+                supplierContactLabel,
+                supplierOrderFrequencyLabel;
 
         private final ObservableList<Product> products;
 
         public supplierDetailsUpdater(
-            StringProperty supplierNameLabel,
-            StringProperty supplierContactLabel,
-            StringProperty supplierOrderFrequencyLabel,
-            ObservableList<Product> products
+                StringProperty supplierNameLabel,
+                StringProperty supplierContactLabel,
+                StringProperty supplierOrderFrequencyLabel,
+                ObservableList<Product> products
 
         ) {
             this.supplierNameLabel = supplierNameLabel;
@@ -126,8 +208,7 @@ public class SuppliersPane extends BorderPane {
             supplierContactLabel.setValue("Contact : " + newValue.getEmail());
             supplierOrderFrequencyLabel.setValue("Délai de livraison : " + newValue.getOrderFrequency() + " jours");
 
-            products.setAll(fetchProducts(newValue));
+            products.setAll(fetchSupplierProducts(newValue.getId()));
         }
     }
 }
-
