@@ -2,6 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.*;
 
+import ch.stockmanager.client.Client;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -27,7 +28,7 @@ import ch.stockmanager.client.views.elements.ProductShelfTable;
  * * on the right, the shelves and buttons to add/rename/delete them
  */
 public class ShelvesPane extends BorderPane {
-    private static final String PATH_PREFIX = "http://localhost:25565/api/shelves";
+    private static final String PATH_PREFIX = String.format("http://%s/api/shelves", Client.SERVER_IP);
 
     ObservableList<ProductShelf> products = FXCollections.observableArrayList();
     ObservableList<Shelf> shelves = FXCollections.observableArrayList();

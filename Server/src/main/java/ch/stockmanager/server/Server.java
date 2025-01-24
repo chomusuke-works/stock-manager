@@ -10,8 +10,8 @@ import ch.stockmanager.server.controllers.ProductController;
 
 public class Server {
 	// Database credentials
-	private static final String DB_HOST = "localhost";
-	private static final int DB_PORT = 5666;
+	private static String DB_HOST = "locahost";
+	private static int DB_PORT = 5666;
 	private static final String DB_NAME = "stoman";
 	private static final String USER = "kowag";
 	private static final String PASSWORD = "cjcex@&08GWzqRy6zMCqBR7E%ZYCFM5f";
@@ -20,6 +20,16 @@ public class Server {
 	private static final int APP_PORT = 25565;
 
 	public static void main(String[] args) {
+		if (args.length == 4) {
+			if (!args[0].equals("--host") || !args[2].equals("--port")) {
+				System.err.println("Invalid start parameter(s)");
+
+				return;
+			}
+
+			DB_HOST = args[1];
+			DB_PORT = Integer.parseInt(args[3]);
+		}
 
 		DBInfo dbInfo = new DBInfo(
 			String.format("jdbc:postgresql://%s:%d/%s",

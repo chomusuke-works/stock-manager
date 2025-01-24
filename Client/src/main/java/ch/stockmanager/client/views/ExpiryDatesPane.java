@@ -2,6 +2,7 @@ package ch.stockmanager.client.views;
 
 import java.util.List;
 
+import ch.stockmanager.client.Client;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -29,7 +30,7 @@ public class ExpiryDatesPane extends BorderPane {
 	}
 
 	private List<ProductDateQuantity> fetchData(EntryType entryType) {
-		return HTTPHelper.getList("http://localhost:25565/api/products/" + entryType.getPathSuffix(), ProductDateQuantity.class);
+		return HTTPHelper.getList(String.format("http://%s/api/products/%s", Client.SERVER_IP, entryType.getPathSuffix()), ProductDateQuantity.class);
 	}
 
 	private TableView<ProductDateQuantity> getTable() {
