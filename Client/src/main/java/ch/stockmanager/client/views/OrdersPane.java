@@ -1,19 +1,14 @@
 package ch.stockmanager.client.views;
 
-import java.util.List;
-
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.util.converter.NumberStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 
 import ch.stockmanager.types.Order;
-import ch.stockmanager.client.Client;
 import ch.stockmanager.client.util.JavaFxHelper;
-import ch.stockmanager.client.util.HTTPHelper;
-
+import ch.stockmanager.client.controllers.OrdersController;
 
 /**
  * This pane presents all products that need to be ordered, which are
@@ -21,7 +16,12 @@ import ch.stockmanager.client.util.HTTPHelper;
  * for the current time of the year.
  */
 public class OrdersPane extends BorderPane {
-	public OrdersPane() {
+
+    private final OrdersController controller;
+
+	public OrdersPane(OrdersController controller) {
+        this.controller = controller;
+
         this.setPadding(new Insets(15));
 
         Label title = new Label("Gestion des commandes");
@@ -32,63 +32,46 @@ public class OrdersPane extends BorderPane {
             new String[]{"Produit", "Quantité"},
             new String[]{"name", "quantity"}
         );
+        ordersTable.setItems(controller.getOrders());
 
         // Section basse : formulaire pour commander manuellement
-        HBox formBox = getOrderForm(ordersTable.getItems());
-
-        // Mise en page verticale
-        VBox centerBox = new VBox(10, ordersTable);
+        HBox formBox = getOrderForm();
 
         this.setTop(title);
-        this.setCenter(centerBox);
+        this.setCenter(ordersTable);
         this.setBottom(formBox);
-
-        new Thread(() -> ordersTable.getItems().setAll(fetchOrders()))
-            .start();
     }
 
-    private List<Order> fetchOrders() {
-        return HTTPHelper.getList(String.format("http://%s/api/products/orders", Client.SERVER_IP), Order.class);
-    }
-
-    private HBox getOrderForm(ObservableList<Order> orderDestination) {
+    private HBox getOrderForm() {
         TextField nameField = new TextField();
         nameField.setPromptText("Nom du produit");
 
         TextField quantityField = new TextField();
         quantityField.setPromptText("Quantité");
-        quantityField.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
+        quantityField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 
-        Button boutonAjouterCommande = new Button("Commander");
-        boutonAjouterCommande.setOnAction(e -> {
+        Button orderButton = getOrderButton(nameField, quantityField);
+
+        return new HBox(10, nameField, quantityField, orderButton);
+    }
+
+    private Button getOrderButton(TextField nameField, TextField quantityField) {
+        Button button = new Button("Commander");
+        button.setOnAction(e -> {
             Order newOrder = new Order(
                 nameField.getText().trim(),
                 Integer.parseInt(quantityField.getText())
             );
-            nameField.clear();
-            quantityField.clear();
 
             if (newOrder.name.isEmpty() || newOrder.quantity == 0) return;
 
-            // Update the quantity if an order is found
-            for (int i = 0; i < orderDestination.size(); ++i) {
-                Order o = orderDestination.get(i);
-                if (o.getName().equals(newOrder.name)) {
-                    newOrder.quantity += o.getQuantity();
-                    orderDestination.set(i, newOrder);
+            controller.addOrder(newOrder);
 
-                    return;
-                }
-            }
-
-            // If no matching order is found
-            orderDestination.add(newOrder);
+            nameField.clear();
+            quantityField.clear();
         });
 
-        HBox hBoxForm = new HBox(10, nameField, quantityField, boutonAjouterCommande);
-        hBoxForm.setPadding(new Insets(10, 0, 0, 0));
-
-        return hBoxForm;
+        return button;
     }
 }
 

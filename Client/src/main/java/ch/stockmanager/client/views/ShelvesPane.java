@@ -2,13 +2,11 @@ package ch.stockmanager.client.views;
 
 import java.util.*;
 
-import ch.stockmanager.client.Client;
+import ch.stockmanager.client.controllers.ShelvesController;
 import ch.stockmanager.client.util.JavaFxHelper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -18,7 +16,6 @@ import javafx.scene.text.Font;
 
 import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
-import ch.stockmanager.client.util.HTTPHelper;
 
 /**
  * This pane displays information about the shelves on which the products are placed:
@@ -28,15 +25,13 @@ import ch.stockmanager.client.util.HTTPHelper;
  * * on the right, the shelves and buttons to add/rename/delete them
  */
 public class ShelvesPane extends BorderPane {
-    private static final String PATH_PREFIX = String.format("http://%s/api/shelves", Client.SERVER_IP);
-
-    ObservableList<ProductShelf> products = FXCollections.observableArrayList();
-    ObservableList<Shelf> shelves = FXCollections.observableArrayList();
     ObservableValue<ProductShelf> lastSelectedProduct;
     ObservableStringValue searchFieldContent;
+    private final ShelvesController controller;
 
+    public ShelvesPane(ShelvesController controller) {
+        this.controller = controller;
 
-    public ShelvesPane() {
         this.setPadding(new Insets(15));
 
         Label title = new Label("Gestion des rayons");
@@ -54,95 +49,42 @@ public class ShelvesPane extends BorderPane {
         this.setCenter(splitPane);
     }
 
-    private void postShelf(Shelf shelf) {
-        HTTPHelper.post(PATH_PREFIX, shelf);
-    }
-
-    private void deleteShelf(Shelf shelf) {
-        HTTPHelper.delete(String.format("%s/%d", PATH_PREFIX, shelf.getId()));
-    }
-
-    private void updateShelf(Shelf shelf) {
-        int id = shelf.getId();
-        HTTPHelper.put(String.format("%s/%d", PATH_PREFIX, id), shelf);
-    }
-
-    private void addProductToShelf(ProductShelf productShelf, Shelf shelf) {
-        ProductShelf toInsert = new ProductShelf(
-            productShelf.getProductCode(),
-            productShelf.getProductName(),
-            shelf.getId(),
-            shelf.getName(),
-            shelf.getIsStock() ? "stock" : "magasin"
-        );
-
-        if (products.contains(toInsert)) return;
-
-        HTTPHelper.post(String.format("%s/products", PATH_PREFIX), toInsert);
-    }
-
-    private void deleteProductShelf(ProductShelf productShelfQuantity) {
-        HTTPHelper.delete(String.format("%s/products/%d_%d",
-            PATH_PREFIX,
-            productShelfQuantity.productCode,
-            productShelfQuantity.shelfId
-        ));
-    }
-
-    private void searchProduct(String searchTerm) {
-        String treatedSearchTerm = searchTerm.trim().toLowerCase();
-        if (treatedSearchTerm.isEmpty()) return;
-
-        updateProducts();
-
-        List<ProductShelf> filteredProducts = products.stream()
-            .filter(e -> e.productName.toLowerCase().contains(treatedSearchTerm))
-            .toList();
-
-        products.setAll(filteredProducts);
-    }
-
     private VBox getLeftBox() {
         TableView<ProductShelf> productsTable = JavaFxHelper.getTable(
             new String[]{"Produit", "Rayon", "Secteur"},
             new String[]{"productName", "shelfName", "sector"}
         );
 
-        productsTable.setItems(this.products);
-        updateProducts();
+        productsTable.setItems(controller.getProductsOnShelves());
         lastSelectedProduct = productsTable.getSelectionModel().selectedItemProperty();
 
         TextField searchField = new TextField();
         searchFieldContent = searchField.textProperty();
         searchField.setPromptText("Rechercher un Produit...");
-        searchField.textProperty().addListener((obs, oldValue, searchTerm) -> searchProduct(searchTerm));
+        searchField.textProperty().addListener((obs, oldValue, searchTerm) ->
+            controller.filterProductsOnShelves(searchTerm)
+        );
 
         String addToShelfTitle = "Ajouter au rayon";
         Button addToShelfButton = getButton(addToShelfTitle, e -> {
             Shelf newShelf = shelfSelectionDialog(addToShelfTitle);
             if (newShelf == null) return;
 
-            addProductToShelf(lastSelectedProduct.getValue(), newShelf);
-
-            updateProducts();
+            controller.addProductToShelf(lastSelectedProduct.getValue(), newShelf);
         });
 
         String changeShelfTitle = "Changer le rayon";
         Button changeShelfButton = getButton(changeShelfTitle, e -> {
             Shelf newShelf = shelfSelectionDialog(changeShelfTitle);
-            if (newShelf == null) return;
 
-            addProductToShelf(lastSelectedProduct.getValue(), newShelf);
-            deleteProductShelf(lastSelectedProduct.getValue());
-
-            updateProducts();
+            controller.addProductToShelf(lastSelectedProduct.getValue(), newShelf);
+            controller.removeProductFromShelf(lastSelectedProduct.getValue());
         });
 
         Button removeFromShelfButton = getButton("Enlever du rayon",
                 e -> {
                     if (lastSelectedProduct != null) {
-                        deleteProductShelf(lastSelectedProduct.getValue());
-                        updateProducts();
+                        controller.removeProductFromShelf(lastSelectedProduct.getValue());
                     } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Aucun produit sélectionné");
@@ -154,31 +96,20 @@ public class ShelvesPane extends BorderPane {
 
         HBox buttonBox = new HBox(10, addToShelfButton, changeShelfButton, removeFromShelfButton);
 
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
-        box.getChildren().setAll(searchField, productsTable, buttonBox);
-
-        return box;
+        return new VBox(10, searchField, productsTable, buttonBox);
     }
 
     private VBox getRightBox() {
-        VBox box = new VBox(10);
-        box.setPadding(new Insets(10));
-
         Label labelRayons = new Label("Liste des rayons :");
         labelRayons.setFont(new Font("Arial", 14));
 
         ListView<Shelf> shelvesList = new ListView<>();
-        shelvesList.setItems(this.shelves);
+        shelvesList.setItems(controller.getShelves());
         shelvesList.setPrefHeight(200);
 
-        VBox actionsBox = getActionsBox(shelvesList.getItems(), shelvesList.getSelectionModel().selectedItemProperty());
+        VBox actionsBox = getActionsBox(shelvesList.getSelectionModel().selectedItemProperty());
 
-        box.getChildren().setAll(labelRayons, shelvesList, actionsBox);
-
-        updateShelves();
-
-        return box;
+        return new VBox(10, labelRayons, shelvesList, actionsBox);
     }
 
     private Button getButton(String buttonText, EventHandler<ActionEvent> event) {
@@ -188,7 +119,7 @@ public class ShelvesPane extends BorderPane {
         return button;
     }
 
-    private VBox getActionsBox(ObservableList<Shelf> shelvesList, ReadOnlyObjectProperty<Shelf> selectedItem) {
+    private VBox getActionsBox(ReadOnlyObjectProperty<Shelf> selectedItem) {
         TextField shelfNameField = new TextField();
         TextField fieldShelfStockCreate = new TextField();
         TextField fieldShelfRename = new TextField();
@@ -204,8 +135,7 @@ public class ShelvesPane extends BorderPane {
             Shelf newShelf = new Shelf(0, shelfNameField.getText().trim(), isShelfInStockCheckbox.selectedProperty().getValue());
             if (newShelf.getName().isEmpty()) return;
 
-            postShelf(newShelf);
-            updateShelves();
+            controller.addShelf(newShelf);
             shelfNameField.clear();
             isShelfInStockCheckbox.setSelected(false);
         });
@@ -216,8 +146,7 @@ public class ShelvesPane extends BorderPane {
             newShelf.name = fieldShelfRename.getText().trim();
             if (oldShelf.getName() == null || newShelf.getName().isEmpty()) return;
 
-            updateShelf(newShelf);
-            //updateProducts();
+            controller.updateShelf(newShelf);
 
             fieldShelfRename.clear();
         });
@@ -226,9 +155,7 @@ public class ShelvesPane extends BorderPane {
             Shelf selectedShelf = selectedItem.getValue();
             if (selectedShelf == null) return;
 
-            deleteShelf(selectedShelf);
-            shelvesList.remove(selectedShelf);
-            updateProducts();
+            controller.removeShelf(selectedShelf);
         });
 
         HBox newShelfControls = new HBox(5, shelfNameField, isShelfInStockCheckbox, addShelfButton);
@@ -255,7 +182,7 @@ public class ShelvesPane extends BorderPane {
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.APPLY, ButtonType.CANCEL);
 
         ComboBox<Shelf> shelfComboBox = new ComboBox<>();
-        shelfComboBox.getItems().setAll(shelves);
+        shelfComboBox.setItems(controller.getShelves());
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -277,20 +204,6 @@ public class ShelvesPane extends BorderPane {
 
         Optional<Shelf> result = dialog.showAndWait();
         return result.orElse(null);
-    }
-    
-    public void updateProducts() {
-        List<ProductShelf> updatedProducts = HTTPHelper.getList(String.format("%s/products", PATH_PREFIX), ProductShelf.class);
-
-        new Thread(() -> products.setAll(updatedProducts))
-            .start();
-    }
-    
-    public void updateShelves() {
-        List<Shelf> updatedShelves = HTTPHelper.getList(String.format("%s/all", PATH_PREFIX), Shelf.class);
-
-        new Thread(() -> shelves.setAll(updatedShelves))
-            .start();
     }
 }
 

@@ -72,12 +72,12 @@ public class Server {
 			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
 
 		// Supplier
-		app.post("/api/supplier", supplierController::insert)
-			.get("/api/supplier/all", supplierController::getAll)
-			.get("/api/supplier/{id}/products", supplierController::getSupplierProducts)
-			.get("/api/supplier/{id}", supplierController::getOne)
-			.delete("/api/supplier/{id}", supplierController::delete)
-			.put("/api/supplier/{id}", supplierController::update);
+		app.post("/api/suppliers", supplierController::insert)
+			.get("/api/suppliers/all", supplierController::getAll)
+			.get("/api/suppliers/{id}/products", supplierController::getSupplierProducts)
+			.get("/api/suppliers/{id}", supplierController::getOne)
+			.delete("/api/suppliers/{id}", supplierController::delete)
+			.put("/api/suppliers/{id}", supplierController::update);
 
 		app.start(APP_PORT);
 	}
