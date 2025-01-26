@@ -37,8 +37,12 @@ public class ShelvesController extends Controller {
 	}
 
 	public void updateProductsOnShelves() {
+		searchProducts("");
+	}
+
+	public void searchProducts(String searchTerm) {
 		new Thread(() -> {
-			List<ProductShelf> productsOnShelves = HTTPHelper.getList(getUrl("products"), ProductShelf.class);
+			List<ProductShelf> productsOnShelves = HTTPHelper.getList(getUrl(String.format("products?searchTerm=%s", searchTerm)), ProductShelf.class);
 
 			this.productsOnShelves.setAll(productsOnShelves);
 		}).start();
@@ -99,23 +103,5 @@ public class ShelvesController extends Controller {
 		// Only the shelf part of the record is removed if it is the last record remaining
 		if (count == 0) updateProductsOnShelves();
 		else productsOnShelves.remove(productShelf);
-	}
-
-	public void filterProductsOnShelves(String searchTerm) {
-		if (searchTerm == null) throw new NullPointerException("Search term must not be null");
-
-		updateProductsOnShelves();
-
-		String treatedSearchTerm = searchTerm.toLowerCase().trim();
-		if (treatedSearchTerm.isEmpty()) return;
-
-		// TODO: database-side filtering
-		new Thread(() -> {
-			var filtered = productsOnShelves.stream()
-				.filter(s -> s.productName.contains(treatedSearchTerm) || s.shelfName.contains(treatedSearchTerm))
-				.toList();
-
-			productsOnShelves.setAll(filtered);
-		}).start();
 	}
 }

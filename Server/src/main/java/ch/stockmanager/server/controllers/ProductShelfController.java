@@ -90,7 +90,6 @@ public class ProductShelfController extends Controller {
 			context.status(HttpStatus.OK);
 		} catch (SQLException e) {
 			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
-			context.result("Database error");
 
 			throw new RuntimeException(e);
 		}
@@ -107,6 +106,12 @@ public class ProductShelfController extends Controller {
 			var statement = connection.prepareStatement(QUERY_GETALL)
 		) {
 			List<ProductShelf> products = new LinkedList<>();
+
+			String searchTerm = context.queryParam("searchTerm");
+			searchTerm = searchTerm == null ? "" : '%' + searchTerm + '%';
+			statement.setString(1, searchTerm);
+			statement.setString(2, searchTerm);
+
 			ResultSet results = statement.executeQuery();
 			while (results.next()) {
 				products.add(getProductShelf(results));
@@ -116,7 +121,6 @@ public class ProductShelfController extends Controller {
 			context.json(products);
 		} catch (SQLException e) {
 			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
-			context.result("Database error");
 
 			throw new RuntimeException(e);
 		}
