@@ -19,6 +19,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stockmanager.rule=Host(`localhost`) && PathPrefix(`/api`)"
+    volumes:
+      - ./stockmanager.jar:/app/stockmanager.jar
 
   reverse-proxy:
     image: traefik
