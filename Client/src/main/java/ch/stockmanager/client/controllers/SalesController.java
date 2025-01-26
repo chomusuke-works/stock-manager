@@ -4,15 +4,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.List;
 
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import ch.stockmanager.client.util.HTTPHelper;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Sale;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
 
 public class SalesController extends Controller {
 	private final ObservableList<Sale> sales = FXCollections.observableArrayList();
@@ -55,13 +55,10 @@ public class SalesController extends Controller {
 	}
 
 	public void searchSale(String searchTerm) {
-		new Thread(() -> {
-			String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-			String url = getUrl(String.format("all?searchTerm=%s", encodedSearchTerm));
-			List<Sale> sales = HTTPHelper.getList(url, Sale.class);
-
-			this.sales.setAll(sales);
-		}).start();
+		String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
+		String url = getUrl(String.format("all?searchTerm=%s", encodedSearchTerm));
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(url, sales, Sale.class);
 	}
 
 	public void sell(long productCode, int quantity) {

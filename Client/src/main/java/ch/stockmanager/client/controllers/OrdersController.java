@@ -1,12 +1,11 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.types.Order;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.List;
+import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.types.Order;
 
 public class OrdersController extends Controller {
 	private final ObservableList<Order> orders = FXCollections.observableArrayList();
@@ -17,11 +16,8 @@ public class OrdersController extends Controller {
 
 	@Override
 	public void update() {
-		new Thread(() -> {
-			List<Order> orders = HTTPHelper.getList(getUrl(), Order.class);
-
-			this.orders.setAll(orders);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl(), orders, Order.class);
 	}
 
 	@Override

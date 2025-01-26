@@ -1,13 +1,14 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.types.Product;
-import ch.stockmanager.types.Supplier;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.List;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.types.Product;
+import ch.stockmanager.types.Supplier;
 
 public class SuppliersController extends Controller {
 	private final ObservableList<Supplier> suppliers = FXCollections.observableArrayList();
@@ -19,11 +20,8 @@ public class SuppliersController extends Controller {
 
 	@Override
 	public void update() {
-		new Thread(() -> {
-			List<Supplier> suppliers = HTTPHelper.getList(getUrl("all"), Supplier.class);
-
-			this.suppliers.setAll(suppliers);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl("all"), suppliers, Supplier.class);
 	}
 
 	@Override
@@ -43,6 +41,8 @@ public class SuppliersController extends Controller {
 		if (supplier == null) return;
 
 		HTTPHelper.post(getUrl(), supplier);
+
+		update();
 	}
 
 	public void modifySupplier(Supplier supplier) {
@@ -53,16 +53,21 @@ public class SuppliersController extends Controller {
 		update();
 	}
 
-	public void removeSupplier(int id) {
-		HTTPHelper.delete(getUrl(Integer.toString(id)));
+	public void removeSupplier(Supplier supplier) {
+		if (supplier == null) return;
+
+		HTTPHelper.delete(getUrl(Integer.toString(supplier.getId())));
 		update();
 	}
 
-	public void updateSuppliedProducts(int id) {
-		new Thread(() -> {
-			List<Product> suppliedProducts = HTTPHelper.getList(getUrl(id + "/products"), Product.class);
+	public void updateSuppliedProducts(Supplier supplier) {
+		if (supplier == null) {
+			Platform.runLater(suppliedProducts::clear);
 
-			this.suppliedProducts.setAll(suppliedProducts);
-		}).start();
+			return;
+		}
+
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl(supplier.getId() + "/products"), suppliedProducts, Product.class);
 	}
 }

@@ -64,7 +64,7 @@ public class SuppliersPane extends BorderPane {
 
 		removeSupplierButton.disableProperty().bind(selectedSupplier.isNull());  // Can't delete a supplier if no selection
 		removeSupplierButton.setOnAction(event ->
-			controller.removeSupplier(selectedSupplier.get().getId())
+			controller.removeSupplier(selectedSupplier.get())
 		);
 
 		this.setTop(title);
@@ -149,7 +149,7 @@ public class SuppliersPane extends BorderPane {
 
 		list.getSelectionModel().selectedItemProperty()
 			.addListener((observable, oldValue, newValue) ->
-				controller.updateSuppliedProducts(newValue.getId())
+				controller.updateSuppliedProducts(newValue)
 			);
 
 		return list;

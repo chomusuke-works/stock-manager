@@ -1,15 +1,16 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.types.ProductShelf;
-import ch.stockmanager.types.Shelf;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.types.ProductShelf;
+import ch.stockmanager.types.Shelf;
 
 public class ShelvesController extends Controller {
 	private final ObservableList<ProductShelf> productsOnShelves = FXCollections.observableArrayList();
@@ -43,21 +44,16 @@ public class ShelvesController extends Controller {
 	}
 
 	public void searchProduct(String searchTerm) {
-		new Thread(() -> {
-			String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-			String url = getUrl(String.format("products/all?searchTerm=%s", encodedSearchTerm));
-			List<ProductShelf> productsOnShelves = HTTPHelper.getList(url, ProductShelf.class);
+		String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
+		String url = getUrl(String.format("products/all?searchTerm=%s", encodedSearchTerm));
 
-			this.productsOnShelves.setAll(productsOnShelves);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(url, productsOnShelves, ProductShelf.class);
 	}
 
 	public void updateShelves() {
-		new Thread(() -> {
-			List<Shelf> shelves = HTTPHelper.getList(getUrl("all"), Shelf.class);
-
-			this.shelves.setAll(shelves);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl("all"), shelves, Shelf.class);
 	}
 
 	public void addShelf(Shelf shelf) {

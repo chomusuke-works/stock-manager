@@ -1,12 +1,10 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.client.util.JavaFxHelper;
 import ch.stockmanager.types.ProductDateQuantity;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import java.util.List;
 
 public class ExpiryDatesController extends Controller {
 	private final ObservableList<ProductDateQuantity> expiredProducts = FXCollections.observableArrayList();
@@ -28,19 +26,13 @@ public class ExpiryDatesController extends Controller {
 	}
 
 	public void updateExpiredProducts() {
-		new Thread(() -> {
-			List<ProductDateQuantity> expiredProducts = HTTPHelper.getList(getUrl("expired"), ProductDateQuantity.class);
-
-			this.expiredProducts.setAll(expiredProducts);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl("expired"), expiredProducts, ProductDateQuantity.class);
 	}
 
 	public void updateSoonExpiredProducts() {
-		new Thread(() -> {
-			List<ProductDateQuantity> soonExpiredProducts = HTTPHelper.getList(getUrl("soonExpired"), ProductDateQuantity.class);
-
-			this.soonExpiredProducts.setAll(soonExpiredProducts);
-		}).start();
+		JavaFxHelper.ObservableListUpdaterTask
+			.run(getUrl("soonExpired"), soonExpiredProducts, ProductDateQuantity.class);
 	}
 
 	public ObservableList<ProductDateQuantity> getExpiredProducts() {
