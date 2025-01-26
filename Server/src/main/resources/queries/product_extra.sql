@@ -2,12 +2,13 @@ SELECT
     nom, lot.dateexpiration, quantite
 FROM
     lot JOIN produit ON lot.codeproduit = produit.code
-WHERE
-    lot.dateexpiration - current_date BETWEEN 0 AND ?;
+WHERE lot.dateexpiration IS NOT NULL
+    AND lot.dateexpiration - current_date BETWEEN 0 AND ?;
 
 SELECT nom, lot.dateexpiration, quantite
 FROM lot JOIN produit ON lot.codeproduit = produit.code
-WHERE lot.dateexpiration - current_date < 0;
+WHERE lot.dateexpiration IS NOT NULL
+  AND lot.dateexpiration - current_date < 0;
 
 SELECT
     produit.nom, produitsegmentannee.cible - sum(lot.quantite) AS a_commander
