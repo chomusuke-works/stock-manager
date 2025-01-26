@@ -27,6 +27,11 @@ public class ProductShelf {
 	public String getSector() { return sector; }
 
 	@Override
+	public String toString() {
+		return String.format("%d(%s) - %d(%s, %s)", productCode, productName, shelfId, sector, shelfName);
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(productCode, shelfId);
 	}
