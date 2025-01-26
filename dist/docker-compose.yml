@@ -6,14 +6,14 @@ services:
     restart: always
     env_file:
       - ".env"
-    ports:
-      - "5666:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   backend:
     build:
       context: .
+    env_file:
+      - ".env"
     expose:
       - "25565"
     labels:

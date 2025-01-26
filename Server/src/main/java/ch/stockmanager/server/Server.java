@@ -9,9 +9,9 @@ public class Server {
 	// Database credentials
 	private static String DB_HOST = "localhost";
 	private static int DB_PORT = 5666;
-	private static final String DB_NAME = "stoman";
-	private static final String USER = "kowag";
-	private static final String PASSWORD = "cjcex@&08GWzqRy6zMCqBR7E%ZYCFM5f";
+	private static final String DB_NAME = System.getenv("POSTGRES_DB");
+	private static final String USER = System.getenv("POSTGRES_USER");
+	private static final String PASSWORD = System.getenv("POSTGRES_PASSWORD");
 
 	// Web app information
 	private static final int APP_PORT = 25565;
@@ -27,6 +27,8 @@ public class Server {
 			DB_HOST = args[1];
 			DB_PORT = Integer.parseInt(args[3]);
 		}
+		System.out.println(USER);
+		System.out.println(PASSWORD);
 
 		DBInfo dbInfo = new DBInfo(
 			String.format("jdbc:postgresql://%s:%d/%s",
