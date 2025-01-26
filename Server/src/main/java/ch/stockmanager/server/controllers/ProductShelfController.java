@@ -100,7 +100,7 @@ public class ProductShelfController extends Controller {
 		return "product_shelf";
 	}
 
-	public void getAll(Context context) {
+	public void getAllWithSearch(Context context) {
 		try (
 			var connection = dbInfo.getConnection();
 			var statement = connection.prepareStatement(QUERY_GETALL)

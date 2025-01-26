@@ -61,7 +61,7 @@ public class Server {
 			.post("/api/sales", salesController::insert);
 
 		// ProductShelf
-		app.get("/api/shelves/products", productShelfController::getAll)
+		app.get("/api/shelves/products/all", productShelfController::getAllWithSearch)
 			.get("/api/shelves/products/{productCode}_{shelfId}", productShelfController::getOne)
 			.post("/api/shelves/products", productShelfController::insert)
 			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);

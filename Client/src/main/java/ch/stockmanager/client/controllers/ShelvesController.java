@@ -42,7 +42,7 @@ public class ShelvesController extends Controller {
 
 	public void searchProducts(String searchTerm) {
 		new Thread(() -> {
-			List<ProductShelf> productsOnShelves = HTTPHelper.getList(getUrl(String.format("products?searchTerm=%s", searchTerm)), ProductShelf.class);
+			List<ProductShelf> productsOnShelves = HTTPHelper.getList(getUrl(String.format("products/all?searchTerm=%s", searchTerm)), ProductShelf.class);
 
 			this.productsOnShelves.setAll(productsOnShelves);
 		}).start();
