@@ -1,12 +1,16 @@
 package ch.stockmanager.server.controllers;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 import io.javalin.http.Context;
 
 import ch.stockmanager.server.util.ContextHelper;
 import ch.stockmanager.server.util.DBInfo;
 import ch.stockmanager.types.ProductShelf;
+import io.javalin.http.HttpStatus;
 
 
 public class ProductShelfController extends Controller {
@@ -31,14 +35,16 @@ public class ProductShelfController extends Controller {
 			statement.executeUpdate();
 			context.status(201);
 		} catch (SQLException e) {
-			context.status(500);
-			context.result("Database error" + e);
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	public void getOne(Context context) {
-		// TODO: define ?
+		context.status(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	@Override
@@ -55,15 +61,48 @@ public class ProductShelfController extends Controller {
 
 			statement.executeUpdate();
 
-			context.status(200);
+			context.status(HttpStatus.OK);
 		} catch (SQLException e) {
-			context.status(500);
-			context.result("Database error" + e);
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
 	protected String getDataType() {
 		return "product_shelf";
+	}
+
+	public void getAll(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GETALL)
+		) {
+			List<ProductShelf> products = new LinkedList<>();
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				products.add(getProductShelf(results));
+			}
+
+			context.status(HttpStatus.OK);
+			context.json(products);
+		} catch (SQLException e) {
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+
+			throw new RuntimeException(e);
+		}
+	}
+
+	private ProductShelf getProductShelf(ResultSet resultSet) throws SQLException {
+		return new ProductShelf(
+			resultSet.getLong(1),
+			resultSet.getString(2),
+			resultSet.getInt(3),
+			resultSet.getString(4),
+			resultSet.getString(5)
+		);
 	}
 }

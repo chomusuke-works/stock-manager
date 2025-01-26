@@ -82,11 +82,11 @@ public class SupplierController extends Controller {
 
 			ResultSet results = statement.executeQuery();
 			if (!results.next()) {
-				context.status(404);
+				context.status(HttpStatus.NOT_FOUND);
 				return;
 			}
 
-			context.status(200);
+			context.status(HttpStatus.OK);
 			context.json(getSupplier(results));
 
 			results.close();
@@ -106,9 +106,9 @@ public class SupplierController extends Controller {
 			statement.setInt(1, id);
 			statement.executeUpdate();
 
-			context.status(200);
+			context.status(HttpStatus.OK);
 		} catch (SQLException e) {
-			context.status(500);
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
 			context.result("Database error");
 		}
 	}

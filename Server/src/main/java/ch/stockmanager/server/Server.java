@@ -7,7 +7,7 @@ import ch.stockmanager.server.util.DBInfo;
 
 public class Server {
 	// Database credentials
-	private static String DB_HOST = "locahost";
+	private static String DB_HOST = "localhost";
 	private static int DB_PORT = 5666;
 	private static final String DB_NAME = "stoman";
 	private static final String USER = "kowag";
@@ -60,16 +60,16 @@ public class Server {
 			.get("/api/sales/{date}_{code}", salesController::getOne)
 			.post("/api/sales", salesController::insert);
 
+		// ProductShelf
+		app.get("/api/shelves/products", productShelfController::getAll)
+			.post("/api/shelves/products", productShelfController::insert)
+			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
 		// Shelves
 		app.post("/api/shelves", shelfController::insert)
 			.get("/api/shelves/all", shelfController::getAll)
 			.put("/api/shelves/{id}", shelfController::update)
-			.get("/api/shelves/products", shelfController::getProducts)
 			.get("/api/shelves/{id}", shelfController::getOne)
 			.delete("/api/shelves/{id}", shelfController::delete);
-		// ProductShelf (only relevant for shelves)
-		app.post("/api/shelves/products", productShelfController::insert)
-			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
 
 		// Supplier
 		app.post("/api/suppliers", supplierController::insert)

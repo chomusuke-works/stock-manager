@@ -8,14 +8,12 @@ import java.util.List;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
-import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
 import ch.stockmanager.server.util.*;
 
 public class ShelfController extends Controller {
 	private final DBInfo dbInfo;
 	private final String QUERY_UPDATE;
-	private final String QUERY_PRODUCTS;
 
 
 	public ShelfController(DBInfo dbInfo) {
@@ -24,8 +22,7 @@ public class ShelfController extends Controller {
 		this.dbInfo = dbInfo;
 
 		List<String> extraQueries = getExtraQueries();
-		QUERY_UPDATE = extraQueries.get(0);
-		QUERY_PRODUCTS = extraQueries.get(1);
+		QUERY_UPDATE = extraQueries.getFirst();
 	}
 
 	@Override
@@ -52,7 +49,6 @@ public class ShelfController extends Controller {
 		}
 	}
 
-	//@Override
 	public void getAll(Context context) {
 		try (
 			var connection = dbInfo.getConnection();
@@ -118,7 +114,6 @@ public class ShelfController extends Controller {
 	}
 
 	public void update(Context context) {
-		System.out.println("update..." + QUERY_UPDATE);
 		try (
 			var connection = dbInfo.getConnection();
 			var statement = connection.prepareStatement(QUERY_UPDATE)
@@ -131,9 +126,9 @@ public class ShelfController extends Controller {
 			statement.setInt(3, id);
 
 			statement.executeUpdate();
-			context.status(200);
+			context.status(HttpStatus.OK);
 		} catch (SQLException e) {
-			context.status(500);
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
 			context.result("Database error" + e);
 			System.out.println(e.getMessage());
 			for (var l : e.getStackTrace()) {
@@ -143,41 +138,11 @@ public class ShelfController extends Controller {
 		}
 	}
 
-	public void getProducts(Context context) {
-		try (
-			var connection = dbInfo.getConnection();
-			var statement = connection.prepareStatement(QUERY_PRODUCTS)
-		) {
-			List<ProductShelf> products = new LinkedList<>();
-			ResultSet results = statement.executeQuery();
-			while (results.next()) {
-				products.add(getProductShelf(results));
-			}
-
-			context.status(HttpStatus.OK);
-			context.json(products);
-		} catch (SQLException e) {
-			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
-			context.result("Database error");
-		}
-	}
-
-
 	private Shelf getShelf(ResultSet resultSet) throws SQLException {
 		return new Shelf(
 			resultSet.getInt(1),
 			resultSet.getString(2),
 			resultSet.getBoolean(3)
-		);
-	}
-
-	private ProductShelf getProductShelf(ResultSet resultSet) throws SQLException {
-		return new ProductShelf(
-			resultSet.getLong(1),
-			resultSet.getString(2),
-			resultSet.getInt(3),
-			resultSet.getString(4),
-			resultSet.getString(5)
 		);
 	}
 }
