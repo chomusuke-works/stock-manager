@@ -1,7 +1,6 @@
 INSERT INTO vente (timestamp, codeproduit, vendus, jetes) VALUES (?, ?, ?, ?);
 
-SELECT
-    timestamp, codeproduit, nom, vendus, jetes
+SELECT timestamp, codeproduit, nom, vendus, jetes
 FROM vente JOIN produit ON vente.codeproduit = produit.code
 WHERE lower(nom) LIKE lower(?);
 
