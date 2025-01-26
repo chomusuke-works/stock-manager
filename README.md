@@ -1,7 +1,7 @@
 # BDR2024_stock-manager
 
 ## Déploiement
-Le dossier .dist contient plusieurs fichiers:
+Le dossier dist contient plusieurs fichiers:
 - `.env` les variables d'environnement correspondant aux 
   identifiants pour la base de données
 - `docker-compose.yml` sert à démarrer la stack
