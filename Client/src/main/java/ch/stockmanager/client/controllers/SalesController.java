@@ -55,11 +55,13 @@ public class SalesController extends Controller {
 	}
 
 	public void searchSale(String searchTerm) {
-		searchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-		String url = getUrl("all?searchTerm=" + searchTerm);
-		List<Sale> sales = HTTPHelper.getList(url, Sale.class);
+		new Thread(() -> {
+			String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
+			String url = getUrl("all?searchTerm=" + encodedSearchTerm);
+			List<Sale> sales = HTTPHelper.getList(url, Sale.class);
 
-		this.sales.setAll(sales);
+			this.sales.setAll(sales);
+		}).start();
 	}
 
 	public void sell(long productCode, int quantity) {
