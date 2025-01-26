@@ -151,7 +151,7 @@ FROM
         LEFT JOIN produit_etagere ON produit.code = produit_etagere.codeproduit
         LEFT JOIN etagere ON produit_etagere.idetagere = etagere.id;
 
-CREATE VIEW "order" AS
+CREATE VIEW commande AS
 SELECT
     produit.nom, produitsegmentannee.cible - sum(lot.quantite) AS a_commander
 FROM produit
