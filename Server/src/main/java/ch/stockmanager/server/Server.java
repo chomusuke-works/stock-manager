@@ -62,6 +62,7 @@ public class Server {
 
 		// ProductShelf
 		app.get("/api/shelves/products", productShelfController::getAll)
+			.get("/api/shelves/products/{productCode}_{shelfId}", productShelfController::getOne)
 			.post("/api/shelves/products", productShelfController::insert)
 			.delete("/api/shelves/products/{productCode}_{shelfId}", productShelfController::delete);
 		// Shelves

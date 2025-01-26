@@ -44,7 +44,33 @@ public class ProductShelfController extends Controller {
 
 	@Override
 	public void getOne(Context context) {
-		context.status(HttpStatus.NOT_IMPLEMENTED);
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GET)
+		) {
+			long productCode = Long.parseLong(context.pathParam("productCode"));
+			int shelfId = Integer.parseInt(context.pathParam("shelfId"));
+			statement.setLong(1, productCode);
+			statement.setInt(2, shelfId);
+
+			ResultSet results = statement.executeQuery();
+			if (results.next()) {
+				ProductShelf result = getProductShelf(results);
+
+				context.status(HttpStatus.OK);
+				context.json(result);
+			} else {
+				context.status(HttpStatus.NOT_FOUND);
+				context.result("Product not found on given shelf");
+			}
+		} catch (NumberFormatException e) {
+			context.status(HttpStatus.BAD_REQUEST);
+			context.result("Correct format: <productCode>_<shelfId>");
+		} catch (SQLException e) {
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
