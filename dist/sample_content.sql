@@ -59,7 +59,7 @@ VALUES
     ('2025-01-26', 7616700242979, 24, '2025-01-26');
 
 INSERT INTO
-    segmentannee (id, nom, datedebut, datefin, priorite)
+    segmentannee (nom, datedebut, datefin, priorite)
 VALUES
     ('Printemps', '2025-01-01', '2025-03-31', 1),
     ('Eté', '2025-04-01', '2025-06-30', 1),
