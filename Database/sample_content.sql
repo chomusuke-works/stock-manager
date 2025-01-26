@@ -1,21 +1,21 @@
 INSERT INTO 
-    etagere (id, nom, eststock) 
+    etagere (nom, eststock)
 VALUES 
-    (2, 'Produits frais', false),
-    (8, 'Thé et café', false),
-    (9, 'Cosmétiques', false),
-    (10, 'Boissons', true),
-    (11, 'Boissons', false),
-    (12, 'Non-food', false),
-    (13, 'Pain', false);
+    ('Produits frais', false),
+    ('Thé et café', false),
+    ('Cosmétiques', false),
+    ('Boissons', true),
+    ('Boissons', false),
+    ('Non-food', false),
+    ('Pain', false);
 
 
 INSERT INTO
-    fournisseur (id, nom, email, frequencecommande)
+    fournisseur (nom, email, frequencecommande)
 VALUES
-    (1, 'kowag', 'kowag@volg.ch', 7),
-    (2, 'Boulangerie Hauser', 'boulangeriehauser@bluewin.ch', 1),
-    (3, 'Boucherie Nicolier', 'nicolier.kevin.121@gmail.com', 14);
+    ('kowag', 'kowag@volg.ch', 7),
+    ('Boulangerie Hauser', 'boulangeriehauser@bluewin.ch', 1),
+    ('Boucherie Nicolier', 'nicolier.kevin.121@gmail.com', 14);
 
 INSERT INTO
     produit (code, nom, prix, idfournisseur)
@@ -30,23 +30,23 @@ VALUES
     (7616700242982, 'Pain Paillasse rustique', 3.5, 2),
     (7616700242979, 'Croissant beurre', 1.65, 2);
 
-INSERT INTO 
-    produit_etagere (codeproduit, idetagere) 
-VALUES 
-    (3415900030427, 9),
-    (7610108024513, 2),
-    (7610173018264, 10),
-    (7610097196086, 11),
-    (7610097196086, 10),
-    (7616700242982, 13),
-    (7610054220045, 12),
-    (7616700242981, 13),
-    (7616700242980, 13),
-    (7616700242979, 13);
+INSERT INTO
+    produit_etagere (codeproduit, idetagere)
+VALUES
+    (7616700242982, 7),
+    (7610173018264, 5),
+    (7610173018264, 4),
+    (7610097196086, 5),
+    (7610054220045, 6),
+    (3415900030427, 3),
+    (7610108024513, 3),
+    (7616700242981, 7),
+    (7616700242980, 7),
+    (7616700242979, 7);
 
-INSERT INTO 
-    lot (datereception, codeproduit, quantite, dateexpiration) 
-VALUES 
+INSERT INTO
+    lot (datereception, codeproduit, quantite, dateexpiration)
+VALUES
     ('2024-12-25', 7610173018264, 6, '2026-01-31'),
     ('2025-01-03', 3415900030427, 2, null),
     ('2024-10-25', 7610054220045, 12, null),
@@ -61,12 +61,12 @@ VALUES
 INSERT INTO
     segmentannee (id, nom, datedebut, datefin, priorite)
 VALUES
-    (1, 'Printemps', '2025-01-01', '2025-03-31', 1),
-    (2, 'Eté', '2025-04-01', '2025-06-30', 1),
-    (3, 'Automne', '2025-07-01', '2025-09-30', 1),
-    (4, 'Hiver', '2025-10-01', '2025-12-31', 1),
-    (5, 'Noel', '2025-12-01', '2025-12-31', 2),
-    (6, 'Permanent', '2025-01-01', '2025-12-31', 0);
+    ('Printemps', '2025-01-01', '2025-03-31', 1),
+    ('Eté', '2025-04-01', '2025-06-30', 1),
+    ('Automne', '2025-07-01', '2025-09-30', 1),
+    ('Hiver', '2025-10-01', '2025-12-31', 1),
+    ('Noel', '2025-12-01', '2025-12-31', 2),
+    ('Permanent', '2025-01-01', '2025-12-31', 0);
 
 INSERT INTO 
     produitsegmentannee (codeproduit, idsegment, cible, seuil) 
