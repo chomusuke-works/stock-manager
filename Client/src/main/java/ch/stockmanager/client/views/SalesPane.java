@@ -1,6 +1,5 @@
 package ch.stockmanager.client.views;
 
-import ch.stockmanager.client.controllers.SalesController;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -11,6 +10,7 @@ import javafx.util.converter.LongStringConverter;
 
 import ch.stockmanager.types.Sale;
 import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.controllers.SalesController;
 
 /**
  * This pane displays all sales and waste data.
@@ -32,7 +32,7 @@ public class SalesPane extends BorderPane {
 		// - Main box -> search bar and table of sales
 		TableView<Sale> salesTable = JavaFxHelper.getTable(
 			new String[]{"Date", "Produit", "Vendus", "Jetés"},
-			new String[]{"timestamp", "code", "sold", "thrown"}
+			new String[]{"timestamp", "productName", "sold", "thrown"}
 		);
 		salesTable.setItems(controller.getSales());
 		salesTable.setPrefHeight(300);
@@ -47,7 +47,7 @@ public class SalesPane extends BorderPane {
 
 		// - Update and filter the sales field when the content of the search bar changes
 		searchField.textProperty().addListener((observable, oldValue, newValue) ->
-			controller.filterSales(newValue)
+			controller.searchSale(newValue)
 		);
 
 		this.setTop(title);

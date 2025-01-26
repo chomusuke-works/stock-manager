@@ -1,8 +1,8 @@
 package ch.stockmanager.server;
 
-import ch.stockmanager.server.controllers.*;
 import io.javalin.Javalin;
 
+import ch.stockmanager.server.controllers.*;
 import ch.stockmanager.server.util.DBInfo;
 
 public class Server {
@@ -56,7 +56,7 @@ public class Server {
 			.delete("/api/products/{code}", productController::delete);
 
 		// Sales
-		app.get("/api/sales/all", salesController::getAll)
+		app.get("/api/sales/all", salesController::getAllWithSearch)
 			.get("/api/sales/{date}_{code}", salesController::getOne)
 			.post("/api/sales", salesController::insert);
 

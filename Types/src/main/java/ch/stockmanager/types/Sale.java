@@ -5,15 +5,17 @@ import java.sql.Timestamp;
 @SuppressWarnings("unused")
 public class Sale {
 	public Timestamp timestamp;
-	public long code;
+	public long productCode;
+	public String productName;
 	public int sold;
 	public int thrown;
 
 	public Sale() {}
 
-	public Sale(Timestamp timestamp, long code, int sold, int thrown) {
+	public Sale(Timestamp timestamp, long productCode, String productName, int sold, int thrown) {
 		this.timestamp = timestamp;
-		this.code = code;
+		this.productCode = productCode;
+		this.productName = productName;
 		this.sold = sold;
 		this.thrown = thrown;
 	}
@@ -23,8 +25,12 @@ public class Sale {
 		return timestamp;
 	}
 
-	public long getCode() {
-		return code;
+	public long getProductCode() {
+		return productCode;
+	}
+
+	public String getProductName() {
+		return productName;
 	}
 
 	public int getSold() {

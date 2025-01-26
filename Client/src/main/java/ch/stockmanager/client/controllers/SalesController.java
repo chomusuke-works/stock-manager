@@ -1,14 +1,18 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.types.Sale;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
+
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.List;
+import ch.stockmanager.client.util.HTTPHelper;
+import ch.stockmanager.types.Product;
+import ch.stockmanager.types.Sale;
 
 public class SalesController extends Controller {
 	private final ObservableList<Sale> sales = FXCollections.observableArrayList();
@@ -22,11 +26,7 @@ public class SalesController extends Controller {
 
 	@Override
 	public void update() {
-		new Thread(() -> {
-			List<Sale> sales = HTTPHelper.getList(getUrl("all"), Sale.class);
-
-			this.sales.setAll(sales);
-		}).start();
+		searchSale("");
 	}
 
 	@Override
@@ -44,28 +44,22 @@ public class SalesController extends Controller {
 
 		Timestamp now = Timestamp.from(Instant.now());
 
-		HTTPHelper.post(getUrl(), new Sale(now, code, sold, thrown));
+		String productUrl = String.format("http://%s/api/products/%d", getServerIp(), code);
+		Product soldProduct = HTTPHelper.get(productUrl, Product.class);
+		if (soldProduct == null) throw new NullPointerException("No corresponding product found");
+
+		HTTPHelper.post(getUrl(), new Sale(now, soldProduct.getCode(), soldProduct.getName(), sold, thrown));
 
 		update();
 		ordersController.update();
 	}
 
-	public void filterSales(String searchTerm) {
-		if (searchTerm == null) throw new NullPointerException("Search term must not be null");
+	public void searchSale(String searchTerm) {
+		searchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
+		String url = getUrl("all?searchTerm=" + searchTerm);
+		List<Sale> sales = HTTPHelper.getList(url, Sale.class);
 
-		update();
-
-		String treatedSearchTerm = searchTerm.toLowerCase().trim();
-		if (treatedSearchTerm.isEmpty()) return;
-
-		// TODO: database-side filtering
-		new Thread(() -> {
-			var filtered = sales.stream()
-				.filter(s -> String.valueOf(s.code).contains(treatedSearchTerm))
-				.toList();
-
-			sales.setAll(filtered);
-		}).start();
+		this.sales.setAll(sales);
 	}
 
 	public void sell(long productCode, int quantity) {
