@@ -17,61 +17,61 @@ import ch.stockmanager.client.controllers.OrdersController;
  */
 public class OrdersPane extends BorderPane {
 
-    private final OrdersController controller;
+	private final OrdersController controller;
 
 	public OrdersPane(OrdersController controller) {
-        this.controller = controller;
+		this.controller = controller;
 
-        this.setPadding(new Insets(15));
+		this.setPadding(new Insets(15));
 
-        Label title = new Label("Gestion des commandes");
-        title.setFont(new Font("Arial", 24));
-        BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
+		Label title = new Label("Gestion des commandes");
+		title.setFont(new Font("Arial", 24));
+		BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
-        TableView<Order> ordersTable = JavaFxHelper.getTable(
-            new String[]{"Produit", "Quantité"},
-            new String[]{"name", "quantity"}
-        );
-        ordersTable.setItems(controller.getOrders());
+		TableView<Order> ordersTable = JavaFxHelper.getTable(
+			new String[]{"Produit", "Quantité"},
+			new String[]{"name", "quantity"}
+		);
+		ordersTable.setItems(controller.getOrders());
 
-        // Section basse : formulaire pour commander manuellement
-        HBox formBox = getOrderForm();
+		// Section basse : formulaire pour commander manuellement
+		HBox formBox = getOrderForm();
 
-        this.setTop(title);
-        this.setCenter(ordersTable);
-        this.setBottom(formBox);
-    }
+		this.setTop(title);
+		this.setCenter(ordersTable);
+		this.setBottom(formBox);
+	}
 
-    private HBox getOrderForm() {
-        TextField nameField = new TextField();
-        nameField.setPromptText("Nom du produit");
+	private HBox getOrderForm() {
+		TextField nameField = new TextField();
+		nameField.setPromptText("Nom du produit");
 
-        TextField quantityField = new TextField();
-        quantityField.setPromptText("Quantité");
-        quantityField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+		TextField quantityField = new TextField();
+		quantityField.setPromptText("Quantité");
+		quantityField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
 
-        Button orderButton = getOrderButton(nameField, quantityField);
+		Button orderButton = getOrderButton(nameField, quantityField);
 
-        return new HBox(10, nameField, quantityField, orderButton);
-    }
+		return new HBox(10, nameField, quantityField, orderButton);
+	}
 
-    private Button getOrderButton(TextField nameField, TextField quantityField) {
-        Button button = new Button("Commander");
-        button.setOnAction(e -> {
-            Order newOrder = new Order(
-                nameField.getText().trim(),
-                Integer.parseInt(quantityField.getText())
-            );
+	private Button getOrderButton(TextField nameField, TextField quantityField) {
+		Button button = new Button("Commander");
+		button.setOnAction(e -> {
+			Order newOrder = new Order(
+				nameField.getText().trim(),
+				Integer.parseInt(quantityField.getText())
+			);
 
-            if (newOrder.name.isEmpty() || newOrder.quantity == 0) return;
+			if (newOrder.name.isEmpty() || newOrder.quantity == 0) return;
 
-            controller.addOrder(newOrder);
+			controller.addOrder(newOrder);
 
-            nameField.clear();
-            quantityField.clear();
-        });
+			nameField.clear();
+			quantityField.clear();
+		});
 
-        return button;
-    }
+		return button;
+	}
 }
 

@@ -13,171 +13,171 @@ import ch.stockmanager.types.Shelf;
 import ch.stockmanager.server.util.*;
 
 public class ShelfController extends Controller {
-    private final DBInfo dbInfo;
-    private final String QUERY_UPDATE;
-    private final String QUERY_PRODUCTS;
+	private final DBInfo dbInfo;
+	private final String QUERY_UPDATE;
+	private final String QUERY_PRODUCTS;
 
 
-    public ShelfController(DBInfo dbInfo) {
-        super();
+	public ShelfController(DBInfo dbInfo) {
+		super();
 
-        this.dbInfo = dbInfo;
+		this.dbInfo = dbInfo;
 
-        List<String> extraQueries = getExtraQueries();
-        QUERY_UPDATE = extraQueries.get(0);
-        QUERY_PRODUCTS = extraQueries.get(1);
-    }
+		List<String> extraQueries = getExtraQueries();
+		QUERY_UPDATE = extraQueries.get(0);
+		QUERY_PRODUCTS = extraQueries.get(1);
+	}
 
-    @Override
-    public String getDataType() {
-        return "shelf";
-    }
+	@Override
+	public String getDataType() {
+		return "shelf";
+	}
 
-    @Override
-    public void insert(Context context) {
-        try (
-                var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_INSERT)
-        ) {
-            Shelf shelf = context.bodyAsClass(Shelf.class);
+	@Override
+	public void insert(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_INSERT)
+		) {
+			Shelf shelf = context.bodyAsClass(Shelf.class);
 
-            statement.setString(1, shelf.name);
-            statement.setBoolean(2, shelf.isStock);
+			statement.setString(1, shelf.name);
+			statement.setBoolean(2, shelf.isStock);
 
-            statement.executeUpdate();
-            context.status(201);
-        } catch (SQLException e) {
-            context.status(500);
-            context.result("Database error" + e);
-        }
-    }
+			statement.executeUpdate();
+			context.status(201);
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error" + e);
+		}
+	}
 
-    //@Override
-    public void getAll(Context context) {
-        try (
-                var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_GETALL)
-        ) {
-            List<Shelf> shelfs = new LinkedList<>();
-            ResultSet results = statement.executeQuery();
-            while (results.next()) {
-                shelfs.add(getShelf(results));
-            }
+	//@Override
+	public void getAll(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GETALL)
+		) {
+			List<Shelf> shelfs = new LinkedList<>();
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				shelfs.add(getShelf(results));
+			}
 
-            context.status(HttpStatus.OK);
-            context.json(shelfs);
+			context.status(HttpStatus.OK);
+			context.json(shelfs);
 
-            results.close();
-        } catch (SQLException e) {
-            context.status(500);
-            context.result("Database error");
-        }
-    }
+			results.close();
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error");
+		}
+	}
 
-    @Override
-    public void getOne(Context context) {
-        try (
-                var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_GET)
-        ) {
-            int id = ContextHelper.getIntPathParam(context, "id");
-            statement.setInt(1, id);
+	@Override
+	public void getOne(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_GET)
+		) {
+			int id = ContextHelper.getIntPathParam(context, "id");
+			statement.setInt(1, id);
 
-            ResultSet results = statement.executeQuery();
-            if (!results.next()) {
-                context.status(404);
+			ResultSet results = statement.executeQuery();
+			if (!results.next()) {
+				context.status(404);
 
-                return;
-            }
+				return;
+			}
 
-            context.status(200);
-            context.json(getShelf(results));
+			context.status(200);
+			context.json(getShelf(results));
 
-            results.close();
-        } catch (SQLException e) {
-            context.status(500);
-            context.result("Database error");
-        }
-    }
+			results.close();
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error");
+		}
+	}
 
-    @Override
-    public void delete(Context context) {
-        try (
-                var connection = dbInfo.getConnection();
-                var statement = connection.prepareStatement(QUERY_DELETE)
-        ) {
-            int id = ContextHelper.getIntPathParam(context, "id");
-            statement.setInt(1, id);
-            statement.executeUpdate();
+	@Override
+	public void delete(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_DELETE)
+		) {
+			int id = ContextHelper.getIntPathParam(context, "id");
+			statement.setInt(1, id);
+			statement.executeUpdate();
 
-            context.status(200);
-        } catch (SQLException e) {
-            context.status(500);
-            context.result("Database error");
-        }
-    }
+			context.status(200);
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error");
+		}
+	}
 
-    public void update(Context context) {
-        System.out.println("update..." + QUERY_UPDATE);
-        try (
-            var connection = dbInfo.getConnection();
-            var statement = connection.prepareStatement(QUERY_UPDATE)
-        ) {
-            Shelf shelf = context.bodyAsClass(Shelf.class);
-            int id = ContextHelper.getIntPathParam(context, "id");
+	public void update(Context context) {
+		System.out.println("update..." + QUERY_UPDATE);
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_UPDATE)
+		) {
+			Shelf shelf = context.bodyAsClass(Shelf.class);
+			int id = ContextHelper.getIntPathParam(context, "id");
 
-            statement.setString(1, shelf.name);
-            statement.setBoolean(2, shelf.isStock);
-            statement.setInt(3, id);
+			statement.setString(1, shelf.name);
+			statement.setBoolean(2, shelf.isStock);
+			statement.setInt(3, id);
 
-            statement.executeUpdate();
-            context.status(200);
-        } catch (SQLException e) {
-            context.status(500);
-            context.result("Database error" + e);
-            System.out.println(e.getMessage());
-            for (var l : e.getStackTrace()) {
-                System.out.println(l);
-            }
-            System.out.println(e.getSQLState());
-        }
-    }
+			statement.executeUpdate();
+			context.status(200);
+		} catch (SQLException e) {
+			context.status(500);
+			context.result("Database error" + e);
+			System.out.println(e.getMessage());
+			for (var l : e.getStackTrace()) {
+				System.out.println(l);
+			}
+			System.out.println(e.getSQLState());
+		}
+	}
 
-    public void getProducts(Context context) {
-        try (
-            var connection = dbInfo.getConnection();
-            var statement = connection.prepareStatement(QUERY_PRODUCTS)
-        ) {
-            List<ProductShelf> products = new LinkedList<>();
-            ResultSet results = statement.executeQuery();
-            while (results.next()) {
-                products.add(getProductShelf(results));
-            }
+	public void getProducts(Context context) {
+		try (
+			var connection = dbInfo.getConnection();
+			var statement = connection.prepareStatement(QUERY_PRODUCTS)
+		) {
+			List<ProductShelf> products = new LinkedList<>();
+			ResultSet results = statement.executeQuery();
+			while (results.next()) {
+				products.add(getProductShelf(results));
+			}
 
-            context.status(HttpStatus.OK);
-            context.json(products);
-        } catch (SQLException e) {
-            context.status(HttpStatus.INTERNAL_SERVER_ERROR);
-            context.result("Database error");
-        }
-    }
+			context.status(HttpStatus.OK);
+			context.json(products);
+		} catch (SQLException e) {
+			context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+			context.result("Database error");
+		}
+	}
 
 
-    private Shelf getShelf(ResultSet resultSet) throws SQLException {
-        return new Shelf(
-                resultSet.getInt(1),
-                resultSet.getString(2),
-                resultSet.getBoolean(3)
-        );
-    }
+	private Shelf getShelf(ResultSet resultSet) throws SQLException {
+		return new Shelf(
+			resultSet.getInt(1),
+			resultSet.getString(2),
+			resultSet.getBoolean(3)
+		);
+	}
 
-    private ProductShelf getProductShelf(ResultSet resultSet) throws SQLException {
-        return new ProductShelf(
-            resultSet.getLong(1),
-            resultSet.getString(2),
-            resultSet.getInt(3),
-            resultSet.getString(4),
-            resultSet.getString(5)
-        );
-    }
+	private ProductShelf getProductShelf(ResultSet resultSet) throws SQLException {
+		return new ProductShelf(
+			resultSet.getLong(1),
+			resultSet.getString(2),
+			resultSet.getInt(3),
+			resultSet.getString(4),
+			resultSet.getString(5)
+		);
+	}
 }
