@@ -17,18 +17,16 @@ public class Server {
 	private static final int APP_PORT = 25565;
 
 	public static void main(String[] args) {
-		if (args.length == 4) {
-			if (!args[0].equals("--host") || !args[2].equals("--port")) {
-				System.err.println("Invalid start parameter(s)");
+		if (DB_NAME == null || USER == null || PASSWORD == null)
+			throw new NullPointerException("The POSTGRES_DB, POSTGRES_USER and POSTGRES_PASSWORD environment variables need to be set.");
 
-				return;
-			}
+		if (args.length == 4) {
+			if (!args[0].equals("--host") || !args[2].equals("--port"))
+				throw new IllegalArgumentException("Invalid start parameter(s)");
 
 			DB_HOST = args[1];
 			DB_PORT = Integer.parseInt(args[3]);
 		}
-		System.out.println(USER);
-		System.out.println(PASSWORD);
 
 		DBInfo dbInfo = new DBInfo(
 			String.format("jdbc:postgresql://%s:%d/%s",
