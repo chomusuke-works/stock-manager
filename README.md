@@ -14,3 +14,20 @@ Le dossier dist contient plusieurs fichiers:
 
 Avant de lancer l'infrastructure, il convient de modifier le fichier `.env`
 et d'y indiquer un nom d'utilisateur, un mot de passe ainsi que le nom de la base de données.
+
+## Marche à suivre
+- Télécharger la dernière release du projet sur https://github.com/chomusuke-works/BDR2024_stock-manager/.
+- Dézipper le fichier téléchargé dans le répertoire de votre choix.
+- Sur Linux, activer les droits d'exécution avec:
+```bash
+chmod u+x first-launch.sh
+```
+- Exécuter sur Windows:
+```bash
+./first-launch.bat
+```
+- Exécuter sur Linux:
+```bash
+./first-launch.sh
+```
+
