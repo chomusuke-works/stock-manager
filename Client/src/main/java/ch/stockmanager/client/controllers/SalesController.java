@@ -57,7 +57,7 @@ public class SalesController extends Controller {
 	public void searchSale(String searchTerm) {
 		new Thread(() -> {
 			String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-			String url = getUrl("all?searchTerm=" + encodedSearchTerm);
+			String url = getUrl(String.format("all?searchTerm=%s", encodedSearchTerm));
 			List<Sale> sales = HTTPHelper.getList(url, Sale.class);
 
 			this.sales.setAll(sales);

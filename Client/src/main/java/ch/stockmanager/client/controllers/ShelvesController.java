@@ -7,6 +7,8 @@ import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class ShelvesController extends Controller {
@@ -37,12 +39,14 @@ public class ShelvesController extends Controller {
 	}
 
 	public void updateProductsOnShelves() {
-		searchProducts("");
+		searchProduct("");
 	}
 
-	public void searchProducts(String searchTerm) {
+	public void searchProduct(String searchTerm) {
 		new Thread(() -> {
-			List<ProductShelf> productsOnShelves = HTTPHelper.getList(getUrl(String.format("products/all?searchTerm=%s", searchTerm)), ProductShelf.class);
+			String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
+			String url = getUrl(String.format("products/all?searchTerm=%s", encodedSearchTerm));
+			List<ProductShelf> productsOnShelves = HTTPHelper.getList(url, ProductShelf.class);
 
 			this.productsOnShelves.setAll(productsOnShelves);
 		}).start();

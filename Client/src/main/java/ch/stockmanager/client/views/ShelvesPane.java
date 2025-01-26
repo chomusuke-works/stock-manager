@@ -62,7 +62,7 @@ public class ShelvesPane extends BorderPane {
 		searchFieldContent = searchField.textProperty();
 		searchField.setPromptText("Rechercher un Produit...");
 		searchField.textProperty().addListener((obs, oldValue, searchTerm) ->
-			controller.searchProducts(searchTerm)
+			controller.searchProduct(searchTerm)
 		);
 
 		String addToShelfTitle = "Ajouter au rayon";
