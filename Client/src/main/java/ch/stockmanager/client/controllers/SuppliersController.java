@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 
@@ -20,7 +20,7 @@ public class SuppliersController extends Controller {
 
 	@Override
 	public void update() {
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl("all"), suppliers, Supplier.class);
 	}
 
@@ -67,7 +67,7 @@ public class SuppliersController extends Controller {
 			return;
 		}
 
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl(supplier.getId() + "/products"), suppliedProducts, Product.class);
 	}
 }

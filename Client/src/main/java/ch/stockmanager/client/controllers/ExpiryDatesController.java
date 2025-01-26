@@ -1,6 +1,6 @@
 package ch.stockmanager.client.controllers;
 
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.types.ProductDateQuantity;
 import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
@@ -26,12 +26,12 @@ public class ExpiryDatesController extends Controller {
 	}
 
 	public void updateExpiredProducts() {
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl("expired"), expiredProducts, ProductDateQuantity.class);
 	}
 
 	public void updateSoonExpiredProducts() {
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl("soonExpired"), soonExpiredProducts, ProductDateQuantity.class);
 	}
 

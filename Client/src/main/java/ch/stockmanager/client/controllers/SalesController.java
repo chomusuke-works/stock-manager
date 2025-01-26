@@ -12,7 +12,7 @@ import javafx.collections.ObservableList;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Sale;
 import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 
 public class SalesController extends Controller {
 	private final ObservableList<Sale> sales = FXCollections.observableArrayList();
@@ -57,7 +57,7 @@ public class SalesController extends Controller {
 	public void searchSale(String searchTerm) {
 		String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
 		String url = getUrl(String.format("all?searchTerm=%s", encodedSearchTerm));
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(url, sales, Sale.class);
 	}
 

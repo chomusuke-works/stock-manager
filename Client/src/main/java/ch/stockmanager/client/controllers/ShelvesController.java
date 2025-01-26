@@ -8,7 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import ch.stockmanager.client.util.HTTPHelper;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.types.ProductShelf;
 import ch.stockmanager.types.Shelf;
 
@@ -47,12 +47,12 @@ public class ShelvesController extends Controller {
 		String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
 		String url = getUrl(String.format("products/all?searchTerm=%s", encodedSearchTerm));
 
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(url, productsOnShelves, ProductShelf.class);
 	}
 
 	public void updateShelves() {
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl("all"), shelves, Shelf.class);
 	}
 

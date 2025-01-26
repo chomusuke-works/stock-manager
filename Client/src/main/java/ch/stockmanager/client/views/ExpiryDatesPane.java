@@ -8,7 +8,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
 import ch.stockmanager.types.ProductDateQuantity;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 
 public class ExpiryDatesPane extends BorderPane {
 
@@ -30,11 +30,11 @@ public class ExpiryDatesPane extends BorderPane {
 	}
 
 	private VBox getTables() {
-		TableView<ProductDateQuantity> expiredProductsTable = JavaFxHelper.getTable(
+		TableView<ProductDateQuantity> expiredProductsTable = FXHelper.getTable(
 			new String[]{"Produit", "Date", "Quantité"},
 			new String[]{"name", "date", "quantity"}
 		);
-		TableView<ProductDateQuantity> soonExpiredProductsTable = JavaFxHelper.getTable(
+		TableView<ProductDateQuantity> soonExpiredProductsTable = FXHelper.getTable(
 			new String[]{"Produit", "Date", "Quantité"},
 			new String[]{"name", "date", "quantity"}
 		);

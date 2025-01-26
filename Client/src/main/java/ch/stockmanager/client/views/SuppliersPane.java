@@ -7,7 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.types.Product;
 import ch.stockmanager.types.Supplier;
 import javafx.util.Callback;
@@ -37,7 +37,7 @@ public class SuppliersPane extends BorderPane {
 		VBox suppliersListBox = new VBox(new HBox(addSupplierButton, removeSupplierButton), suppliersList);
 
 		// - Table of the supplier's products
-		TableView<Product> productsTable = JavaFxHelper.getTable(
+		TableView<Product> productsTable = FXHelper.getTable(
 			new String[]{"Produit", "Prix"},
 			new String[]{"name", "price"}
 		);

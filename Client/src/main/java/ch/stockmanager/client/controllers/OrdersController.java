@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyListWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.types.Order;
 
 public class OrdersController extends Controller {
@@ -16,7 +16,7 @@ public class OrdersController extends Controller {
 
 	@Override
 	public void update() {
-		JavaFxHelper.ObservableListUpdaterTask
+		FXHelper.ObservableListUpdaterTask
 			.run(getUrl(), orders, Order.class);
 	}
 

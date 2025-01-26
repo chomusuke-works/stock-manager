@@ -7,7 +7,7 @@ import javafx.scene.text.Font;
 import javafx.util.converter.IntegerStringConverter;
 
 import ch.stockmanager.types.Order;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.client.controllers.OrdersController;
 
 /**
@@ -28,7 +28,7 @@ public class OrdersPane extends BorderPane {
 		title.setFont(new Font("Arial", 24));
 		BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
-		TableView<Order> ordersTable = JavaFxHelper.getTable(
+		TableView<Order> ordersTable = FXHelper.getTable(
 			new String[]{"Produit", "Quantité"},
 			new String[]{"name", "quantity"}
 		);

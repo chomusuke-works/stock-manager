@@ -3,7 +3,7 @@ package ch.stockmanager.client.views;
 import java.util.*;
 
 import ch.stockmanager.client.controllers.ShelvesController;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.beans.value.ObservableValue;
@@ -50,7 +50,7 @@ public class ShelvesPane extends BorderPane {
 	}
 
 	private VBox getLeftBox() {
-		TableView<ProductShelf> productsTable = JavaFxHelper.getTable(
+		TableView<ProductShelf> productsTable = FXHelper.getTable(
 			new String[]{"Produit", "Rayon", "Secteur"},
 			new String[]{"productName", "shelfName", "sector"}
 		);

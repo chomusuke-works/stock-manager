@@ -9,7 +9,7 @@ import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.LongStringConverter;
 
 import ch.stockmanager.types.Sale;
-import ch.stockmanager.client.util.JavaFxHelper;
+import ch.stockmanager.client.util.FXHelper;
 import ch.stockmanager.client.controllers.SalesController;
 
 /**
@@ -30,7 +30,7 @@ public class SalesPane extends BorderPane {
 		BorderPane.setMargin(title, new Insets(0, 0, 20, 0));
 
 		// - Main box -> search bar and table of sales
-		TableView<Sale> salesTable = JavaFxHelper.getTable(
+		TableView<Sale> salesTable = FXHelper.getTable(
 			new String[]{"Date", "Produit", "Vendus", "Jetés"},
 			new String[]{"timestamp", "productName", "sold", "thrown"}
 		);
