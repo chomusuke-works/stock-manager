@@ -20,27 +20,14 @@ et d'y indiquer un nom d'utilisateur, un mot de passe ainsi que le nom de la bas
 - Dézipper le fichier téléchargé dans le répertoire de votre choix.
 - Sur Linux, activer les droits d'exécution avec:
 ```bash
-chmod u+x first-launch.sh
+$ chmod u+x first-launch.sh
 ```
 - Exécuter sur Windows:
 ```bash
-./first-launch.bat
+$ ./first-launch.bat
 ```
 - Exécuter sur Linux:
 ```bash
-./first-launch.sh
+$ ./first-launch.sh
 ```
 Tester en tapant localhost/api/products/all dans votre navigateur. Cela devrait afficher une liste de produits.
-### Marche à suivre pour le client
-Cloner le repo sur votre machine
-```bash
-git clone https://github.com/chomusuke-works/BDR2024_stock-manager
-```
-Créer le l'archive exécutable depuis la racine du projet
-```bash
-mvn clean install
-```
-Lancer le client depuis le dossier ./Client du projet
-```bash
-mvn javafx:run
-```
