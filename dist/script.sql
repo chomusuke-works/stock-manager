@@ -24,13 +24,13 @@ CREATE TABLE produit (
 );
 
 CREATE TABLE vente (
-	dateVente TIMESTAMP,
+	timestamp TIMESTAMP,
 	codeProduit BIGINT,
 	vendus INTEGER,
 	jetes INTEGER,
 
 	CONSTRAINT pk_dateVente_codeProduit 
-		PRIMARY KEY (dateVente, codeProduit),
+		PRIMARY KEY (timestamp, codeProduit),
 	CONSTRAINT fk_codeProduit
 		FOREIGN KEY (codeProduit) REFERENCES produit(code)
 		ON DELETE RESTRICT
