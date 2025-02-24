@@ -17,14 +17,8 @@ et d'y indiquer un nom d'utilisateur, un mot de passe ainsi que le nom de la bas
 ## Marche à suivre
 1. Télécharger la dernière release du projet sur https://github.com/chomusuke-works/BDR2024_stock-manager/.
 2. Dézipper le fichier téléchargé dans le répertoire de votre choix.
-3. Exécuter le script `first-launch`
+3. Exécuter le script `first-launch`:
 
-**Sur Windows:**
-```bash
-$ ./first-launch.bat
-```
-
-**Sur Linux:**
 ```bash
 $ chmod u+x first-launch.sh
 $ ./first-launch.sh
