@@ -1,7 +1,6 @@
-# Stock Manager
+# Stock Manager (Server)
 
-## Déploiement
-Le dossier dist contient plusieurs fichiers:
+Le dossier `dist` contient plusieurs fichiers:
 - `.env` les variables d'environnement correspondant aux 
   identifiants pour la base de données
 - `docker-compose.yml` sert à démarrer la stack
@@ -15,7 +14,7 @@ Le dossier dist contient plusieurs fichiers:
 Avant de lancer l'infrastructure, il convient de modifier le fichier `.env`
 et d'y indiquer un nom d'utilisateur, un mot de passe ainsi que le nom de la base de données.
 
-### Marche à suivre
+## Marche à suivre
 1. Télécharger la dernière release du projet sur https://github.com/chomusuke-works/BDR2024_stock-manager/.
 2. Dézipper le fichier téléchargé dans le répertoire de votre choix.
 3. Exécuter le script `first-launch`
