@@ -1,4 +1,4 @@
-# BDR2024_stock-manager
+# Stock Manager
 
 ## Déploiement
 Le dossier dist contient plusieurs fichiers:
