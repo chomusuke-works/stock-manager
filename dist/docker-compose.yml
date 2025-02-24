@@ -1,21 +1,19 @@
 name: stock-manager
 services:
   database:
-    container_name: stock-manager_database
     image: postgres:16
-    restart: always
-    env_file:
-      - ".env"
+    env_file: ".env"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   backend:
     build:
       context: .
-    env_file:
-      - ".env"
+    env_file: ".env"
     expose:
       - "25565"
+    depends_on:
+      - database
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stockmanager.rule=Host(`localhost`) && PathPrefix(`/api`)"
