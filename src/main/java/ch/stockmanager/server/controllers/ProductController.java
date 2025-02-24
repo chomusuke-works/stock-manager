@@ -53,6 +53,8 @@ public class ProductController extends Controller {
 			statement.setDouble(3, product.getPrice());
 			statement.setInt(4, product.getSupplierId());
 
+			// TODO error 400, verify input format
+
 			statement.executeUpdate();
 			context.status(201);
 		} catch (SQLException e) {
@@ -117,6 +119,7 @@ public class ProductController extends Controller {
 			long code = ContextHelper.getLongPathParam(context, "code");
 			statement.setLong(1, code);
 			statement.executeUpdate();
+			// TODO error 404 when no product was deleted
 
 			context.status(200);
 		} catch (SQLException e) {
