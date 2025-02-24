@@ -8,7 +8,7 @@ import java.util.List;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
-import ch.stockmanager.types.Shelf;
+import ch.stockmanager.server.types.Shelf;
 import ch.stockmanager.server.util.*;
 
 public class ShelfController extends Controller {

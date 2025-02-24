@@ -9,7 +9,7 @@ import io.javalin.http.Context;
 
 import ch.stockmanager.server.util.ContextHelper;
 import ch.stockmanager.server.util.DBInfo;
-import ch.stockmanager.types.ProductShelf;
+import ch.stockmanager.server.types.ProductShelf;
 import io.javalin.http.HttpStatus;
 
 

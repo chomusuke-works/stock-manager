@@ -1,4 +1,4 @@
-package ch.stockmanager.types;
+package ch.stockmanager.server.types;
 
 @SuppressWarnings("unused")
 public class ProductDateQuantity {

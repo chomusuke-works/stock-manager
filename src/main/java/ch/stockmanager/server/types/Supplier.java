@@ -1,4 +1,4 @@
-package ch.stockmanager.types;
+package ch.stockmanager.server.types;
 
 public class Supplier {
 	public int id;

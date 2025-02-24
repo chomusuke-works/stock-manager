@@ -9,7 +9,7 @@ import java.util.List;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
-import ch.stockmanager.types.Sale;
+import ch.stockmanager.server.types.Sale;
 import ch.stockmanager.server.util.*;
 
 public class Salescontroller extends Controller {

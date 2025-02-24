@@ -1,4 +1,4 @@
-package ch.stockmanager.types;
+package ch.stockmanager.server.types;
 
 import java.sql.Timestamp;
 

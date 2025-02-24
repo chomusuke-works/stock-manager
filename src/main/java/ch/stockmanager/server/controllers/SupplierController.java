@@ -2,8 +2,8 @@ package ch.stockmanager.server.controllers;
 
 import ch.stockmanager.server.util.ContextHelper;
 import ch.stockmanager.server.util.DBInfo;
-import ch.stockmanager.types.Product;
-import ch.stockmanager.types.Supplier;
+import ch.stockmanager.server.types.Product;
+import ch.stockmanager.server.types.Supplier;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
