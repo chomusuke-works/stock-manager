@@ -31,9 +31,8 @@ public class Salescontroller extends Controller {
 
 			insertStatement.setTimestamp(1, sale.getTimestamp());
 			insertStatement.setLong(2, sale.getProductCode());
-			insertStatement.setString(3, sale.getProductName());
-			insertStatement.setInt(4, sale.getSold());
-			insertStatement.setInt(5, sale.getThrown());
+			insertStatement.setInt(3, sale.getSold());
+			insertStatement.setInt(4, sale.getThrown());
 
 			insertStatement.executeUpdate();
 		} catch (SQLException e) {
@@ -63,7 +62,6 @@ public class Salescontroller extends Controller {
 				var sale = new Sale(
 					results.getTimestamp(1),
 					results.getLong(2),
-					results.getString(3),
 					results.getInt(4),
 					results.getInt(5)
 				);
