@@ -6,16 +6,14 @@ import java.sql.Timestamp;
 public class Sale {
 	public Timestamp timestamp;
 	public long productCode;
-	public String productName;
 	public int sold;
 	public int thrown;
 
 	public Sale() {}
 
-	public Sale(Timestamp timestamp, long productCode, String productName, int sold, int thrown) {
+	public Sale(Timestamp timestamp, long productCode, int sold, int thrown) {
 		this.timestamp = timestamp;
 		this.productCode = productCode;
-		this.productName = productName;
 		this.sold = sold;
 		this.thrown = thrown;
 	}
@@ -27,10 +25,6 @@ public class Sale {
 
 	public long getProductCode() {
 		return productCode;
-	}
-
-	public String getProductName() {
-		return productName;
 	}
 
 	public int getSold() {
